@@ -18,4 +18,5 @@
 --- 
 - For Step 4 instead of constantly moving maybe instead teleporting every few seconds
 - For new obstacle maybe it shrinks and grows like a whirlpool or something
+- For Bucket maybe it slowly reels back in to make it harder so has to maintain pressing it to stay in place
   
