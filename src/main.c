@@ -31,8 +31,7 @@ const uint16_t dg1[]=
 int main()
 {
 	int hinverted = 0;
-	int vinverted = 0;
-	int toggle = 0;
+	int toggle = 0; //used for switching between animations
 	int hmoved = 0;
 	int vmoved = 0;
 	uint16_t x = 0;
@@ -46,7 +45,7 @@ int main()
 	while(1)
 	{
 		hmoved = vmoved = 0;
-		hinverted = vinverted = 0;
+		hinverted = 0;
 		if ((GPIOB->IDR & (1 << 4))==0) // right pressed
 		{					
 			if (x < 80)
@@ -73,7 +72,6 @@ int main()
 			{
 				y = y + 1;			
 				vmoved = 1;
-				vinverted = 0;
 			}
 		}
 		if ( (GPIOA->IDR & (1 << 8)) == 0) // up pressed
@@ -82,15 +80,16 @@ int main()
 			{
 				y = y - 1;
 				vmoved = 1;
-				vinverted = 1;
 			}
 		}
+		
 		if ((vmoved) || (hmoved))
 		{
 			// only redraw if there has been some movement (reduces flicker)
-			fillRectangle(oldx,oldy,12,16,0);
+			fillRectangle(oldx,oldy,48,31,0);
 			oldx = x;
-			oldy = y;					
+			oldy = y;	
+
 			if (hmoved)
 			{
 				if (toggle)
@@ -98,11 +97,11 @@ int main()
 				else
 					putImage(x,y,48,31,deco2,hinverted,0);
 				
-				toggle = toggle ^ 1;
+				toggle = toggle ^ 1; //used for switching between animations
 			}
 			else
 			{
-				putImage(x,y,12,16,deco3,0,vinverted);
+				putImage(x,y,12,16,deco3,0,0);
 			}
 			// Now check for an overlap by checking to see if ANY of the 4 corners of deco are within the target area
 			if (isInside(20,80,12,16,x,y) || isInside(20,80,12,16,x+12,y) || isInside(20,80,12,16,x,y+16) || isInside(20,80,12,16,x+12,y+16) )
