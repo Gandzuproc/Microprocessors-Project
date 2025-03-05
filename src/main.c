@@ -45,6 +45,9 @@ int main()
     int hmoved = 0;
     int vmoved = 0;
     int stage = 1;
+	int fish;
+	int has_fish = 0;
+	int score = 0;
     int health = 0;
     int boat_x = 0;
 	int boat_horizontal_moved = 0;
@@ -92,7 +95,15 @@ int main()
             {
                 stage = 1;
                 health = health - 1;
+				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
             }
+			else if ((isInside(boat_x, 0, BOATWIDTH, BOATHEIGHT, bucket_x, bucket_y) || isInside(boat_x, 0, BOATWIDTH, BOATHEIGHT, bucket_x+BUCKETWIDTH, bucket_y) || isInside(boat_x, 0, BOATWIDTH, BOATHEIGHT, bucket_x, bucket_y+BUCKETHEIGHT) || isInside(boat_x, 0, BOATWIDTH, BOATHEIGHT, bucket_x+BUCKETWIDTH, bucket_y+BUCKETHEIGHT)) && (has_fish == 1))
+			{
+				stage = 1;
+				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
+				score += fish;
+				printTextX2("SCORE: ",0 ,0, RGBToWord(0xff, 0xff, 0), 0);
+			}
             // COLLISION DETECTION END
             
             delay(50);
