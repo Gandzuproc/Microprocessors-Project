@@ -32,10 +32,10 @@ const uint16_t fish[]=
 int main()
 {
 	int hinverted = 0;
-	int vinverted = 0;
-	int toggle = 0;
+	int toggle = 0; //used for switching between animations
 	int hmoved = 0;
 	int vmoved = 0;
+	int stage = 1;
 	uint16_t x = 0;
 	uint16_t y = 0;
 	uint16_t oldx = x;
@@ -77,11 +77,16 @@ int main()
 			}
 			if ((GPIOA->IDR & (1 << 11)) == 0) // down pressed
 			{
-				stage = 2;
+				y = y + 1;			
+				vmoved = 1;
 			}
-			if ((GPIOA->IDR & (1 << 8)) == 0) // up pressed
+		}
+		if ( (GPIOA->IDR & (1 << 8)) == 0) // up pressed
+		{			
+			if (y > 0)
 			{
-				// uses ability
+				y = y - 1;
+				vmoved = 1;
 			}
 			if ((hmoved))
 			{
