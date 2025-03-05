@@ -1,5 +1,11 @@
 #include <stm32f031x6.h>
 #include "display.h"
+
+#define BOATWIDTH 48
+#define BOATHEIGHT 31
+#define BUCKETWIDTH 16
+#define BUCKETHEIGHT 16
+
 void initClock(void);
 void initSysTick(void);
 void SysTick_Handler(void);
