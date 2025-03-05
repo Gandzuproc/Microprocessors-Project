@@ -8,6 +8,10 @@ void setupIO();
 int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py);
 void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber);
 void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode);
+void move_right (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount);
+void move_left (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount);
+void move_down (uint16_t *y, int *vertical_moved, int boundary, int delay_amount);
+void move_up (uint16_t *y, int *vertical_moved, int boundary, int delay_amount);
 
 volatile uint32_t milliseconds;
 
@@ -30,89 +34,84 @@ const uint16_t dg1[]=
 
 int main()
 {
-	int hinverted = 0;
-	int toggle = 0; //used for switching between animations
-	int hmoved = 0;
-	int vmoved = 0;
-	uint16_t x = 0;
-	uint16_t y = 0;
-	uint16_t oldx = x;
-	uint16_t oldy = y;
-	initClock();
-	initSysTick();
-	setupIO();
-	putImage(20,80,16,15,dg1,0,0);
-	while(1)
-	{
-		hmoved = vmoved = 0;
-		hinverted = 0;
-		if ((GPIOB->IDR & (1 << 4))==0) // right pressed
-		{					
-			if (x < 80)
-			{
-				delay(80);
-				x = x + 1;
-				hmoved = 1;
-				hinverted=0;
-			}						
-		}
-		if ((GPIOB->IDR & (1 << 5))==0) // left pressed
-		{			
-			delay(80);
-			if (x > 0)
-			{
-				x = x - 1;
-				hmoved = 1;
-				hinverted=1;
-			}			
-		}
-		if ( (GPIOA->IDR & (1 << 11)) == 0) // down pressed
-		{
-			if (y < 140)
-			{
-				y = y + 1;			
-				vmoved = 1;
-			}
-		}
-		if ( (GPIOA->IDR & (1 << 8)) == 0) // up pressed
-		{			
-			if (y > 0)
-			{
-				y = y - 1;
-				vmoved = 1;
-			}
-		}
-		
-		if ((vmoved) || (hmoved))
-		{
-			// only redraw if there has been some movement (reduces flicker)
-			fillRectangle(oldx,oldy,48,31,0);
-			oldx = x;
-			oldy = y;	
-
-			if (hmoved)
-			{
-				if (toggle)
-					putImage(x,y,48,31,deco1,hinverted,0);
-				else
-					putImage(x,y,48,31,deco2,hinverted,0);
-				
-				toggle = toggle ^ 1; //used for switching between animations
-			}
-			else
-			{
-				putImage(x,y,12,16,deco3,0,0);
-			}
-			// Now check for an overlap by checking to see if ANY of the 4 corners of deco are within the target area
-			if (isInside(20,80,12,16,x,y) || isInside(20,80,12,16,x+12,y) || isInside(20,80,12,16,x,y+16) || isInside(20,80,12,16,x+12,y+16) )
-			{
-				printTextX2("-1 Health!", 10, 20, RGBToWord(0xff,0xff,0), 0);
-			}
-		}		
-		delay(50);
-	}
-	return 0;
+    int hinverted = 0;
+    int toggle = 0; // used for switching between animations
+    int hmoved = 0;
+    int vmoved = 0;
+    int stage = 1;
+    int health = 0;
+    int boat_x = 0;
+	int boat_horizontal_moved = 0;
+    int boat_vertical_moved = 0;
+    int bucket_x = 0;
+	int bucket_y = 0;
+	int bucket_horizontal_moved = 0;
+    int bucket_vertical_moved = 0;
+    uint16_t x = 0;
+    uint16_t y = 0;
+    uint16_t oldx = x;
+    uint16_t oldy = y;
+    
+    initClock();
+    initSysTick();
+    setupIO();
+    putImage(20, 80, 16, 15, dg1, 0, 0);
+    
+    while (1)
+    {
+        while (stage == 2)
+        {
+            // MOVEMENT SYSTEM START
+            hmoved = vmoved = 0;
+			move_right(&bucket_x, &bucket_horizontal_moved, 0, 0);
+			move_left(&bucket_x, &bucket_horizontal_moved, 0, 0); 
+			move_down(&bucket_y, &bucket_vertical_moved, 0, 0);  
+			move_up(&bucket_y, &bucket_vertical_moved, 0, 0);         
+            // MOVEMENT SYSTEM END
+            
+            // DRAW IMAGE START
+            if (vmoved || hmoved)
+            {
+                // only redraw if there has been some movement (reduces flicker)
+                fillRectangle(oldx, oldy, 48, 31, 0);
+                oldx = x;
+                oldy = y;
+                
+                if (hmoved)
+                {
+                    if (toggle)
+                    {
+                        putImage(x, y, 48, 31, deco1, hinverted, 0);
+                    }
+                    else
+                    {
+                        putImage(x, y, 48, 31, deco2, hinverted, 0);
+                    }
+                    toggle = toggle ^ 1; // used for switching between animations
+                }
+                else
+                {
+                    putImage(x, y, 12, 16, deco3, 0, 0);
+                }
+            }
+            // DRAW IMAGE END
+            
+            // COLLISION DETECTION START
+            if (isInside(20, 80, 12, 16, x, y) || isInside(20, 80, 12, 16, x + 12, y) || 
+                isInside(20, 80, 12, 16, x, y + 16) || isInside(20, 80, 12, 16, x + 12, y + 16))
+            {
+                stage = 1;
+                health = health - 1;
+            }
+            // COLLISION DETECTION END
+            
+            delay(50);
+        }
+    }
+    return 0;
 }
+
+
 void initSysTick(void)
 {
 	SysTick->LOAD = 48000;
@@ -202,4 +201,69 @@ void setupIO()
 	enablePullUp(GPIOB,5);
 	enablePullUp(GPIOA,11);
 	enablePullUp(GPIOA,8);
+}
+
+void move_right (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount)
+{
+	if ((GPIOB->IDR & (1 << 4)) == 0) // right pressed
+	{
+		delay(delay_amount);
+		if (*x < boundary)
+		{
+			*x = *x + 1;
+			*horizontal_moved = 1;
+		}
+	}
+}
+
+void move_left (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount)
+{
+	if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
+	{
+		delay(delay_amount);
+		if (*x < boundary)
+		{
+			*x = *x - 1;
+			*horizontal_moved = 1;
+		}
+	}
+}
+
+void move_down (uint16_t *y, int *vertical_moved, int boundary, int delay_amount)
+{
+	if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
+	{
+		delay(delay_amount);
+		if (*y < boundary)
+		{
+			*y = *y + 1;
+			*vertical_moved = 1;
+		}
+	}
+}
+
+void move_down (uint16_t *y, int *vertical_moved, int boundary, int delay_amount)
+{
+	if ((GPIOB->IDR & (1 << 11)) == 0) // left pressed
+	{
+		delay(delay_amount);
+		if (*y < boundary)
+		{
+			*y = *y + 1;
+			*vertical_moved = 1;
+		}
+	}
+}
+
+void move_up (uint16_t *y, int *vertical_moved, int boundary, int delay_amount)
+{
+	if ((GPIOA->IDR & (1 << 8)) == 0) // up pressed
+	{
+		delay(delay_amount);
+		if (*y < boundary)
+		{
+			*y = *y - 1;
+			*vertical_moved = 1;
+		}
+	}
 }
