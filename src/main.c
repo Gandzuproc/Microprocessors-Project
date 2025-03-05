@@ -32,7 +32,8 @@ const uint16_t fish[]=
 int main()
 {
 	int hinverted = 0;
-	int toggle = 0; //used for switching between animations
+	int vinverted = 0;
+	int toggle = 0;
 	int hmoved = 0;
 	int vmoved = 0;
 	int stage = 1;
@@ -43,11 +44,9 @@ int main()
 	initClock();
 	initSysTick();
 	setupIO();
-	putImage(20, 80, 16, 16, boat1, 0, 0);
-	//putImage(40, 100, 16, 16, fish, 0, 0);
-
-	// ADDITIONAL VARS
-	int stage = 1;
+	
+	putImage(64, 40, 16, 16, bucket, 0, 0);
+	putImage(64, 80, 16, 16, fish, 0, 0);
 
 	while (1)
 	{
@@ -77,16 +76,11 @@ int main()
 			}
 			if ((GPIOA->IDR & (1 << 11)) == 0) // down pressed
 			{
-				y = y + 1;			
-				vmoved = 1;
+				stage = 2;
 			}
-		}
-		if ( (GPIOA->IDR & (1 << 8)) == 0) // up pressed
-		{			
-			if (y > 0)
+			if ((GPIOA->IDR & (1 << 8)) == 0) // up pressed
 			{
-				y = y - 1;
-				vmoved = 1;
+				// uses ability
 			}
 			if ((hmoved))
 			{
