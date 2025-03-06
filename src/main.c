@@ -57,8 +57,8 @@ int main()
 	int score = 0;
     int health = 0;
 
-    uint16_t bucket_x = 0;
-	uint16_t bucket_y = 0;
+    uint16_t bucket_x = 30;
+	uint16_t bucket_y = 30;
 	uint16_t bucket_oldx = 0;
     uint16_t bucket_oldy = 0;
 	int bucket_horizontal_moved = 0;
@@ -94,8 +94,7 @@ int main()
 		}
         while (stage == 2)
         {
-			putImage(bucket_x, bucket_y, 16, 16, bucket1, 0, 0);
-
+			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0); 
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
@@ -110,7 +109,7 @@ int main()
             if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1)
             {
                 // only redraw if there has been some movement (reduces flicker)
-                //fillRectangle(bucket_oldx, bucket_oldy, 16, 16, 0);
+                fillRectangle(bucket_oldx, bucket_oldy, 16, 16, 0);
                 bucket_oldx = bucket_x;
                 bucket_oldy = bucket_y;
 				putImage(bucket_x, bucket_y, 16, 16, bucket1, 0, 0);
