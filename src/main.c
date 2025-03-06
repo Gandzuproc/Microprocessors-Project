@@ -3,12 +3,18 @@
 
 #define BOATWIDTH 48
 #define BOATHEIGHT 31
+
 #define BUCKETWIDTH 16
 #define BUCKETHEIGHT 16
+
 #define FISHWIDTH 16
 #define FISHHEIGHT 16
+
 #define OBSTACLEWIDTH
 #define OBSTACLEHEIGHT 
+
+#define BOARDWIDTH 128
+#define BOARDHEIGHT 160
 
 void initClock(void);
 void initSysTick(void);
@@ -18,10 +24,10 @@ void setupIO();
 int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py);
 void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber);
 void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode);
-void move_right (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount);
-void move_left (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount);
-void move_down (uint16_t *y, int *vertical_moved, int boundary, int delay_amount);
-void move_up (uint16_t *y, int *vertical_moved, int boundary, int delay_amount);
+void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width);
+void move_left (uint16_t *x, int *horizontal_moved, int boundary);
+void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height);
+void move_up (uint16_t *y, int *vertical_moved, int boundary);
 int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
 
 volatile uint32_t milliseconds;
@@ -36,7 +42,7 @@ const uint16_t boat2[]=
 };
 const uint16_t bucket1[]= 
 {
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,4,4,4,4,0,0,0,0,0,0,0,4,4,4,4,4,4,0,0,0,0,7936,7936,4,4,4,4,4,4,7936,7936,0,0,65535,65535,4,4,4,4,4,4,65535,65535,0,0,7936,7936,4,4,4,4,4,4,7936,7936,0,0,0,0,0,4,4,4,4,0,0,0,0,0,0,0,0,0,24327,24327,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,25880,25880,25880,25880,25880,25880,25880,25880,0,0,0,0,0,0,25880,25880,35113,35113,28202,28202,28202,28202,28986,28986,25880,25880,0,0,0,25880,35113,35113,35113,60556,60556,29117,29117,37318,37318,28986,28986,28986,25880,0,0,25880,35113,60556,60556,60556,60556,29117,29117,29117,37318,37318,37318,28986,25880,0,0,25880,25880,25880,60556,60556,29117,29117,29117,37318,37318,37318,25880,25880,25880,0,0,25880,18457,35113,25880,25880,25880,25880,25880,37318,25880,25880,28986,28986,25880,0,0,25880,18457,35113,35113,18457,28202,28202,18457,28202,28202,18457,28986,28986,25880,0,0,25880,52323,13212,35113,18457,28202,28202,18457,28202,28202,18457,13212,52323,25880,0,0,25880,18457,35113,13212,13212,52323,52323,52323,52323,13212,13212,28986,28986,25880,0,0,25880,18457,35113,35113,18457,28202,28202,18457,28202,28202,18457,28986,28986,25880,0,0,25880,18457,35113,35113,18457,28202,28202,18457,28202,28986,18457,28986,28986,25880,0,0,0,18457,35113,35113,18457,28202,28202,18457,28202,28986,18457,28986,28986,0,0,0,0,52323,52323,35113,18457,28202,28202,18457,28202,28986,18457,13212,13212,0,0,0,0,25880,35113,52323,52323,13212,13212,52323,52323,52323,13212,28986,25880,0,0,0,0,0,25880,35113,18457,28202,28202,18457,28202,28986,18457,25880,0,0,0,0,0,0,0,25880,25880,25880,25880,25880,25880,25880,25880,0,0,0,0,
 };
 const uint16_t dg1[]=
 {
@@ -45,7 +51,7 @@ const uint16_t dg1[]=
 
 int main()
 {
-    int toggle = 0; // used for switching between animations
+    //int toggle = 0; // used for switching between animations
 
     int stage = 2;
 	int score = 0;
@@ -53,8 +59,8 @@ int main()
 
     uint16_t bucket_x = 0;
 	uint16_t bucket_y = 0;
-	uint16_t bucket_oldx;
-    uint16_t bucket_oldy;
+	uint16_t bucket_oldx = 0;
+    uint16_t bucket_oldy = 0;
 	int bucket_horizontal_moved = 0;
     int bucket_vertical_moved = 0;
 
@@ -70,14 +76,15 @@ int main()
 	int fish;
 	int has_fish = 0;
 
-    uint16_t boat_x;
-	uint16_t boat_oldx;
-	int boat_horizontal_moved = 0;
+    uint16_t boat_x = 64;
+	//uint16_t boat_oldx;
+	//int boat_horizontal_moved = 0;
     
     initClock();
     initSysTick();
     setupIO();
     putImage(20, 80, 16, 15, dg1, 0, 0);
+	putImage(bucket_x, bucket_y, 16, 16, bucket1, 0, 0);
     
     while (1)
     {
@@ -87,22 +94,26 @@ int main()
 		}
         while (stage == 2)
         {
+			putImage(bucket_x, bucket_y, 16, 16, bucket1, 0, 0);
+
             // MOVEMENT SYSTEM START
-            bucket_horizontal_moved = bucket_vertical_moved = 0;
-			move_right(&bucket_x, &bucket_horizontal_moved, 0, 0);
-			move_left(&bucket_x, &bucket_horizontal_moved, 0, 0); 
-			move_down(&bucket_y, &bucket_vertical_moved, 0, 0);  
-			move_up(&bucket_y, &bucket_vertical_moved, 0, 0);         
+            bucket_horizontal_moved = 0;
+			bucket_vertical_moved = 0;
+
+			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH);
+			move_left(&bucket_x, &bucket_horizontal_moved, 0); 
+			move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);  
+			move_up(&bucket_y, &bucket_vertical_moved, 0);    
             // MOVEMENT SYSTEM END
             
             // DRAW IMAGE START
-            if (bucket_vertical_moved || bucket_horizontal_moved)
+            if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1)
             {
                 // only redraw if there has been some movement (reduces flicker)
-                fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
+                //fillRectangle(bucket_oldx, bucket_oldy, 16, 16, 0);
                 bucket_oldx = bucket_x;
                 bucket_oldy = bucket_y;
-				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);
+				putImage(bucket_x, bucket_y, 16, 16, bucket1, 0, 0);
             }
             // DRAW IMAGE END
             
@@ -226,12 +237,11 @@ void setupIO()
 	enablePullUp(GPIOA,8);
 }
 
-void move_right (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount)
+void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width)
 {
 	if ((GPIOB->IDR & (1 << 4)) == 0) // right pressed
 	{
-		delay(delay_amount);
-		if (*x < boundary)
+		if (*x + object_width < boundary)
 		{
 			*x = *x + 1;
 			*horizontal_moved = 1;
@@ -239,12 +249,11 @@ void move_right (uint16_t *x, int *horizontal_moved, int boundary, int delay_amo
 	}
 }
 
-void move_left (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount)
+void move_left (uint16_t *x, int *horizontal_moved, int boundary)
 {
 	if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
 	{
-		delay(delay_amount);
-		if (*x < boundary)
+		if (*x > boundary)
 		{
 			*x = *x - 1;
 			*horizontal_moved = 1;
@@ -252,12 +261,11 @@ void move_left (uint16_t *x, int *horizontal_moved, int boundary, int delay_amou
 	}
 }
 
-void move_down (uint16_t *y, int *vertical_moved, int boundary, int delay_amount)
+void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height)
 {
-	if ((GPIOB->IDR & (1 << 11)) == 0) // left pressed
+	if ((GPIOA->IDR & (1 << 11)) == 0) // down pressed
 	{
-		delay(delay_amount);
-		if (*y < boundary)
+		if (*y + object_height < boundary)
 		{
 			*y = *y + 1;
 			*vertical_moved = 1;
@@ -265,12 +273,11 @@ void move_down (uint16_t *y, int *vertical_moved, int boundary, int delay_amount
 	}
 }
 
-void move_up (uint16_t *y, int *vertical_moved, int boundary, int delay_amount)
+void move_up (uint16_t *y, int *vertical_moved, int boundary)
 {
 	if ((GPIOA->IDR & (1 << 8)) == 0) // up pressed
 	{
-		delay(delay_amount);
-		if (*y < boundary)
+		if (*y > boundary)
 		{
 			*y = *y - 1;
 			*vertical_moved = 1;
