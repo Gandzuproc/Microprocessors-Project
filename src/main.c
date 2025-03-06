@@ -87,6 +87,10 @@ int main()
     
     while (1)
     {
+		while (stage == 1)
+		{
+			//STAGE 1 CODE HERE
+		}
         while (stage == 2)
         {
             // MOVEMENT SYSTEM START
