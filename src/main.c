@@ -76,7 +76,7 @@ int main()
 				if (direction == 0) {
 					putImage(fish_x, fish_y, 16, 16, fish, 0, 0);	
 					fish_x++;
-					delay(40);
+					//delay(40);
 
 					fillRectangle(oldx, oldy, 16, 16, 0);
 					oldx = fish_x;
@@ -86,7 +86,7 @@ int main()
 					putImage(fish_x, fish_y, 16, 16, fish, 1, 0);	
 					fish_x--;
 
-					delay(40);
+					//delay(40);
 
 					fillRectangle(oldx, oldy, 16, 16, 0);
 					oldx = fish_x;
@@ -263,7 +263,7 @@ void showLives(int lives) {
 	
 	// postion lives top of screen
 
-	int startx = 100; // start of health bar
+	int startx = 100; // start of health bar 
 
 	while (lives--) {
 		putImage(startx, 1, 8, 8, heart, 0, 0);
