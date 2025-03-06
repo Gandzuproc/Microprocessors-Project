@@ -53,8 +53,8 @@ int main()
 
     uint16_t bucket_x = 0;
 	uint16_t bucket_y = 0;
-	uint16_t bucket_oldx = x;
-    uint16_t bucket_oldy = y;
+	uint16_t bucket_oldx;
+    uint16_t bucket_oldy;
 	int bucket_horizontal_moved = 0;
     int bucket_vertical_moved = 0;
 
@@ -88,7 +88,7 @@ int main()
         while (stage == 2)
         {
             // MOVEMENT SYSTEM START
-            hmoved = vmoved = 0;
+            bucket_horizontal_moved = bucket_vertical_moved = 0;
 			move_right(&bucket_x, &bucket_horizontal_moved, 0, 0);
 			move_left(&bucket_x, &bucket_horizontal_moved, 0, 0); 
 			move_down(&bucket_y, &bucket_vertical_moved, 0, 0);  
@@ -100,8 +100,8 @@ int main()
             {
                 // only redraw if there has been some movement (reduces flicker)
                 fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-                bucket_oldx = x;
-                bucket_oldy = y;
+                bucket_oldx = bucket_x;
+                bucket_oldy = bucket_y;
 				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);
             }
             // DRAW IMAGE END
