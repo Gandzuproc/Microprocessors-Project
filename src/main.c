@@ -10,6 +10,9 @@ int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint
 void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber);
 void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode);
 
+int fishMove(void);
+void showLives(int);
+
 volatile uint32_t milliseconds;
 
 const uint16_t boat1[]=
@@ -29,6 +32,11 @@ const uint16_t fish[]=
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,59168,59168,0,0,0,0,0,0,59168,59168,0,0,0,0,0,0,59168,59168,59168,0,0,0,0,0,0,59168,59168,0,0,0,59168,59168,60301,34404,60301,59168,59168,0,0,0,0,59168,59168,59168,0,60301,34404,60301,34404,60301,34404,34404,34404,60301,59168,0,0,0,59168,59168,59168,58443,34404,58443,34404,34404,34404,58443,60301,34404,34404,59168,0,59168,59168,59168,58443,34404,58443,34404,58443,34404,59168,34404,58443,0,34404,59168,0,59168,59168,0,0,59168,58443,58443,59168,59168,59168,58443,34404,34404,34404,59168,59168,0,0,0,0,0,0,59168,59168,59168,59168,59168,59168,59168,0,0,0,0,0,0,0,0,0,0,59168,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
+const uint16_t heart[]=
+{
+	0,0,0,0,0,0,0,0,0,65535,65535,0,0,65535,65535,0,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,0,0,0,0,0,65535,65535,0,0,0,
+};
+
 int main()
 {
 	int hinverted = 0;
@@ -37,28 +45,63 @@ int main()
 	int hmoved = 0;
 	int vmoved = 0;
 	int stage = 1;
+	int direction = 0;
 	uint16_t x = 0;
 	uint16_t y = 0;
 	uint16_t oldx = x;
 	uint16_t oldy = y;
+	int fish_x, fish_y = 0;
 	initClock();
 	initSysTick();
 	setupIO();
 	
 	putImage(64, 40, 16, 16, bucket, 0, 0);
-	putImage(64, 80, 16, 16, fish, 0, 0);
+	//putImage(64, 80, 16, 16, fish, 0, 0);
+	showLives(3);
 
 	while (1)
 	{
-		while (stage == 1) // Boat stage
+		while (stage == 1) // Stage 1 player controls boat
 		{
+			if (1) { // fish move
+
+				if (fish_x == 0) {
+					direction = 0;
+				}
+				if (fish_x == 112) {
+					direction = 1;
+				}
+
+				fish_y = 100;
+				if (direction == 0) {
+					putImage(fish_x, fish_y, 16, 16, fish, 0, 0);	
+					fish_x++;
+					delay(40);
+
+					fillRectangle(oldx, oldy, 16, 16, 0);
+					oldx = fish_x;
+					oldy = fish_y;
+				}
+				if (direction == 1) {
+					putImage(fish_x, fish_y, 16, 16, fish, 1, 0);	
+					fish_x--;
+
+					delay(40);
+
+					fillRectangle(oldx, oldy, 16, 16, 0);
+					oldx = fish_x;
+					oldy = fish_y;
+				}
+			}
+
+
 			hmoved = vmoved = 0;
 			hinverted = vinverted = 0;
 			if ((GPIOB->IDR & (1 << 4)) == 0) // right pressed
 			{
 				if (x < 80)
 				{
-					delay(80);
+					//delay(80);
 					x = x + 1;
 					hmoved = 1;
 					hinverted = 0;
@@ -66,7 +109,7 @@ int main()
 			}
 			if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
 			{
-				delay(80);
+				//delay(80);
 				if (x > 0)
 				{
 					x = x - 1;
@@ -85,7 +128,7 @@ int main()
 			if ((hmoved))
 			{
 				// only redraw if there has been some movement (reduces flicker)
-				fillRectangle(oldx, oldy, 12, 16, 0);
+				fillRectangle(oldx, oldy, 16, 16, 0);
 				oldx = x;
 				oldy = y;
 				if (hmoved)
@@ -104,10 +147,12 @@ int main()
 					printTextX2("-1 Health!", 10, 20, RGBToWord(0xff, 0xff, 0), 0);
 				}
 			}
+			
 		}
-		while (stage == 2) // Bucket stage
+		while (stage == 2) // Stage 2 player controls bucket
 		{
 			// stage 2
+
 		}
 
 		delay(50);
@@ -203,4 +248,26 @@ void setupIO()
 	enablePullUp(GPIOB, 5);
 	enablePullUp(GPIOA, 11);
 	enablePullUp(GPIOA, 8);
+}
+
+int fishMove() {
+	if ((GPIOA->IDR & (1 << 8)) == 0) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+void showLives(int lives) {
+	
+	// postion lives top of screen
+
+	int startx = 100; // start of health bar
+
+	while (lives--) {
+		putImage(startx, 1, 8, 8, heart, 0, 0);
+		startx = startx + 10; // spacing the health indicators
+	}
+	
 }
