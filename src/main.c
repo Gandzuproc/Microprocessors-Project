@@ -10,6 +10,14 @@ int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint
 void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber);
 void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode);
 
+int rightPressed(void);
+int leftPressed(void);
+int upPressed(void);
+int downPressed(void);
+
+// these will need params
+void moveSprite(int*, int*, int, int, uint16_t[], char); // x, y, sprite, direction
+
 int fishMove(void);
 void showLives(int);
 
@@ -39,123 +47,54 @@ const uint16_t heart[]=
 
 int main()
 {
-	int hinverted = 0;
-	int vinverted = 0;
-	int toggle = 0;
-	int hmoved = 0;
-	int vmoved = 0;
-	int stage = 1;
-	int direction = 0;
+	int stage = 0; // Boat stage = 0, Bucket stage = 1
 	uint16_t x = 0;
 	uint16_t y = 0;
 	uint16_t oldx = x;
 	uint16_t oldy = y;
-	int fish_x, fish_y = 0;
+	uint16_t boatX, boatY = 20; // not used?
 	initClock();
 	initSysTick();
 	setupIO();
-	
-	putImage(64, 40, 16, 16, bucket, 0, 0);
-	//putImage(64, 80, 16, 16, fish, 0, 0);
-	showLives(3);
 
+
+	// Game Loop
 	while (1)
 	{
-		while (stage == 1) // Stage 1 player controls boat
+		// Boat stage
+		while (stage == 0)
 		{
-			if (1) { // fish move
+			// Control boat left and right
+			// Down to release bucket
+			// Up for ability
 
-				if (fish_x == 0) {
-					direction = 0;
-				}
-				if (fish_x == 112) {
-					direction = 1;
-				}
+			// Can possibly #define the parameters for these functions?
 
-				fish_y = 100;
-				if (direction == 0) {
-					putImage(fish_x, fish_y, 16, 16, fish, 0, 0);	
-					fish_x++;
-					//delay(40);
-
-					fillRectangle(oldx, oldy, 16, 16, 0);
-					oldx = fish_x;
-					oldy = fish_y;
-				}
-				if (direction == 1) {
-					putImage(fish_x, fish_y, 16, 16, fish, 1, 0);	
-					fish_x--;
-
-					//delay(40);
-
-					fillRectangle(oldx, oldy, 16, 16, 0);
-					oldx = fish_x;
-					oldy = fish_y;
-				}
+			// Right Pressed
+			if (rightPressed() == 1) {
+				moveSprite(&boatX, &boatY, 16, 16, bucket, 'r'); // TEST IF & IS NEEDED 
 			}
-
-
-			hmoved = vmoved = 0;
-			hinverted = vinverted = 0;
-			if ((GPIOB->IDR & (1 << 4)) == 0) // right pressed
-			{
-				if (x < 80)
-				{
-					//delay(80);
-					x = x + 1;
-					hmoved = 1;
-					hinverted = 0;
-				}
+			// Left pressed
+			if (leftPressed() == 1) {
+				moveSprite(&boatX, &boatY, 16, 16, bucket, 'l'); // TEST IF NUMBERS WORK FOR X Y
 			}
-			if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
-			{
-				//delay(80);
-				if (x > 0)
-				{
-					x = x - 1;
-					hmoved = 1;
-					hinverted = 1;
-				}
+			// Up pressed
+			if (upPressed() == 1) {
+				// ability i guess?
 			}
-			if ((GPIOA->IDR & (1 << 11)) == 0) // down pressed
-			{
-				stage = 2;
+			// Down pressed
+			if (downPressed() == 1) {
+				stage = 1;
 			}
-			if ((GPIOA->IDR & (1 << 8)) == 0) // up pressed
-			{
-				// uses ability
-			}
-			if ((hmoved))
-			{
-				// only redraw if there has been some movement (reduces flicker)
-				fillRectangle(oldx, oldy, 16, 16, 0);
-				oldx = x;
-				oldy = y;
-				if (hmoved)
-				{
-					if (toggle)
-						putImage(x, y, 48, 31, boat1, hinverted, 0);
-					else
-						putImage(x, y, 48, 31, boat2, hinverted, 0);
-
-					toggle = toggle ^ 1;
-				}
-				
-				// Now check for an overlap by checking to see if ANY of the 4 corners of deco are within the target area
-				if (isInside(20, 80, 12, 16, x, y) || isInside(20, 80, 12, 16, x + 12, y) || isInside(20, 80, 12, 16, x, y + 16) || isInside(20, 80, 12, 16, x + 12, y + 16))
-				{
-					printTextX2("-1 Health!", 10, 20, RGBToWord(0xff, 0xff, 0), 0);
-				}
-			}
-			
+			//delay(50); TEST WITH AND WITHOUT
 		}
-		while (stage == 2) // Stage 2 player controls bucket
+		// Bucket stage
+		while (stage == 1)
 		{
-			// stage 2
+			// Bucket stage
 
+			// Need to remember fish locations so they can seamlessly transition between stage
 		}
-
-		delay(50);
 	}
 	return 0;
 }
@@ -250,6 +189,7 @@ void setupIO()
 	enablePullUp(GPIOA, 8);
 }
 
+
 int fishMove() {
 	if ((GPIOA->IDR & (1 << 8)) == 0) {
 		return 1;
@@ -260,14 +200,76 @@ int fishMove() {
 }
 
 void showLives(int lives) {
-	
 	// postion lives top of screen
-
 	int startx = 100; // start of health bar 
 
 	while (lives--) {
 		putImage(startx, 1, 8, 8, heart, 0, 0);
 		startx = startx + 10; // spacing the health indicators
+	}
+}
+
+int rightPressed() {
+	if ((GPIOB->IDR & (1 << 4)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
+int leftPressed() {
+	if ((GPIOB->IDR & (1 << 5)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
+int upPressed() {
+	if ((GPIOA->IDR & (1 << 8)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
+int downPressed() {
+	if ((GPIOA->IDR & (1 << 11)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
+void moveSprite(int *x, int *y, int width, int height, uint16_t *sprite, char direction) {
+	int prevX = *x; 
+	int prevY = *y; 
+
+	// Increase x or y depending on direction
+	switch (direction)
+	{
+	case 'R': // right
+		*x++;
+		break;
+	case 'L': // left 
+		*x--;
+		break;
+	case 'U': // up
+		*y--;
+		break;
+	case 'D': // down
+		*y++;
+		break;
+
+	default:
+		break;
+
+		// Replace previous image
+		fillRectangle(prevX, prevY, width, height, 0);
+		prevX = *x;
+		prevY = *y;
+		// Place image in new location
+		putImage(*x, *y, width, height, sprite, direction, 0);
 	}
 	
 }
