@@ -5,6 +5,10 @@
 #define BOATHEIGHT 31
 #define BUCKETWIDTH 16
 #define BUCKETHEIGHT 16
+#define FISHWIDTH 16
+#define FISHHEIGHT 16
+#define OBSTACLEWIDTH
+#define OBSTACLEHEIGHT 
 
 void initClock(void);
 void initSysTick(void);
@@ -18,6 +22,7 @@ void move_right (uint16_t *x, int *horizontal_moved, int boundary, int delay_amo
 void move_left (uint16_t *x, int *horizontal_moved, int boundary, int delay_amount);
 void move_down (uint16_t *y, int *vertical_moved, int boundary, int delay_amount);
 void move_up (uint16_t *y, int *vertical_moved, int boundary, int delay_amount);
+int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
 
 volatile uint32_t milliseconds;
 
@@ -50,12 +55,25 @@ int main()
 	int score = 0;
     int health = 0;
     int boat_x = 0;
+	
 	int boat_horizontal_moved = 0;
     int boat_vertical_moved = 0;
+
     int bucket_x = 0;
 	int bucket_y = 0;
 	int bucket_horizontal_moved = 0;
     int bucket_vertical_moved = 0;
+
+	int obstacle_x;
+	int obstacle_y;
+	int obstacle_width;
+	int obstacle_height;
+
+	int fish_x;
+	int fish_y;
+	int fish_oldx;
+	int fish_oldy;
+
     uint16_t x = 0;
     uint16_t y = 0;
 	uint16_t boat_oldx = x;
@@ -86,23 +104,29 @@ int main()
                 fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
                 bucket_oldx = x;
                 bucket_oldy = y;
-				putImage(bucket_x, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);
+				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);
             }
             // DRAW IMAGE END
             
             // COLLISION DETECTION START
-            if (isInside(20, 80, 12, 16, x, y) || isInside(20, 80, 12, 16, x + 12, y) || isInside(20, 80, 12, 16, x, y + 16) || isInside(20, 80, 12, 16, x + 12, y + 16))
+            if (collision(obstacle_x, obstacle_y, obstacle_width, obstacle_height, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
             {
                 stage = 1;
                 health = health - 1;
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
             }
-			else if ((isInside(boat_x, 0, BOATWIDTH, BOATHEIGHT, bucket_x, bucket_y) || isInside(boat_x, 0, BOATWIDTH, BOATHEIGHT, bucket_x+BUCKETWIDTH, bucket_y) || isInside(boat_x, 0, BOATWIDTH, BOATHEIGHT, bucket_x, bucket_y+BUCKETHEIGHT) || isInside(boat_x, 0, BOATWIDTH, BOATHEIGHT, bucket_x+BUCKETWIDTH, bucket_y+BUCKETHEIGHT)) && (has_fish == 1))
+			else if (collision(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
+			{
+				has_fish = 1;//enables to go back to stage 1 since has fish
+				fillRectangle(fish_oldx, fish_oldy, FISHWIDTH, FISHHEIGHT, 0);//draw over fish
+				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);//draw bucket again
+			}
+			else if (collision(boat_x, 0, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
 			{
 				stage = 1;
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
 				score += fish;
-				printTextX2("SCORE: ",0 ,0, RGBToWord(0xff, 0xff, 0), 0);
+				//print updated score here somehow
 			}
             // COLLISION DETECTION END
             
@@ -266,5 +290,24 @@ void move_up (uint16_t *y, int *vertical_moved, int boundary, int delay_amount)
 			*y = *y - 1;
 			*vertical_moved = 1;
 		}
+	}
+}
+
+int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uint16_t hitbox_width, uint16_t object_x, uint16_t object_y, int object_height, int object_width)
+{
+	uint16_t hitbox_heigth_better = hitbox_width * 0.75;
+	uint16_t hitbox_width_better = hitbox_heigth * 0.75;
+	uint16_t hitbox_x_better = hitbox_x + (hitbox_width - hitbox_width_better) / 2;
+	uint16_t hitbox_y_better = hitbox_y + (hitbox_heigth - hitbox_heigth_better) / 2;
+	if (isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y) ||
+	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x + object_width, object_y) ||
+	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y+object_height)||
+	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x+object_width, object_y+object_height))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
 	}
 }
