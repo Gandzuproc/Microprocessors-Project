@@ -45,40 +45,34 @@ const uint16_t dg1[]=
 
 int main()
 {
-    int hinverted = 0;
     int toggle = 0; // used for switching between animations
-    int hmoved = 0;
-    int vmoved = 0;
-    int stage = 1;
-	int fish;
-	int has_fish = 0;
+
+    int stage = 2;
 	int score = 0;
     int health = 0;
-    int boat_x = 0;
-	
-	int boat_horizontal_moved = 0;
-    int boat_vertical_moved = 0;
 
-    int bucket_x = 0;
-	int bucket_y = 0;
+    uint16_t bucket_x = 0;
+	uint16_t bucket_y = 0;
+	uint16_t bucket_oldx = x;
+    uint16_t bucket_oldy = y;
 	int bucket_horizontal_moved = 0;
     int bucket_vertical_moved = 0;
 
-	int obstacle_x;
-	int obstacle_y;
+	uint16_t obstacle_x;
+	uint16_t obstacle_y;
 	int obstacle_width;
 	int obstacle_height;
 
-	int fish_x;
-	int fish_y;
-	int fish_oldx;
-	int fish_oldy;
+	uint16_t fish_x;
+	uint16_t fish_y;
+	uint16_t fish_oldx;
+	uint16_t fish_oldy;
+	int fish;
+	int has_fish = 0;
 
-    uint16_t x = 0;
-    uint16_t y = 0;
-	uint16_t boat_oldx = x;
-    uint16_t bucket_oldx = x;
-    uint16_t bucket_oldy = y;
+    uint16_t boat_x;
+	uint16_t boat_oldx;
+	int boat_horizontal_moved = 0;
     
     initClock();
     initSysTick();
@@ -254,19 +248,6 @@ void move_left (uint16_t *x, int *horizontal_moved, int boundary, int delay_amou
 		{
 			*x = *x - 1;
 			*horizontal_moved = 1;
-		}
-	}
-}
-
-void move_down (uint16_t *y, int *vertical_moved, int boundary, int delay_amount)
-{
-	if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
-	{
-		delay(delay_amount);
-		if (*y < boundary)
-		{
-			*y = *y + 1;
-			*vertical_moved = 1;
 		}
 	}
 }
