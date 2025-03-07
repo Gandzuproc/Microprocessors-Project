@@ -109,10 +109,10 @@ int main()
             if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1)
             {
                 // only redraw if there has been some movement (reduces flicker)
-                fillRectangle(bucket_oldx, bucket_oldy, 16, 16, 0);
+                fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
                 bucket_oldx = bucket_x;
                 bucket_oldy = bucket_y;
-				putImage(bucket_x, bucket_y, 16, 16, bucket1, 0, 0);
+				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);
             }
             // DRAW IMAGE END
             
