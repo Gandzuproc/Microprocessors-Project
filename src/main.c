@@ -16,7 +16,7 @@ int upPressed(void);
 int downPressed(void);
 
 // these will need params
-void moveSprite(int*, int*, int, int, uint16_t[], char); // x, y, sprite, direction
+void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char); // x, y, sprite, direction
 
 int fishMove(void);
 void showLives(int);
@@ -52,7 +52,8 @@ int main()
 	uint16_t y = 0;
 	uint16_t oldx = x;
 	uint16_t oldy = y;
-	uint16_t boatX, boatY = 20; // not used?
+	uint16_t boatX = 50;
+	uint16_t boatY = 100; // not used?
 	initClock();
 	initSysTick();
 	setupIO();
@@ -72,21 +73,23 @@ int main()
 
 			// Right Pressed
 			if (rightPressed() == 1) {
-				moveSprite(&boatX, &boatY, 16, 16, bucket, 'r'); // TEST IF & IS NEEDED 
+				moveSprite(&boatX, &boatY, 16, 16, fish, 'R'); // TEST IF & IS NEEDED 
 			}
 			// Left pressed
 			if (leftPressed() == 1) {
-				moveSprite(&boatX, &boatY, 16, 16, bucket, 'l'); // TEST IF NUMBERS WORK FOR X Y
+				moveSprite(&boatX, &boatY, 16, 16, fish, 'L'); // TEST IF NUMBERS WORK FOR X Y
 			}
 			// Up pressed
 			if (upPressed() == 1) {
 				// ability i guess?
+				moveSprite(&boatX, &boatY, 16, 16, fish, 'U');
 			}
 			// Down pressed
 			if (downPressed() == 1) {
-				stage = 1;
+				//stage = 1;
+				moveSprite(&boatX, &boatY, 16, 16, fish, 'D');
 			}
-			//delay(50); TEST WITH AND WITHOUT
+			delay(10);
 		}
 		// Bucket stage
 		while (stage == 1)
@@ -241,35 +244,34 @@ int downPressed() {
 	else return 0;	
 }
 
-void moveSprite(int *x, int *y, int width, int height, uint16_t *sprite, char direction) {
-	int prevX = *x; 
-	int prevY = *y; 
+void moveSprite(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, char direction) {
+	uint16_t prevX = *x; 
+	uint16_t prevY = *y; 
 
 	// Increase x or y depending on direction
 	switch (direction)
 	{
 	case 'R': // right
-		*x++;
+		(*x)++;
 		break;
 	case 'L': // left 
-		*x--;
+		(*x)--;
 		break;
 	case 'U': // up
-		*y--;
+		(*y)--;
 		break;
 	case 'D': // down
-		*y++;
+		(*y)++;
 		break;
 
 	default:
 		break;
-
-		// Replace previous image
-		fillRectangle(prevX, prevY, width, height, 0);
-		prevX = *x;
-		prevY = *y;
-		// Place image in new location
-		putImage(*x, *y, width, height, sprite, direction, 0);
 	}
-	
+
+	// Replace previous image
+	fillRectangle(prevX, prevY, width, height, 0);
+	prevX = *x;
+	prevY = *y;
+	// Place image in new location
+	putImage(*x, *y, width, height, sprite, direction, 0); // direction is passing a character to int NOT WORKING	
 }
