@@ -79,7 +79,7 @@ int main()
 	uint16_t oldx = x;
 	uint16_t oldy = y;
 	uint16_t boatX = 50;
-	uint16_t boatY = 100; // not used?
+	uint16_t boatY = 50; // not used?
 	initClock();
 	initSysTick();
 	setupIO();
@@ -104,10 +104,6 @@ int main()
 	int fish;
 	int has_fish = 0;
 
-    uint16_t boat_x = 64;
-	//uint16_t boat_oldx;
-	//int boat_horizontal_moved = 0;
-
 
 	// Game Loop
 	while (1)
@@ -123,21 +119,19 @@ int main()
 
 			// Right Pressed
 			if (rightPressed() == 1) {
-				moveSprite(&boatX, &boatY, 16, 16, fish, 'R'); // TEST IF & IS NEEDED 
+				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'R'); // TEST IF & IS NEEDED 
 			}
 			// Left pressed
 			if (leftPressed() == 1) {
-				moveSprite(&boatX, &boatY, 16, 16, fish, 'L'); // TEST IF NUMBERS WORK FOR X Y
+				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'L'); // TEST IF NUMBERS WORK FOR X Y
 			}
 			// Up pressed
 			if (upPressed() == 1) {
 				// ability i guess?
-				moveSprite(&boatX, &boatY, 16, 16, fish, 'U');
 			}
 			// Down pressed
 			if (downPressed() == 1) {
-				//stage = 1;
-				moveSprite(&boatX, &boatY, 16, 16, fish, 'D');
+				stage = 1;
 			}
 			delay(10);
 		}
@@ -179,7 +173,7 @@ int main()
 				fillRectangle(fish_oldx, fish_oldy, FISHWIDTH, FISHHEIGHT, 0);//draw over fish
 				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
 			}
-			else if (collision(boat_x, 0, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
+			else if (collision(boatX, 0, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
 			{
 				stage = 1;
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
