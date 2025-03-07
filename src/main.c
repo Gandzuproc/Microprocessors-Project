@@ -53,7 +53,7 @@ int main()
 {
     //int toggle = 0; // used for switching between animations
 
-    int stage = 2;
+    int stage = 1;
 	int score = 0;
     int health = 0;
 
@@ -88,9 +88,9 @@ int main()
     
     while (1)
     {
-		while (stage == 1)
+		while (stage == 0)
 		{
-			//STAGE 1 CODE HERE
+			//BUCKET STAGE CODE HERE
 			/*
 			WHEN SWITCHING TO STAGE 2 USE THIS CODE ONCE
 			bucket_x = boat_x;
@@ -98,7 +98,7 @@ int main()
 			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0); 
 			*/
 		}
-        while (stage == 2)
+        while (stage == 1)
         {
 
             // MOVEMENT SYSTEM START
