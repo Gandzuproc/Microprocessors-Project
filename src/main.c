@@ -57,8 +57,8 @@ int main()
 	int score = 0;
     int health = 0;
 
-    uint16_t bucket_x = 30;
-	uint16_t bucket_y = 30;
+    uint16_t bucket_x = 0;
+	uint16_t bucket_y = 0;
 	uint16_t bucket_oldx = 0;
     uint16_t bucket_oldy = 0;
 	int bucket_horizontal_moved = 0;
@@ -91,13 +91,20 @@ int main()
 		while (stage == 1)
 		{
 			//STAGE 1 CODE HERE
+			/*
+			WHEN SWITCHING TO STAGE 2 USE THIS CODE ONCE
+			bucket_x = boat_x;
+			bucket_y = 40;
+			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0); 
+			*/
 		}
         while (stage == 2)
         {
-			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0); 
+
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
+	
 
 			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH);
 			move_left(&bucket_x, &bucket_horizontal_moved, 0); 
