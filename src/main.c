@@ -102,7 +102,7 @@ int main()
 			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH);
 			move_left(&bucket_x, &bucket_horizontal_moved, 0); 
 			move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);  
-			move_up(&bucket_y, &bucket_vertical_moved, 0);    
+			move_up(&bucket_y, &bucket_vertical_moved, (BOATHEIGHT*0.9) );    
             // MOVEMENT SYSTEM END
             
             // DRAW IMAGE START
