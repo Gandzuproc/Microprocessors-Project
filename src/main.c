@@ -38,11 +38,8 @@ int leftPressed(void);
 int upPressed(void);
 int downPressed(void);
 
-// these will need params
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
 void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*);
-
-int fishMove(void);
 void showLives(int);
 
 volatile uint32_t milliseconds;
@@ -344,15 +341,6 @@ int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uin
 	}
 	else
 	{
-		return 0;
-	}
-}
-
-int fishMove() {
-	if ((GPIOA->IDR & (1 << 8)) == 0) {
-		return 1;
-	}
-	else {
 		return 0;
 	}
 }
