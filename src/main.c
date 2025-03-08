@@ -40,7 +40,9 @@ int downPressed(void);
 
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
 void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*);
+// showLives and displayHUD are two versions of the same thing (display HUD more efficient)
 void showLives(int);
+void displayHUD(uint16_t, uint16_t, int);
 
 volatile uint32_t milliseconds;
 
@@ -72,6 +74,7 @@ int main()
 	int score = 0;
     int health = 0;
 	int toggle = 0; // used for switching between animations
+	int count = 0;
 	uint16_t x = 0;
 	uint16_t y = 0;
 	uint16_t oldx = x;
@@ -81,6 +84,10 @@ int main()
 	initClock();
 	initSysTick();
 	setupIO();
+
+	char gameTitle[] = {"fish Game"};
+	char gameDesc[] = {"this is describes how to play the game"};
+	char gameStart[] = {"Press any button"};
 
 	// MAY BE REPLACED BY JUST X AND Y
 	uint16_t bucket_x = 0;
@@ -106,8 +113,27 @@ int main()
 	// Game Loop
 	while (1)
 	{
+		// Start menu
+		while (0)
+		{
+			printTextX2(gameTitle, 64, 10, rgb(255, 255, 255), 0);
+			printText(gameDesc, 64, 40, rgb(255, 255, 255), 0);
+			
+			// Blinking effect for "Press any button"
+			if (count > 10 && count <= 20) {
+				printTextX2(gameStart, 64, 120, rgb(255, 255, 255), 0);
+				if (count == 20) {
+					count = 0;
+				}
+			}
+			
+			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
+				stage = 1;
+			}
+			count++;
+		}
 		// Boat stage
-		while (stage == 0)
+		while (stage == 1)
 		{
 			// Control boat left and right
 			// Down to release bucket
@@ -129,12 +155,12 @@ int main()
 			}
 			// Down pressed
 			if (downPressed() == 1) {
-				stage = 1;
+				stage = 2;
 			}
 			delay(10);
 		}
 		// Bucket stage
-		while (stage == 1)
+		while (stage == 2)
         {
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
@@ -161,7 +187,7 @@ int main()
             // COLLISION DETECTION START
             if (collision(obstacle_x, obstacle_y, obstacle_width, obstacle_height, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
             {
-                stage = 1;
+                stage = 1; // What is this for??
                 health = health - 1;
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
             }
@@ -347,11 +373,18 @@ int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uin
 
 void showLives(int lives) {
 	// postion lives top of screen
-	int startx = 100; // start of health bar 
+	int startx = 116; // start of health bar 
 
 	while (lives--) {
 		putImage(startx, 1, 8, 8, heart, 0, 0);
-		startx = startx + 10; // spacing the health indicators
+		startx = startx - 2; // spacing the health indicators
+	}
+}
+
+void displayHUD(uint16_t x, uint16_t y, int lives) {
+	while (lives--) {
+		fillRectangle(x, y, 8, 4, rgb(255, 255, 255));
+		x - 8;
 	}
 }
 
