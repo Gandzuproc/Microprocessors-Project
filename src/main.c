@@ -39,7 +39,8 @@ int upPressed(void);
 int downPressed(void);
 
 // these will need params
-void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char); // x, y, sprite, direction
+void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
+void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*);
 
 int fishMove(void);
 void showLives(int);
@@ -428,4 +429,32 @@ void moveSprite(uint16_t *x, uint16_t *y, int width, int height, const uint16_t 
 	prevY = *y;
 	// Place image in new location
 	putImage(*x, *y, width, height, sprite, direction, 0); // direction is passing a character to int NOT WORKING		
+}
+
+void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite) {
+	uint16_t prevX = *x; 
+	uint16_t prevY = *y; 
+	int direction = 0;
+
+	// Keeps fish in bounds of screen
+	if (x == 0) {
+		direction = 0;
+	}
+	else if (x = 112) { // 128px - width of sprite
+		direction = 1;
+	}
+	
+	// Right and left movement
+	if (direction == 0) {
+		(*x)++;
+	}
+	else if (direction == 1) {
+		(*x)--;
+	}
+	
+	// Handles sprite image display
+	fillRectangle(prevX, prevY, width, height, 0);
+	prevX = *x;
+	prevY = *y;
+	putImage(*x, *y, width, height, sprite, direction, 0); 
 }
