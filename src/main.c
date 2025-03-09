@@ -29,6 +29,7 @@ void move_left (uint16_t *x, int *horizontal_moved, int boundary);
 void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height);
 void move_up (uint16_t *y, int *vertical_moved, int boundary);
 int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
+void show_score (int*, int);
 
 volatile uint32_t milliseconds;
 
@@ -54,10 +55,10 @@ int main()
     //int toggle = 0; // used for switching between animations
 
     int stage = 2;
-	int score = 0;
+	int score = 10;
     int health = 0;
 
-    uint16_t bucket_x = 40;
+    uint16_t bucket_x = 0;
 	uint16_t bucket_y = 40;
 	uint16_t bucket_oldx = 0;
     uint16_t bucket_oldy = 0;
@@ -69,11 +70,11 @@ int main()
 	int obstacle_width;
 	int obstacle_height;
 
-	uint16_t fish_x;
-	uint16_t fish_y;
+	uint16_t fish_x = 0;
+	uint16_t fish_y = 100;
 	uint16_t fish_oldx;
 	uint16_t fish_oldy;
-	int fish;
+	int fish = 1000;
 	int has_fish = 0;
 
     uint16_t boat_x = 64;
@@ -83,11 +84,13 @@ int main()
     initClock();
     initSysTick();
     setupIO();
-    putImage(20, 80, 16, 15, dg1, 0, 0);
-	putImage(bucket_x, bucket_y, 16, 16, bucket1, 0, 0);
     
     while (1)
     {
+		show_score(&score, 0);
+		stage == 2;
+		putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0); 
+
 		while (stage == 1)
 		{
 			//STAGE 1 CODE HERE
@@ -133,7 +136,7 @@ int main()
 			else if (collision(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
 			{
 				has_fish = 1;//enables to go back to stage 1 since has fish
-				fillRectangle(fish_oldx, fish_oldy, FISHWIDTH, FISHHEIGHT, 0);//draw over fish
+				fillRectangle(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, 0);//draw over fish
 				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);//draw bucket again
 			}
 			else if (collision(boat_x, 0, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
@@ -141,7 +144,7 @@ int main()
 				stage = 1;
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
 				score += fish;
-				//print updated score here somehow
+				
 			}
             // COLLISION DETECTION END
             
@@ -308,4 +311,11 @@ int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uin
 	{
 		return 0;
 	}
+}
+
+void show_score (int *score, int score_increase_amount)
+{
+	score += score_increase_amount;
+	printText("Score:",0,0,RGBToWord(255,255,255),0);
+	printNumber(*score,40,0,RGBToWord(255,255,255),0);
 }
