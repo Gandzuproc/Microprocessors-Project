@@ -30,6 +30,11 @@ void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_heigh
 void move_up (uint16_t *y, int *vertical_moved, int boundary);
 int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
 void show_score (int*, int);
+int rightPressed(void);
+int leftPressed(void);
+int upPressed(void);
+int downPressed(void);
+void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
 
 volatile uint32_t milliseconds;
 
@@ -54,7 +59,7 @@ int main()
 {
     //int toggle = 0; // used for switching between animations
 
-    int stage = 2;
+    int stage = 0;
 	int score = 10;
     int health = 0;
 
@@ -75,7 +80,7 @@ int main()
 	uint16_t fish_oldx;
 	uint16_t fish_oldy;
 	int fish = 1000;
-	int has_fish = 0;
+	int has_fish = 1;
 
     uint16_t boat_x = 64;
 	uint16_t boat_y = 10;
@@ -89,8 +94,7 @@ int main()
     while (1)
     {
 		show_score(&score, 0);
-		stage == 2;
-		putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0); 
+		stage = 1;
 
 		while (stage == 1)
 		{
@@ -109,9 +113,8 @@ int main()
 			// Down pressed
 			if (downPressed() == 1) {
 				stage = 2;
-				bucket_x = boat_x;
-				bucket_y = 40;
-				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);
+				bucket_x = boat_x + (BOATWIDTH/2) - (BUCKETWIDTH/2);
+				bucket_y = 45;
 			}
 			delay(10);
 
@@ -122,8 +125,6 @@ int main()
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
-	
-
 			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH);
 			move_left(&bucket_x, &bucket_horizontal_moved, 0); 
 			move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);  
@@ -154,7 +155,7 @@ int main()
 				fillRectangle(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, 0);//draw over fish
 				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);//draw bucket again
 			}
-			else if (collision(boat_x, 0, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
+			else if (collision(boat_x, boat_y+10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
 			{
 				stage = 1;
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
@@ -333,4 +334,69 @@ void show_score (int *score, int score_increase_amount)
 	score += score_increase_amount;
 	printText("Score:",0,0,RGBToWord(255,255,255),0);
 	printNumber(*score,40,0,RGBToWord(255,255,255),0);
+}
+
+int rightPressed() {
+	if ((GPIOB->IDR & (1 << 4)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
+int leftPressed() {
+	if ((GPIOB->IDR & (1 << 5)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
+int upPressed() {
+	if ((GPIOA->IDR & (1 << 8)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
+int downPressed() {
+	if ((GPIOA->IDR & (1 << 11)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
+void moveSprite(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, char direction) {
+	uint16_t prevX = *x; 
+	uint16_t prevY = *y; 
+	int invert = 0;
+
+	// Increase x or y depending on direction
+	switch (direction)
+	{
+	case 'R': // right
+		(*x)++;
+		break;
+	case 'L': // left 
+		(*x)--;
+		invert = 1;
+		break;
+	case 'U': // up
+		(*y)--;
+		break;
+	case 'D': // down
+		(*y)++;
+		break;
+
+	default:
+		break;
+	}
+	// Replace previous image
+	fillRectangle(prevX, prevY, width, height, 0);
+	prevX = *x;
+	prevY = *y;
+	// Place image in new location
+	putImage(*x, *y, width, height, sprite, invert, 0); // direction is passing a character to int NOT WORKING		
 }
