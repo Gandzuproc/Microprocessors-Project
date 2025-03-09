@@ -57,8 +57,8 @@ int main()
 	int score = 0;
     int health = 0;
 
-    uint16_t bucket_x = 0;
-	uint16_t bucket_y = 0;
+    uint16_t bucket_x = 40;
+	uint16_t bucket_y = 40;
 	uint16_t bucket_oldx = 0;
     uint16_t bucket_oldy = 0;
 	int bucket_horizontal_moved = 0;
