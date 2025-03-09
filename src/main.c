@@ -88,6 +88,7 @@ int main()
 	char gameTitle[] = {"fish Game"};
 	char gameDesc[] = {"this is describes how to play the game"};
 	char gameStart[] = {"Press any button"};
+	int beginGame = 1;
 
 	// MAY BE REPLACED BY JUST X AND Y
 	uint16_t bucket_x = 0;
@@ -113,11 +114,15 @@ int main()
 	// Game Loop
 	while (1)
 	{
-		// Start menu
-		while (0)
+		// Start menu stage
+		while (stage == 0)
 		{
-			printTextX2(gameTitle, 64, 10, rgb(255, 255, 255), 0);
-			printText(gameDesc, 64, 40, rgb(255, 255, 255), 0);
+			// Display only once
+			if (beginGame) {
+				printTextX2(gameTitle, 64, 10, rgb(255, 255, 255), 0);
+				printText(gameDesc, 64, 40, rgb(255, 255, 255), 0);
+				beginGame = 0;
+			}
 			
 			// Blinking effect for "Press any button"
 			if (count > 10 && count <= 20) {
@@ -126,12 +131,16 @@ int main()
 					count = 0;
 				}
 			}
-			
+
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
 				stage = 1;
 			}
 			count++;
+			// is a delay at the end beneficial?
 		}
+		// Clear the screen before next stage
+		fillRectangle(0, 0, 128, 160, 0);
+		
 		// Boat stage
 		while (stage == 1)
 		{
