@@ -6,6 +6,7 @@
 #define BOAT_STAGE 1
 #define BUCKET_STAGE 2
 #define GAME_OVER 3
+#define MAX_FISHES 3
 
 #define BOATWIDTH 48
 #define BOATHEIGHT 31
@@ -21,6 +22,17 @@
 
 #define BOARDWIDTH 128
 #define BOARDHEIGHT 160
+
+
+struct Sprite
+{
+	uint16_t x; // may need to be pointers
+	uint16_t y;
+	int width;
+	int height;
+	const uint16_t *sprite;
+	int direction;
+};
 
 
 void initClock(void);
@@ -48,6 +60,7 @@ void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*);
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
 void showLives(int);
 void displayHUD(uint16_t, uint16_t, int);
+
 
 volatile uint32_t milliseconds;
 
@@ -86,6 +99,8 @@ int main()
 	uint16_t oldy = y;
 	uint16_t boatX = 50;
 	uint16_t boatY = 50; // not used?
+	uint16_t fishX[] = {10, 50, 20, 0, 80};
+	uint16_t fishY[] = {20, 40, 60, 80, 100}; 
 	initClock();
 	initSysTick();
 	setupIO();
@@ -138,11 +153,20 @@ int main()
 				}
 			}
 
+			// JUST FOR TESTING FISH PLS REMOVE
+			displayHUD(90, 10, 3);
+
+			for (int i = 0; i < MAX_FISHES; i++)
+			{
+				spawnFish(fishX[i], fishY[i], 16, 16, fish);
+			}
+			// JUST FOR TESTING FISH PLS REMOVE
+
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
 				stage = BOAT_STAGE;
 			}
 			count++;
-			// is a delay at the end beneficial?
+			delay(16); // is a delay at the end beneficial?
 		}
 		// Clear the screen before next stage
 		fillRectangle(0, 0, 128, 160, 0);
@@ -470,7 +494,6 @@ void moveSprite(uint16_t *x, uint16_t *y, int width, int height, const uint16_t 
 	default:
 		break;
 	}
-
 	// Replace previous image
 	fillRectangle(prevX, prevY, width, height, 0);
 	prevX = *x;
@@ -499,7 +522,6 @@ void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *
 	else if (direction == 1) {
 		(*x)--;
 	}
-	
 	// Handles sprite image display
 	fillRectangle(prevX, prevY, width, height, 0);
 	prevX = *x;
