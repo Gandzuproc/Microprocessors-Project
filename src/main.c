@@ -24,10 +24,10 @@ void setupIO();
 int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py);
 void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber);
 void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode);
-void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width);
-void move_left (uint16_t *x, int *horizontal_moved, int boundary);
-void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height);
-void move_up (uint16_t *y, int *vertical_moved, int boundary);
+void move_right (uint16_t*,int*,int,int,int,int*);
+void move_left (uint16_t*,int*,int,int,int*);
+void move_down (uint16_t*, int*,int,int);
+void move_up (uint16_t*,int*,int);
 int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
 void show_score (int*);
 int rightPressed(void);
@@ -62,13 +62,15 @@ int main()
     int stage = 0;
 	int score = 0;
     int health = 0;
+	int toggle = 0;
 
-    uint16_t bucket_x = 0;
+    uint16_t bucket_x = 40;
 	uint16_t bucket_y = 40;
 	uint16_t bucket_oldx = 0;
     uint16_t bucket_oldy = 0;
 	int bucket_horizontal_moved = 0;
     int bucket_vertical_moved = 0;
+	int bucket_invert = 0;
 
 	uint16_t obstacle_x;
 	uint16_t obstacle_y;
@@ -82,10 +84,11 @@ int main()
 	int fish = 1000;
 	int has_fish = 1;
 
-    uint16_t boat_x = 64;
+    uint16_t boat_x = 64 -(BOATWIDTH/2);
 	uint16_t boat_y = 10;
-	uint16_t boat_oldx;
+	uint16_t boat_oldx = boat_x;
 	int boat_horizontal_moved = 0;
+	int boat_invert = 0;
     
     initClock();
     initSysTick();
@@ -93,19 +96,15 @@ int main()
     
     while (1)
     {
+		putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
 		show_score(&score);
 		stage = 1;
 
 		while (stage == 1)
 		{
-			// Right Pressed
-			if (rightPressed() == 1) {
-				moveSprite(&boat_x, &boat_y, BOATWIDTH, BOATHEIGHT, boat1, 'R'); // TEST IF & IS NEEDED 
-			}
-			// Left pressed
-			if (leftPressed() == 1) {
-				moveSprite(&boat_x, &boat_y, BOATWIDTH, BOATHEIGHT, boat1, 'L'); // TEST IF NUMBERS WORK FOR X Y
-			}
+			boat_horizontal_moved = 0;
+			move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH,1,&boat_invert);
+			move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
 			// Up pressed
 			if (upPressed() == 1) {
 				// ability i guess?
@@ -118,6 +117,22 @@ int main()
 			}
 			delay(10);
 
+			if (boat_horizontal_moved == 1)
+            {
+                // only redraw if there has been some movement (reduces flicker)
+                fillRectangle(boat_oldx, boat_y, BOATWIDTH, BOATHEIGHT, 0);
+                boat_oldx = boat_x;
+				if (toggle == 0)
+				{
+					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
+				}
+				else
+				{
+					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat2, boat_invert, 0);
+				}
+				toggle = toggle ^ 1;
+            }
+
 		}
         while (stage == 2)
         {
@@ -125,8 +140,8 @@ int main()
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
-			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH);
-			move_left(&bucket_x, &bucket_horizontal_moved, 0); 
+			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH,0,&bucket_invert);
+			move_left(&bucket_x, &bucket_horizontal_moved, 0,0,&bucket_invert); 
 			move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);  
 			move_up(&bucket_y, &bucket_vertical_moved, (BOATHEIGHT*0.9) );    
             // MOVEMENT SYSTEM END
@@ -262,7 +277,7 @@ void setupIO()
 	enablePullUp(GPIOA,8);
 }
 
-void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width)
+void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert)
 {
 	if ((GPIOB->IDR & (1 << 4)) == 0) // right pressed
 	{
@@ -270,11 +285,15 @@ void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_wi
 		{
 			*x = *x + 1;
 			*horizontal_moved = 1;
+			if (flip == 1)
+			{
+				*invert = 0;
+			}
 		}
 	}
 }
 
-void move_left (uint16_t *x, int *horizontal_moved, int boundary)
+void move_left (uint16_t *x, int *horizontal_moved, int boundary, int flip, int *invert)
 {
 	if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
 	{
@@ -282,6 +301,10 @@ void move_left (uint16_t *x, int *horizontal_moved, int boundary)
 		{
 			*x = *x - 1;
 			*horizontal_moved = 1;
+			if (flip == 1)
+				{
+					*invert = 1;
+				}
 		}
 	}
 }
