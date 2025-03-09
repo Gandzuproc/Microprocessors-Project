@@ -2,6 +2,11 @@
 #include "display.h"
 
 
+#define START_MENU 0
+#define BOAT_STAGE 1
+#define BUCKET_STAGE 2
+#define GAME_OVER 3
+
 #define BOATWIDTH 48
 #define BOATHEIGHT 31
 
@@ -70,7 +75,7 @@ const uint16_t heart[]=
 
 int main()
 {
-	int stage = 0; // Boat stage = 0, Bucket stage = 1
+	int stage = START_MENU;
 	int score = 0;
     int health = 0;
 	int toggle = 0; // used for switching between animations
@@ -88,7 +93,8 @@ int main()
 	char gameTitle[] = {"fish Game"};
 	char gameDesc[] = {"this is describes how to play the game"};
 	char gameStart[] = {"Press any button"};
-	int beginGame = 1;
+	char gameOver[] = {"GAME OVER"};
+ 	int beginGame = 1;
 
 	// MAY BE REPLACED BY JUST X AND Y
 	uint16_t bucket_x = 0;
@@ -115,7 +121,7 @@ int main()
 	while (1)
 	{
 		// Start menu stage
-		while (stage == 0)
+		while (stage == START_MENU)
 		{
 			// Display only once
 			if (beginGame) {
@@ -133,16 +139,16 @@ int main()
 			}
 
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
-				stage = 1;
+				stage = BOAT_STAGE;
 			}
 			count++;
 			// is a delay at the end beneficial?
 		}
 		// Clear the screen before next stage
 		fillRectangle(0, 0, 128, 160, 0);
-		
+
 		// Boat stage
-		while (stage == 1)
+		while (stage == BOAT_STAGE)
 		{
 			// Control boat left and right
 			// Down to release bucket
@@ -164,12 +170,12 @@ int main()
 			}
 			// Down pressed
 			if (downPressed() == 1) {
-				stage = 2;
+				stage = BUCKET_STAGE;
 			}
 			delay(10);
 		}
 		// Bucket stage
-		while (stage == 2)
+		while (stage == BUCKET_STAGE)
         {
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
@@ -208,7 +214,7 @@ int main()
 			}
 			else if (collision(boatX, 0, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
 			{
-				stage = 1;
+				stage = BOAT_STAGE;
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
 				score += fish;
 				//print updated score here somehow
@@ -217,6 +223,18 @@ int main()
             
             delay(50);
         }
+		// Game over stage
+		while (stage == GAME_OVER)
+		{
+			// display only once
+			// write over screen with black
+			// display message and game over screen
+
+			fillRectangle(0, 0, 128, 160, 0);
+			fillRectangle(0, 60, 128, 20, rgb(255,255,255));
+			printTextX2(gameOver, 100, 60, 0, rgb(255,255,255));
+		}
+		
 	}
 	return 0;
 }
