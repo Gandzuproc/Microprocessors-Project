@@ -29,7 +29,7 @@ void move_left (uint16_t *x, int *horizontal_moved, int boundary);
 void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height);
 void move_up (uint16_t *y, int *vertical_moved, int boundary);
 int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
-void show_score (int*, int);
+void show_score (int*);
 int rightPressed(void);
 int leftPressed(void);
 int upPressed(void);
@@ -60,7 +60,7 @@ int main()
     //int toggle = 0; // used for switching between animations
 
     int stage = 0;
-	int score = 10;
+	int score = 0;
     int health = 0;
 
     uint16_t bucket_x = 0;
@@ -93,7 +93,7 @@ int main()
     
     while (1)
     {
-		show_score(&score, 0);
+		show_score(&score);
 		stage = 1;
 
 		while (stage == 1)
@@ -329,9 +329,8 @@ int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uin
 	}
 }
 
-void show_score (int *score, int score_increase_amount)
+void show_score (int *score)
 {
-	score += score_increase_amount;
 	printText("Score:",0,0,RGBToWord(255,255,255),0);
 	printNumber(*score,40,0,RGBToWord(255,255,255),0);
 }
