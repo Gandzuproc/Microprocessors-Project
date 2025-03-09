@@ -78,8 +78,9 @@ int main()
 	int has_fish = 0;
 
     uint16_t boat_x = 64;
-	//uint16_t boat_oldx;
-	//int boat_horizontal_moved = 0;
+	uint16_t boat_y = 10;
+	uint16_t boat_oldx;
+	int boat_horizontal_moved = 0;
     
     initClock();
     initSysTick();
@@ -93,13 +94,27 @@ int main()
 
 		while (stage == 1)
 		{
-			//STAGE 1 CODE HERE
-			/*
-			WHEN SWITCHING TO STAGE 2 USE THIS CODE ONCE
-			bucket_x = boat_x;
-			bucket_y = 40;
-			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0); 
-			*/
+			// Right Pressed
+			if (rightPressed() == 1) {
+				moveSprite(&boat_x, &boat_y, BOATWIDTH, BOATHEIGHT, boat1, 'R'); // TEST IF & IS NEEDED 
+			}
+			// Left pressed
+			if (leftPressed() == 1) {
+				moveSprite(&boat_x, &boat_y, BOATWIDTH, BOATHEIGHT, boat1, 'L'); // TEST IF NUMBERS WORK FOR X Y
+			}
+			// Up pressed
+			if (upPressed() == 1) {
+				// ability i guess?
+			}
+			// Down pressed
+			if (downPressed() == 1) {
+				stage = 2;
+				bucket_x = boat_x;
+				bucket_y = 40;
+				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);
+			}
+			delay(10);
+
 		}
         while (stage == 2)
         {
