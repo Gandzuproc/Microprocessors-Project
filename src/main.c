@@ -56,7 +56,7 @@ int upPressed(void);
 int downPressed(void);
 
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
-void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*);
+void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
 void showLives(int);
 void displayHUD(uint16_t, uint16_t, int);
@@ -99,8 +99,9 @@ int main()
 	uint16_t oldy = y;
 	uint16_t boatX = 50;
 	uint16_t boatY = 50; // not used?
-	uint16_t fishX[] = {10, 50, 20, 0, 80};
-	uint16_t fishY[] = {20, 40, 60, 80, 100}; 
+	uint16_t fishX[] = {10, 50, 20, 0, 80, 100};
+	uint16_t fishY[] = {20, 40, 60, 80, 100, 120}; 
+	int direction[] = {0, 1, 1, 0, 1, 0};
 	initClock();
 	initSysTick();
 	setupIO();
@@ -128,7 +129,7 @@ int main()
 	uint16_t fish_y;
 	uint16_t fish_oldx;
 	uint16_t fish_oldy;
-	int fish;
+	//int fish;
 	int has_fish = 0;
 
 
@@ -140,25 +141,25 @@ int main()
 		{
 			// Display only once
 			if (beginGame) {
-				printTextX2(gameTitle, 64, 10, rgb(255, 255, 255), 0);
-				printText(gameDesc, 64, 40, rgb(255, 255, 255), 0);
+				//printTextX2(gameTitle, 64, 10, 255, 0);
+				//printText(gameDesc, 64, 40, 255, 0);
 				beginGame = 0;
 			}
 			
 			// Blinking effect for "Press any button"
 			if (count > 10 && count <= 20) {
-				printTextX2(gameStart, 64, 120, rgb(255, 255, 255), 0);
+				//printTextX2(gameStart, 64, 120, 255, 0);
 				if (count == 20) {
 					count = 0;
 				}
 			}
 
 			// JUST FOR TESTING FISH PLS REMOVE
-			displayHUD(90, 10, 3);
+			displayHUD(112, 8, 8);
 
-			for (int i = 0; i < MAX_FISHES; i++)
+			for (int i = 0; i < 6; i++)
 			{
-				spawnFish(fishX[i], fishY[i], 16, 16, fish);
+				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
 			}
 			// JUST FOR TESTING FISH PLS REMOVE
 
@@ -240,7 +241,7 @@ int main()
 			{
 				stage = BOAT_STAGE;
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-				score += fish;
+				//score += fish;
 				//print updated score here somehow
 			}
             // COLLISION DETECTION END
@@ -255,8 +256,8 @@ int main()
 			// display message and game over screen
 
 			fillRectangle(0, 0, 128, 160, 0);
-			fillRectangle(0, 60, 128, 20, rgb(255,255,255));
-			printTextX2(gameOver, 100, 60, 0, rgb(255,255,255));
+			fillRectangle(0, 60, 128, 20, 255);
+			printTextX2(gameOver, 100, 60, 0, 255);
 		}
 		
 	}
@@ -434,8 +435,8 @@ void showLives(int lives) {
 
 void displayHUD(uint16_t x, uint16_t y, int lives) {
 	while (lives--) {
-		fillRectangle(x, y, 8, 4, rgb(255, 255, 255));
-		x - 8;
+		fillRectangle(x, y, 8, 4, 255);
+		x = x - 8;
 	}
 }
 
@@ -502,29 +503,28 @@ void moveSprite(uint16_t *x, uint16_t *y, int width, int height, const uint16_t 
 	putImage(*x, *y, width, height, sprite, direction, 0); // direction is passing a character to int NOT WORKING		
 }
 
-void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite) {
+void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *direction) {
 	uint16_t prevX = *x; 
 	uint16_t prevY = *y; 
-	int direction = 0;
 
 	// Keeps fish in bounds of screen
-	if (x == 0) {
-		direction = 0;
+	if (*x == 0) {
+		*direction = 0;
 	}
-	else if (x = 112) { // 128px - width of sprite
-		direction = 1;
+	else if (*x == 112) { // 128px - width of sprite
+		*direction = 1;
 	}
 	
 	// Right and left movement
-	if (direction == 0) {
+	if ((*direction) == 0) {
 		(*x)++;
 	}
-	else if (direction == 1) {
+	else if ((*direction) == 1) {
 		(*x)--;
 	}
 	// Handles sprite image display
 	fillRectangle(prevX, prevY, width, height, 0);
 	prevX = *x;
 	prevY = *y;
-	putImage(*x, *y, width, height, sprite, direction, 0); 
+	putImage(*x, *y, width, height, sprite, *direction, 0); 
 }
