@@ -95,7 +95,7 @@ int main()
 {
 	int stage = START_MENU;
 	int score = 0;
-    int health = 0;
+	int health = 0;
 	int toggle = 0; // used for switching between animations
 	int count = 0;
 	uint16_t x = 0;
@@ -105,7 +105,7 @@ int main()
 	uint16_t boatX = 0;
 	uint16_t boatY = 40;
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
-	uint16_t fishY[] = {20, 40, 60, 80, 100, 120}; 
+	uint16_t fishY[] = {20, 40, 60, 80, 100, 120};
 	int direction[] = {0, 1, 1, 0, 1, 0};
 	initClock();
 	initSysTick();
@@ -115,15 +115,15 @@ int main()
 	char gameDesc[] = {"this is describes how to play the game"};
 	char gameStart[] = {"Press any button"};
 	char gameOver[] = {"GAME OVER"};
- 	int beginGame = 1;
+	int beginGame = 1;
 
 	// MAY BE REPLACED BY JUST X AND Y
 	uint16_t bucket_x = 0;
 	uint16_t bucket_y = 0;
 	uint16_t bucket_oldx = 0;
-    uint16_t bucket_oldy = 0;
+	uint16_t bucket_oldy = 0;
 	int bucket_horizontal_moved = 0;
-    int bucket_vertical_moved = 0;
+	int bucket_vertical_moved = 0;
 	int bucket_invert = 0;
 
 	uint16_t obstacle_x;
@@ -135,47 +135,92 @@ int main()
 	uint16_t fish_y = 100;
 	uint16_t fish_oldx;
 	uint16_t fish_oldy;
-	//int fish; // same name as fish sprite array, problem
+	// int fish; // same name as fish sprite array, problem
 	int has_fish = 0;
+	int fish_value = 10;
 
-    uint16_t boat_x = 64 -(BOATWIDTH/2);
+	uint16_t boat_x = 64 - (BOATWIDTH / 2);
 	uint16_t boat_y = 10;
 	uint16_t boat_oldx = boat_x;
 	int boat_horizontal_moved = 0;
 	int boat_invert = 0;
-    
-    initClock();
-    initSysTick();
-    setupIO();
-    
-    while (1)
-    {
+
+	initClock();
+	initSysTick();
+	setupIO();
+
+	while (1)
+	{
 		putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
 		show_score(&score);
-		stage = 1;
 
-		while (stage == 1)
+			// Display only once
+			if (beginGame)
+			{
+				// printTextX2(gameTitle, 64, 10, 255, 0);
+				// printText(gameDesc, 64, 40, 255, 0);
+				beginGame = 0;
+			}
+
+		// Blinking effect for "Press any button"
+		if (count > 10 && count <= 20)
 		{
+			// printTextX2(gameStart, 64, 120, 255, 0);
+			if (count == 20)
+			{
+				count = 0;
+			}
+		}
+
+		if (rightPressed() || leftPressed() || upPressed() || downPressed())
+		{
+			stage = BOAT_STAGE;
+		}
+		count++;
+
+		delay(16); // is a delay at the end beneficial?
+	}
+	// Clear the screen before next stage
+	fillRectangle(0, 0, 128, 160, 0);
+
+	// Boat stage
+	while (stage == BOAT_STAGE)
+	{
+		displayHUD(112, 8, 8);
+
+		// Spawn fishes
+		for (int i = 0; i < MAX_FISHES; i++)
+		{
+			spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+		}
+		// Control boat left and right
+		// Down to release bucket
+		// Up for ability
+
+		// Can possibly #define the parameters for these functions?
+
 			boat_horizontal_moved = 0;
-			move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH,1,&boat_invert);
+			move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH, 1, &boat_invert);
 			move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
 			// Up pressed
-			if (upPressed() == 1) {
+			if (upPressed() == 1)
+			{
 				// ability i guess?
 			}
 			// Down pressed
-			if (downPressed() == 1) {
-				stage = 2;
-				bucket_x = boat_x + (BOATWIDTH/2) - (BUCKETWIDTH/2);
+			if (downPressed() == 1)
+			{
+				stage = BUCKET_STAGE;
+				bucket_x = boat_x + (BOATWIDTH / 2) - (BUCKETWIDTH / 2);
 				bucket_y = 45;
 			}
 			delay(10);
 
 			if (boat_horizontal_moved == 1)
-            {
-                // only redraw if there has been some movement (reduces flicker)
-                fillRectangle(boat_oldx, boat_y, BOATWIDTH, BOATHEIGHT, 0);
-                boat_oldx = boat_x;
+			{
+				// only redraw if there has been some movement (reduces flicker)
+				fillRectangle(boat_oldx, boat_y, BOATWIDTH, BOATHEIGHT, 0);
+				boat_oldx = boat_x;
 				if (toggle == 0)
 				{
 					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
@@ -185,137 +230,75 @@ int main()
 					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat2, boat_invert, 0);
 				}
 				toggle = toggle ^ 1;
-            }
-
-		}
-        while (stage == 2)
-			// Display only once
-			if (beginGame) {
-				//printTextX2(gameTitle, 64, 10, 255, 0);
-				//printText(gameDesc, 64, 40, 255, 0);
-				beginGame = 0;
-			}
-			
-			// Blinking effect for "Press any button"
-			if (count > 10 && count <= 20) {
-				//printTextX2(gameStart, 64, 120, 255, 0);
-				if (count == 20) {
-					count = 0;
-				}
-			}
-
-			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
-				stage = BOAT_STAGE;
-			}
-			count++;
-			delay(16); // is a delay at the end beneficial?
-		}
-		// Clear the screen before next stage
-		fillRectangle(0, 0, 128, 160, 0);
-
-		// Boat stage
-		while (stage == BOAT_STAGE)
-		{
-			displayHUD(112, 8, 8);
-
-			// Spawn fishes
-			for (int i = 0; i < MAX_FISHES; i++)
-			{
-				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
-			}
-			// Control boat left and right
-			// Down to release bucket
-			// Up for ability
-
-			// Can possibly #define the parameters for these functions?
-
-			// Right Pressed
-			if (rightPressed() == 1) {
-				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'R');
-			}
-			// Left pressed
-			if (leftPressed() == 1) {
-				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'L');
-			}
-			// Up pressed
-			if (upPressed() == 1) {
-				// ability i guess?
-			}
-			// Down pressed
-			if (downPressed() == 1) {
-				stage = BUCKET_STAGE;
-			}
-			delay(16);
-		}
-		// Bucket stage
-		while (stage == BUCKET_STAGE)
-        {
-			// Spawn fishes
-			for (int i = 0; i < MAX_FISHES; i++)
-			{
-				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
-			}
-
-            // MOVEMENT SYSTEM START
-            bucket_horizontal_moved = 0;
-			bucket_vertical_moved = 0;
-			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH,0,&bucket_invert);
-			move_left(&bucket_x, &bucket_horizontal_moved, 0,0,&bucket_invert); 
-			move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);  
-			move_up(&bucket_y, &bucket_vertical_moved, (BOATHEIGHT*0.9) );    
-            // MOVEMENT SYSTEM END
-            
-            // DRAW IMAGE START
-            if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1)
-            {
-                // only redraw if there has been some movement (reduces flicker)
-                fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
-                bucket_oldx = bucket_x;
-                bucket_oldy = bucket_y;
-				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);
-            }
-            // DRAW IMAGE END
-            
-            // COLLISION DETECTION START
-            if (collision(obstacle_x, obstacle_y, obstacle_width, obstacle_height, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
-            {
-                stage = 1; // What is this for??
-                health = health - 1;
-				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-            }
-			else if (collision(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
-			{
-				has_fish = 1;//enables to go back to stage 1 since has fish
-				fillRectangle(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, 0);//draw over fish
-				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket1, 0, 0);//draw bucket again
-			}
-			else if (collision(boat_x, boat_y+10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
-			{
-				stage = BOAT_STAGE;
-				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-				score += fish;
-				
-			}
-            // COLLISION DETECTION END
-            
-            delay(50);
-        }
-		// Game over stage
-		while (stage == GAME_OVER)
-		{
-			// display only once
-			// write over screen with black
-			// display message and game over screen
-
-			fillRectangle(0, 0, 128, 160, 0);
-			fillRectangle(0, 60, 128, 20, 255);
-			printTextX2(gameOver, 100, 60, 0, 255);
-		}
-		
+		delay(16);
 	}
-	return 0;
+	// Bucket stage
+	while (stage == BUCKET_STAGE)
+	{
+		// Spawn fishes
+		for (int i = 0; i < MAX_FISHES; i++)
+		{
+			spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+		}
+
+		// MOVEMENT SYSTEM START
+		bucket_horizontal_moved = 0;
+		bucket_vertical_moved = 0;
+		move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH, 0, &bucket_invert);
+		move_left(&bucket_x, &bucket_horizontal_moved, 0, 0, &bucket_invert);
+		move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);
+		move_up(&bucket_y, &bucket_vertical_moved, (BOATHEIGHT * 0.9));
+		// MOVEMENT SYSTEM END
+
+		// DRAW IMAGE START
+		if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1)
+		{
+			// only redraw if there has been some movement (reduces flicker)
+			fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
+			bucket_oldx = bucket_x;
+			bucket_oldy = bucket_y;
+			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);
+		}
+		// DRAW IMAGE END
+
+		// COLLISION DETECTION START
+		if (collision(obstacle_x, obstacle_y, obstacle_width, obstacle_height, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
+		{
+			stage = BOAT_STAGE; // What is this for
+			health = health - 1;
+			fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
+		}
+		else if (collision(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
+		{
+			has_fish = 1;														   // enables to go back to stage 1 since has fish
+			fillRectangle(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, 0);			   // draw over fish
+			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0); // draw bucket again
+		}
+		else if (collision(boat_x, boat_y + 10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
+		{
+			stage = BOAT_STAGE;
+			fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
+			score += fish_value;
+		}
+		// COLLISION DETECTION END
+
+		delay(50);
+	}
+	// Game over stage
+	while (stage == GAME_OVER)
+	{
+		// display only once
+		// write over screen with black
+		// display message and game over screen
+
+		fillRectangle(0, 0, 128, 160, 0);
+		fillRectangle(0, 60, 128, 20, 255);
+		printTextX2(gameOver, 100, 60, 0, 255);
+	}
 }
 
+return 0;
+}
 
 void initSysTick(void)
 {
