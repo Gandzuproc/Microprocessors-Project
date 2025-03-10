@@ -98,12 +98,7 @@ int main()
 	int health = 0;
 	int toggle = 0; // used for switching between animations
 	int count = 0;
-	uint16_t x = 0;
-	uint16_t y = 0;
-	uint16_t oldx = x;
-	uint16_t oldy = y;
-	uint16_t boatX = 0;
-	uint16_t boatY = 40;
+
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
 	uint16_t fishY[] = {20, 40, 60, 80, 100, 120};
 	int direction[] = {0, 1, 1, 0, 1, 0};
@@ -151,16 +146,14 @@ int main()
 
 	while (1)
 	{
-		putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
-		show_score(&score);
 
-			// Display only once
-			if (beginGame)
-			{
-				// printTextX2(gameTitle, 64, 10, 255, 0);
-				// printText(gameDesc, 64, 40, 255, 0);
-				beginGame = 0;
-			}
+		// Display only once
+		if (beginGame)
+		{
+			// printTextX2(gameTitle, 64, 10, 255, 0);
+			// printText(gameDesc, 64, 40, 255, 0);
+			beginGame = 0;
+		}
 
 		// Blinking effect for "Press any button"
 		if (count > 10 && count <= 20)
@@ -174,6 +167,7 @@ int main()
 
 		if (rightPressed() || leftPressed() || upPressed() || downPressed())
 		{
+			putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
 			stage = BOAT_STAGE;
 		}
 		count++;
@@ -186,6 +180,7 @@ int main()
 	// Boat stage
 	while (stage == BOAT_STAGE)
 	{
+		show_score(&score);
 		displayHUD(112, 8, 8);
 
 		// Spawn fishes
@@ -199,105 +194,113 @@ int main()
 
 		// Can possibly #define the parameters for these functions?
 
-			boat_horizontal_moved = 0;
-			move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH, 1, &boat_invert);
-			move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
-			// Up pressed
-			if (upPressed() == 1)
-			{
-				// ability i guess?
-			}
-			// Down pressed
-			if (downPressed() == 1)
-			{
-				stage = BUCKET_STAGE;
-				bucket_x = boat_x + (BOATWIDTH / 2) - (BUCKETWIDTH / 2);
-				bucket_y = 45;
-			}
-			delay(10);
+		boat_horizontal_moved = 0;
+		move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH, 1, &boat_invert);
+		move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
+		// Up pressed
+		if (upPressed() == 1)
+		{
+			// ability i guess?
+		}
+		// Down pressed
+		if (downPressed() == 1)
+		{
+			bucket_x = boat_x + (BOATWIDTH / 2) - (BUCKETWIDTH / 2);
+			bucket_y = 45;
+			stage = BUCKET_STAGE;
+		}
+		delay(10);
 
-			if (boat_horizontal_moved == 1)
+		if (boat_horizontal_moved == 1)
+		{
+			// only redraw if there has been some movement (reduces flicker)
+			fillRectangle(boat_oldx, boat_y, BOATWIDTH, BOATHEIGHT, 0);
+			boat_oldx = boat_x;
+			if (toggle == 0)
+			{
+				putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
+			}
+			else
+			{
+				putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat2, boat_invert, 0);
+			}
+			toggle = toggle ^ 1;
+			delay(16);
+		}
+		// Bucket stage
+		while (stage == BUCKET_STAGE)
+		{
+			// Spawn fishes
+			for (int i = 0; i < MAX_FISHES; i++)
+			{
+				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+			}
+
+			// MOVEMENT SYSTEM START
+			bucket_horizontal_moved = 0;
+			bucket_vertical_moved = 0;
+			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH, 0, &bucket_invert);
+			move_left(&bucket_x, &bucket_horizontal_moved, 0, 0, &bucket_invert);
+			move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);
+			move_up(&bucket_y, &bucket_vertical_moved, (BOATHEIGHT * 0.9));
+			// MOVEMENT SYSTEM END
+
+			// DRAW IMAGE START
+			if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1)
 			{
 				// only redraw if there has been some movement (reduces flicker)
-				fillRectangle(boat_oldx, boat_y, BOATWIDTH, BOATHEIGHT, 0);
-				boat_oldx = boat_x;
-				if (toggle == 0)
+				fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
+				bucket_oldx = bucket_x;
+				bucket_oldy = bucket_y;
+				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);
+			}
+			// DRAW IMAGE END
+
+			// COLLISION DETECTION START
+			if (collision(obstacle_x, obstacle_y, obstacle_width, obstacle_height, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
+			{
+				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
+				//reprint object maybe
+				stage = BOAT_STAGE; // What is this for
+				if (health == 1)
 				{
-					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
+					stage = gameOver;
 				}
 				else
 				{
-					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat2, boat_invert, 0);
+					health = health - 1;
 				}
-				toggle = toggle ^ 1;
-		delay(16);
+			}
+			else if (collision(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
+			{
+				has_fish = 1;														   // enables to go back to stage 1 since has fish
+				fillRectangle(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, 0);			   // draw over fish
+				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0); // draw bucket again
+			}
+			else if (collision(boat_x, boat_y + 10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
+			{
+				stage = BOAT_STAGE;
+				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
+				score += fish_value;
+			}
+			// COLLISION DETECTION END
+
+			delay(50);
+		}
+		// Game over stage
+		while (stage == GAME_OVER)
+		{
+			// display only once
+			// write over screen with black
+			// display message and game over screen
+
+			fillRectangle(0, 0, 128, 160, 0);
+			fillRectangle(0, 60, 128, 20, 255);
+			printTextX2(gameOver, 100, 60, 0, 255);
+		}
 	}
-	// Bucket stage
-	while (stage == BUCKET_STAGE)
-	{
-		// Spawn fishes
-		for (int i = 0; i < MAX_FISHES; i++)
-		{
-			spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
-		}
 
-		// MOVEMENT SYSTEM START
-		bucket_horizontal_moved = 0;
-		bucket_vertical_moved = 0;
-		move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH, 0, &bucket_invert);
-		move_left(&bucket_x, &bucket_horizontal_moved, 0, 0, &bucket_invert);
-		move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);
-		move_up(&bucket_y, &bucket_vertical_moved, (BOATHEIGHT * 0.9));
-		// MOVEMENT SYSTEM END
-
-		// DRAW IMAGE START
-		if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1)
-		{
-			// only redraw if there has been some movement (reduces flicker)
-			fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
-			bucket_oldx = bucket_x;
-			bucket_oldy = bucket_y;
-			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);
-		}
-		// DRAW IMAGE END
-
-		// COLLISION DETECTION START
-		if (collision(obstacle_x, obstacle_y, obstacle_width, obstacle_height, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
-		{
-			stage = BOAT_STAGE; // What is this for
-			health = health - 1;
-			fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-		}
-		else if (collision(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
-		{
-			has_fish = 1;														   // enables to go back to stage 1 since has fish
-			fillRectangle(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, 0);			   // draw over fish
-			putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0); // draw bucket again
-		}
-		else if (collision(boat_x, boat_y + 10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
-		{
-			stage = BOAT_STAGE;
-			fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-			score += fish_value;
-		}
-		// COLLISION DETECTION END
-
-		delay(50);
-	}
-	// Game over stage
-	while (stage == GAME_OVER)
-	{
-		// display only once
-		// write over screen with black
-		// display message and game over screen
-
-		fillRectangle(0, 0, 128, 160, 0);
-		fillRectangle(0, 60, 128, 20, 255);
-		printTextX2(gameOver, 100, 60, 0, 255);
-	}
-}
-
-return 0;
+	return 0;
 }
 
 void initSysTick(void)
