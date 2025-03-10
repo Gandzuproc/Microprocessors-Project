@@ -97,9 +97,9 @@ int main()
 	uint16_t y = 0;
 	uint16_t oldx = x;
 	uint16_t oldy = y;
-	uint16_t boatX = 50;
-	uint16_t boatY = 50; // not used?
-	uint16_t fishX[] = {10, 50, 20, 0, 80, 100};
+	uint16_t boatX = 0;
+	uint16_t boatY = 40;
+	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
 	uint16_t fishY[] = {20, 40, 60, 80, 100, 120}; 
 	int direction[] = {0, 1, 1, 0, 1, 0};
 	initClock();
@@ -129,7 +129,7 @@ int main()
 	uint16_t fish_y;
 	uint16_t fish_oldx;
 	uint16_t fish_oldy;
-	//int fish;
+	//int fish; // same name as fish sprite array, problem
 	int has_fish = 0;
 
 
@@ -154,15 +154,6 @@ int main()
 				}
 			}
 
-			// JUST FOR TESTING FISH PLS REMOVE
-			displayHUD(112, 8, 8);
-
-			for (int i = 0; i < 6; i++)
-			{
-				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
-			}
-			// JUST FOR TESTING FISH PLS REMOVE
-
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
 				stage = BOAT_STAGE;
 			}
@@ -175,6 +166,13 @@ int main()
 		// Boat stage
 		while (stage == BOAT_STAGE)
 		{
+			displayHUD(112, 8, 8);
+
+			// Spawn fishes
+			for (int i = 0; i < MAX_FISHES; i++)
+			{
+				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+			}
 			// Control boat left and right
 			// Down to release bucket
 			// Up for ability
@@ -183,11 +181,11 @@ int main()
 
 			// Right Pressed
 			if (rightPressed() == 1) {
-				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'R'); // TEST IF & IS NEEDED 
+				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'R');
 			}
 			// Left pressed
 			if (leftPressed() == 1) {
-				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'L'); // TEST IF NUMBERS WORK FOR X Y
+				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'L');
 			}
 			// Up pressed
 			if (upPressed() == 1) {
@@ -197,11 +195,17 @@ int main()
 			if (downPressed() == 1) {
 				stage = BUCKET_STAGE;
 			}
-			delay(10);
+			delay(16);
 		}
 		// Bucket stage
 		while (stage == BUCKET_STAGE)
         {
+			// Spawn fishes
+			for (int i = 0; i < MAX_FISHES; i++)
+			{
+				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+			}
+
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
@@ -500,7 +504,7 @@ void moveSprite(uint16_t *x, uint16_t *y, int width, int height, const uint16_t 
 	prevX = *x;
 	prevY = *y;
 	// Place image in new location
-	putImage(*x, *y, width, height, sprite, direction, 0); // direction is passing a character to int NOT WORKING		
+	putImage(*x, *y, width, height, sprite, direction, 0); // direction is passing char to int NOT WORKING FIX THIS		
 }
 
 void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *direction) {
