@@ -44,11 +44,12 @@ int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint
 void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber);
 void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode);
 
-void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width);
-void move_left (uint16_t *x, int *horizontal_moved, int boundary);
-void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height);
-void move_up (uint16_t *y, int *vertical_moved, int boundary);
+void move_right (uint16_t*,int*,int,int,int,int*);
+void move_left (uint16_t*,int*,int,int,int*);
+void move_down (uint16_t*, int*,int,int);
+void move_up (uint16_t*,int*,int);
 int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
+void show_score (int*);
 
 int rightPressed(void);
 int leftPressed(void);
@@ -90,17 +91,13 @@ int main()
 {
 	int stage = START_MENU;
 	int score = 0;
-    int health = 0;
+    int health = 3;
 	int toggle = 0; // used for switching between animations
 	int count = 0;
 	uint16_t x = 0;
 	uint16_t y = 0;
-	uint16_t oldx = x;
-	uint16_t oldy = y;
-	uint16_t boatX = 0;
-	uint16_t boatY = 40;
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
-	uint16_t fishY[] = {20, 40, 60, 80, 100, 120}; 
+	uint16_t fishY[] = {60, 75, 90, 80, 100, 120}; 
 	int direction[] = {0, 1, 1, 0, 1, 0};
 	initClock();
 	initSysTick();
@@ -113,24 +110,24 @@ int main()
  	int beginGame = 1;
 
 	// MAY BE REPLACED BY JUST X AND Y
-	uint16_t bucket_x = 0;
-	uint16_t bucket_y = 0;
+
+    uint16_t bucket_x = 40;
+	uint16_t bucket_y = 40;
 	uint16_t bucket_oldx = 0;
     uint16_t bucket_oldy = 0;
 	int bucket_horizontal_moved = 0;
     int bucket_vertical_moved = 0;
+	int bucket_invert = 0;
 
-	uint16_t obstacle_x;
-	uint16_t obstacle_y;
-	int obstacle_width;
-	int obstacle_height;
-
-	uint16_t fish_x;
-	uint16_t fish_y;
-	uint16_t fish_oldx;
-	uint16_t fish_oldy;
-	//int fish; // same name as fish sprite array, problem
+	int infish = 0;
+	int fish_value = 10;
 	int has_fish = 0;
+
+	uint16_t boat_x = 64 -(BOATWIDTH/2);
+	uint16_t boat_y = 10;
+	uint16_t boat_oldx = boat_x;
+	int boat_horizontal_moved = 0;
+	int boat_invert = 0;
 
 
 	// Game Loop
@@ -166,7 +163,9 @@ int main()
 		// Boat stage
 		while (stage == BOAT_STAGE)
 		{
-			displayHUD(112, 8, 8);
+			displayHUD(135, 0, 8);
+			show_score(&score);
+			putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 
 			// Spawn fishes
 			for (int i = 0; i < MAX_FISHES; i++)
@@ -179,22 +178,36 @@ int main()
 
 			// Can possibly #define the parameters for these functions?
 
-			// Right Pressed
-			if (rightPressed() == 1) {
-				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'R');
-			}
-			// Left pressed
-			if (leftPressed() == 1) {
-				moveSprite(&boatX, &boatY, BOATWIDTH, BOATHEIGHT, boat1, 'L');
-			}
+			boat_horizontal_moved = 0;
+			move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH,1,&boat_invert);
+			move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
 			// Up pressed
 			if (upPressed() == 1) {
 				// ability i guess?
 			}
 			// Down pressed
 			if (downPressed() == 1) {
+				bucket_x = boat_x + (BOATWIDTH/2) - (BUCKETWIDTH/2);
+				bucket_y = 45;
 				stage = BUCKET_STAGE;
 			}
+			delay(10);
+
+			if (boat_horizontal_moved == 1)
+            {
+                // only redraw if there has been some movement (reduces flicker)
+                fillRectangle(boat_oldx, boat_y, BOATWIDTH, BOATHEIGHT, 0);
+                boat_oldx = boat_x;
+				if (toggle == 0)
+				{
+					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
+				}
+				else
+				{
+					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat2, boat_invert, 0);
+				}
+				toggle = toggle ^ 1;
+            }
 			delay(16);
 		}
 		// Bucket stage
@@ -209,12 +222,10 @@ int main()
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
-	
-
-			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH);
-			move_left(&bucket_x, &bucket_horizontal_moved, 0); 
+			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH,0,&bucket_invert);
+			move_left(&bucket_x, &bucket_horizontal_moved, 0,0,&bucket_invert); 
 			move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);  
-			move_up(&bucket_y, &bucket_vertical_moved, (BOATHEIGHT*0.9) );    
+			move_up(&bucket_y, &bucket_vertical_moved, boat_y+BOATHEIGHT);     
             // MOVEMENT SYSTEM END
             
             // DRAW IMAGE START
@@ -229,25 +240,46 @@ int main()
             // DRAW IMAGE END
             
             // COLLISION DETECTION START
-            if (collision(obstacle_x, obstacle_y, obstacle_width, obstacle_height, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
-            {
-                stage = 1; // What is this for??
-                health = health - 1;
-				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-            }
-			else if (collision(fish_x, fish_y, FISHWIDTH, FISHHEIGHT, bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT))
+			for (int i = 0; i<MAX_FISHES; i++)
 			{
-				has_fish = 1;//enables to go back to stage 1 since has fish
-				fillRectangle(fish_oldx, fish_oldy, FISHWIDTH, FISHHEIGHT, 0);//draw over fish
-				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
+				if (collision(fishX[i],fishY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH && (infish == 0)))
+				{
+					//somehow we need to stop the fish from moving and make it be deleted
+					has_fish = 1;
+					fillRectangle(fishX[i], fishY[i], 16, 16, 0); //draw over fish
+					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
+					break;
+				}
 			}
-			else if (collision(boatX, 0, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
+
+			/*
+			for (int i = 0; i<2; i++)
 			{
-				stage = BOAT_STAGE;
-				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-				//score += fish;
-				//print updated score here somehow
+				if (collision(obstacleX[i],obstacleY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH))
+				{	
+                	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
+					if(health == 1)
+					{
+						stage = GAME_OVER
+					}
+					else
+					{
+						health = health - 1;
+						//update health somehow idk
+						stage = BOAT_STAGE
+					}
+				}
 			}
+			*/
+
+			if (collision(boat_x, boat_y+10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
+			{
+				stage = 1;
+				has_fish = 0;
+				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
+				score += fish_value;
+			}
+
             // COLLISION DETECTION END
             
             delay(50);
@@ -360,7 +392,7 @@ void setupIO()
 	enablePullUp(GPIOA,8);
 }
 
-void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width)
+void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert)
 {
 	if ((GPIOB->IDR & (1 << 4)) == 0) // right pressed
 	{
@@ -368,11 +400,15 @@ void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_wi
 		{
 			*x = *x + 1;
 			*horizontal_moved = 1;
+			if (flip == 1)
+			{
+				*invert = 0;
+			}
 		}
 	}
 }
 
-void move_left (uint16_t *x, int *horizontal_moved, int boundary)
+void move_left (uint16_t *x, int *horizontal_moved, int boundary, int flip, int *invert)
 {
 	if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
 	{
@@ -380,6 +416,10 @@ void move_left (uint16_t *x, int *horizontal_moved, int boundary)
 		{
 			*x = *x - 1;
 			*horizontal_moved = 1;
+			if (flip == 1)
+				{
+					*invert = 1;
+				}
 		}
 	}
 }
@@ -425,6 +465,12 @@ int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uin
 	{
 		return 0;
 	}
+}
+
+void show_score (int *score)
+{
+	printText("Score:",0,0,RGBToWord(255,255,255),0);
+	printNumber(*score,40,0,RGBToWord(255,255,255),0);
 }
 
 void showLives(int lives) {
