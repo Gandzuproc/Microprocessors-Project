@@ -140,13 +140,18 @@ int main()
 
 			// Display only once
 			if (beginGame) {
-				printTextX2("Cat Fish!", 15, 10, RGBToWord(255,255,255), 0);
-				printText("Help Pat the cat!", 0, 35, RGBToWord(255,255,255), 0);
-				printText("DOWN to release", 0, 45, RGBToWord(255,255,255), 0);
-				printText("bucket, catch fish", 0, 55, RGBToWord(255,255,255), 0);
-				printText("with the bucket", 0, 65, RGBToWord(255,255,255), 0);
-				printText("and return to boat", 0, 75, RGBToWord(255,255,255), 0);
-				printText("to score", 0, 85, RGBToWord(255,255,255), 0);
+				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
+				printTextX2("Cat Fish!", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
+				printText("Help Pat the cat", 0, 35, RGBToWord(0,255,0), 0);
+				printText("cath some food!", 0, 45, RGBToWord(0,255,0), 0);
+				printText("RL = Move Boat", 0, 55, RGBToWord(255,255,255), 0);
+				printText("D = Release bucket", 0, 65, RGBToWord(255,255,255), 0);
+				printText("RLUD = Move bucket", 0, 75, RGBToWord(255,255,255), 0);
+				printText("U = Rocket", 0, 85, RGBToWord(255,255,255), 0);
+				printText("U(again) = Explode", 0, 95, RGBToWord(255,255,255), 0);
+				printText("Get Fish and go", 0, 105, RGBToWord(255,255,0), 0);
+				printText("back to boat, try", 0, 115, RGBToWord(255,255,0), 0);
+				printText("not to get hit!", 0, 125, RGBToWord(255,255,0), 0);
 
 				beginGame = 0;
 			}
@@ -254,7 +259,7 @@ int main()
             // COLLISION DETECTION START
 			for (int i = 0; i<MAX_FISHES; i++)
 			{
-				if (collision(fishX[i],fishY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH && (infish == 0)))
+				if (collision(fishX[i],fishY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH && (has_fish == 0)))
 				{
 					//somehow we need to stop the fish from moving and make it be deleted
 					has_fish = 1;
