@@ -302,10 +302,9 @@ int main()
 			// display message and game over screen
 
 			fillRectangle(0, 0, 128, 160, 0);
-			fillRectangle(0, 60, 128, 20, 255);
-			printTextX2(gameOver, 100, 60, 0, 255);
+			fillRectangle(99,59,100,18,RGBToWord(255,255,255));
+			printTextX2("YOU DIED!", 100, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
 		}
-		
 	}
 	return 0;
 }
