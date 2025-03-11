@@ -93,7 +93,7 @@ int main()
 	int score = 0;
     int health = 3;
 	int toggle = 0; // used for switching between animations
-	int count = 0;
+	int count = 10;
 	uint16_t x = 0;
 	uint16_t y = 0;
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
@@ -136,19 +136,31 @@ int main()
 		// Start menu stage
 		while (stage == START_MENU)
 		{
+			count++;
+
 			// Display only once
 			if (beginGame) {
-				//printTextX2(gameTitle, 64, 10, 255, 0);
-				//printText(gameDesc, 64, 40, 255, 0);
+				printTextX2("Cat Fish!", 15, 10, RGBToWord(255,255,255), 0);
+				printText("Help Pat the cat!", 0, 35, RGBToWord(255,255,255), 0);
+				printText("DOWN to release", 0, 45, RGBToWord(255,255,255), 0);
+				printText("bucket, catch fish", 0, 55, RGBToWord(255,255,255), 0);
+				printText("with the bucket", 0, 65, RGBToWord(255,255,255), 0);
+				printText("and return to boat", 0, 75, RGBToWord(255,255,255), 0);
+				printText("to score", 0, 85, RGBToWord(255,255,255), 0);
+
 				beginGame = 0;
 			}
 			
 			// Blinking effect for "Press any button"
-			if (count > 10 && count <= 20) {
-				//printTextX2(gameStart, 64, 120, 255, 0);
-				if (count == 20) {
-					count = 0;
-				}
+			if (count > 40 && count <= 80) 
+			{
+				printText("Press any button", 10, 140, 255, 0);
+				printText("to start", 37, 150, 255, 0);
+			}
+			else if (count > 80) 
+			{
+				count = 0;
+				fillRectangle(0,140,128,20,0);
 			}
 
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
