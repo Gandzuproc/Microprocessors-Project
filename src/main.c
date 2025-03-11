@@ -94,8 +94,6 @@ int main()
     int health = 3;
 	int toggle = 0; // used for switching between animations
 	int count = 10;
-	uint16_t x = 0;
-	uint16_t y = 0;
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
 	uint16_t fishY[] = {60, 75, 90, 80, 100, 120}; 
 	int direction[] = {0, 1, 1, 0, 1, 0};
@@ -103,10 +101,6 @@ int main()
 	initSysTick();
 	setupIO();
 
-	char gameTitle[] = {"fish Game"};
-	char gameDesc[] = {"this is describes how to play the game"};
-	char gameStart[] = {"Press any button"};
-	char gameOver[] = {"GAME OVER"};
  	int beginGame = 1;
 
 	// MAY BE REPLACED BY JUST X AND Y
@@ -119,7 +113,6 @@ int main()
     int bucket_vertical_moved = 0;
 	int bucket_invert = 0;
 
-	int infish = 0;
 	int fish_value = 10;
 	int has_fish = 0;
 
