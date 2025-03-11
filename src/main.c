@@ -99,10 +99,14 @@ int main()
 	int score = 0;
     int lives = 5;
 	int toggle = 0; // used for switching between animations
+<<<<<<< HEAD
 	int count = 0;
 	int currentFish = -1;
 	uint16_t x = 0;
 	uint16_t y = 0;
+=======
+	int count = 10;
+>>>>>>> 0df28955a8f91b650432855f8d6c836f1a934576
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
 	uint16_t fishY[] = {60, 75, 90, 80, 100, 120}; 
 	uint16_t obstacleX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
@@ -112,10 +116,6 @@ int main()
 	initSysTick();
 	setupIO();
 
-	char gameTitle[] = {"fish Game"};
-	char gameDesc[] = {"this is describes how to play the game"};
-	char gameStart[] = {"Press any button"};
-	char gameOver[] = {"GAME OVER"};
  	int beginGame = 1;
 
 	// MAY BE REPLACED BY JUST X AND Y
@@ -128,7 +128,10 @@ int main()
     int bucket_vertical_moved = 0;
 	int bucket_invert = 0;
 
+<<<<<<< HEAD
 	//int infish = 0;
+=======
+>>>>>>> 0df28955a8f91b650432855f8d6c836f1a934576
 	int fish_value = 10;
 	int has_fish = 0;
 
@@ -145,19 +148,36 @@ int main()
 		// Start menu stage
 		while (stage == START_MENU)
 		{
+			count++;
+
 			// Display only once
 			if (beginGame) {
-				//printTextX2(gameTitle, 64, 10, 255, 0);
-				//printText(gameDesc, 64, 40, 255, 0);
+				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
+				printTextX2("Cat Fish!", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
+				printText("Help Pat the cat", 0, 35, RGBToWord(0,255,0), 0);
+				printText("cath some food!", 0, 45, RGBToWord(0,255,0), 0);
+				printText("RL = Move Boat", 0, 55, RGBToWord(255,255,255), 0);
+				printText("D = Release bucket", 0, 65, RGBToWord(255,255,255), 0);
+				printText("RLUD = Move bucket", 0, 75, RGBToWord(255,255,255), 0);
+				printText("U = Rocket", 0, 85, RGBToWord(255,255,255), 0);
+				printText("U(again) = Explode", 0, 95, RGBToWord(255,255,255), 0);
+				printText("Get Fish and go", 0, 105, RGBToWord(255,255,0), 0);
+				printText("back to boat, try", 0, 115, RGBToWord(255,255,0), 0);
+				printText("not to get hit!", 0, 125, RGBToWord(255,255,0), 0);
+
 				beginGame = 0;
 			}
 			
 			// Blinking effect for "Press any button"
-			if (count > 10 && count <= 20) {
-				//printTextX2(gameStart, 64, 120, 255, 0);
-				if (count == 20) {
-					count = 0;
-				}
+			if (count > 40 && count <= 80) 
+			{
+				printText("Press any button", 10, 140, 255, 0);
+				printText("to start", 37, 150, 255, 0);
+			}
+			else if (count > 80) 
+			{
+				count = 0;
+				fillRectangle(0,140,128,20,0);
 			}
 
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
@@ -309,10 +329,9 @@ int main()
 			// display message and game over screen
 
 			fillRectangle(0, 0, 128, 160, 0);
-			fillRectangle(0, 60, 128, 20, 255);
-			printTextX2(gameOver, 100, 60, 0, 255);
+			fillRectangle(99,59,100,18,RGBToWord(255,255,255));
+			printTextX2("YOU DIED!", 100, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
 		}
-		
 	}
 	return 0;
 }
