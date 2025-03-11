@@ -99,14 +99,10 @@ int main()
 	int score = 0;
     int lives = 5;
 	int toggle = 0; // used for switching between animations
-<<<<<<< HEAD
 	int count = 0;
 	int currentFish = -1;
 	uint16_t x = 0;
 	uint16_t y = 0;
-=======
-	int count = 10;
->>>>>>> 0df28955a8f91b650432855f8d6c836f1a934576
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
 	uint16_t fishY[] = {60, 75, 90, 80, 100, 120}; 
 	uint16_t obstacleX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
@@ -128,10 +124,7 @@ int main()
     int bucket_vertical_moved = 0;
 	int bucket_invert = 0;
 
-<<<<<<< HEAD
 	//int infish = 0;
-=======
->>>>>>> 0df28955a8f91b650432855f8d6c836f1a934576
 	int fish_value = 10;
 	int has_fish = 0;
 
@@ -152,6 +145,7 @@ int main()
 
 			// Display only once
 			if (beginGame) {
+				fillRectangle(0,0,128,160,0);
 				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
 				printTextX2("Cat Fish!", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
 				printText("Help Pat the cat", 0, 35, RGBToWord(0,255,0), 0);
@@ -164,7 +158,7 @@ int main()
 				printText("Get Fish and go", 0, 105, RGBToWord(255,255,0), 0);
 				printText("back to boat, try", 0, 115, RGBToWord(255,255,0), 0);
 				printText("not to get hit!", 0, 125, RGBToWord(255,255,0), 0);
-
+				delay(2000);
 				beginGame = 0;
 			}
 			
@@ -297,12 +291,18 @@ int main()
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
 					if(lives == 0)
 					{
+						fillRectangle(0, 0, 128, 160, 0);
+						fillRectangle(8,58,110,18,RGBToWord(255,255,255));
+						printTextX2("YOU DIED!", 10, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+						lives = 5;
+						score = 0;
+						beginGame = 1;
+						delay(2000);
 						stage = GAME_OVER;
 					}
 					else
 					{
 						lives = lives - 1;
-						//update health somehow idk
 						stage = BOAT_STAGE;
 					}
 				}
@@ -324,13 +324,25 @@ int main()
 		// Game over stage
 		while (stage == GAME_OVER)
 		{
+			count++;
 			// display only once
 			// write over screen with black
 			// display message and game over screen
 
-			fillRectangle(0, 0, 128, 160, 0);
-			fillRectangle(99,59,100,18,RGBToWord(255,255,255));
-			printTextX2("YOU DIED!", 100, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+			if (count > 40 && count <= 80) 
+			{
+				printText("Press any button", 10, 140, RGBToWord(255,255,255), 0);
+				printText("to restart", 33, 150, RGBToWord(255,255,255), 0);
+			}
+			else if (count > 80) 
+			{
+				count = 0;
+				fillRectangle(0,140,128,20,0);
+			}
+
+			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
+				stage = START_MENU;
+			}
 		}
 	}
 	return 0;
