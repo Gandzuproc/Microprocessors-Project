@@ -7,6 +7,7 @@
 #define BUCKET_STAGE 2
 #define GAME_OVER 3
 #define MAX_FISHES 3
+#define MAX_OBSTACLES 2
 
 #define BOATWIDTH 48
 #define BOATHEIGHT 31
@@ -86,8 +87,8 @@ const uint16_t bucketFish[] =
 {
 	0,0,0,0,25880,25880,25880,25880,25880,25880,60301,59168,59168,0,0,0,0,0,25880,25880,35113,59168,59168,60301,59168,34404,60301,34404,34404,59168,0,0,0,25880,35113,35113,44006,44006,60301,60301,34404,58443,60301,0,34404,59168,25880,0,0,25880,35113,44006,44006,60301,60301,60301,34404,58443,58443,34404,34404,44006,25880,0,0,25880,25880,44006,44006,60301,34404,34404,34404,34404,58443,34404,44006,25880,25880,0,0,25880,18457,35113,44006,44006,44006,44006,44006,44006,44006,44006,44006,28986,25880,0,0,25880,18457,35113,35113,18457,44006,28202,18457,44006,44006,18457,28986,28986,25880,0,0,25880,52323,13212,35113,18457,28202,28202,18457,28202,44006,18457,13212,52323,25880,0,0,25880,18457,35113,13212,13212,44006,52323,52323,52323,44006,13212,28986,28986,25880,0,0,25880,18457,35113,35113,18457,44006,28202,18457,28202,28202,18457,28986,28986,25880,0,0,25880,18457,35113,35113,18457,44006,28202,18457,28202,28986,18457,28986,28986,25880,0,0,0,18457,35113,35113,18457,28202,28202,18457,28202,44006,18457,28986,28986,0,0,0,0,52323,52323,35113,18457,28202,28202,18457,28202,28986,18457,13212,13212,0,0,0,0,25880,35113,52323,52323,13212,13212,52323,52323,52323,13212,28986,25880,0,0,0,0,0,25880,35113,18457,28202,28202,18457,28202,28986,18457,25880,0,0,0,0,0,0,0,25880,25880,25880,25880,25880,25880,25880,25880,0,0,0,0,
 };
-
-const uint16_t heart[]=
+// heart not obs
+const uint16_t obstacle[]=
 {
 	0,0,0,0,0,0,0,0,0,65535,65535,0,0,65535,65535,0,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,0,0,0,0,0,65535,65535,0,0,0,
 };
@@ -96,7 +97,7 @@ int main()
 {
 	int stage = START_MENU;
 	int score = 0;
-    int health = 3;
+    int lives = 5;
 	int toggle = 0; // used for switching between animations
 	int count = 0;
 	int currentFish = -1;
@@ -104,6 +105,8 @@ int main()
 	uint16_t y = 0;
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
 	uint16_t fishY[] = {60, 75, 90, 80, 100, 120}; 
+	uint16_t obstacleX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
+	uint16_t obstacleY[] = {120, 140, 90, 80, 100, 120}; 
 	int direction[] = {0, 1, 1, 0, 1, 0};
 	initClock();
 	initSysTick();
@@ -125,7 +128,7 @@ int main()
     int bucket_vertical_moved = 0;
 	int bucket_invert = 0;
 
-	int infish = 0;
+	//int infish = 0;
 	int fish_value = 10;
 	int has_fish = 0;
 
@@ -169,7 +172,7 @@ int main()
 		// Boat stage
 		while (stage == BOAT_STAGE)
 		{
-			displayHUD(135, 0, 8);
+			displayHUD(135, 0, lives);
 			show_score(&score);
 			putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 
@@ -219,12 +222,18 @@ int main()
 		// Bucket stage
 		while (stage == BUCKET_STAGE)
         {
+			displayHUD(135, 0, lives);
 			// Spawn fishes
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
 				if (i != currentFish) { // Don't show fish currently in bucket
 					spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
 				}
+			}
+			// this is kinda temporary
+			for (int i = 0; i < MAX_OBSTACLES; i++)
+			{
+				spawnFish(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &direction[i]);
 			}
 
             // MOVEMENT SYSTEM START
@@ -261,37 +270,36 @@ int main()
 				}
 			}
 
-			/*
-			for (int i = 0; i<2; i++)
+			for (int i = 0; i < MAX_OBSTACLES; i++)
 			{
 				if (collision(obstacleX[i],obstacleY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH))
 				{	
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
-					if(health == 1)
+					if(lives == 0)
 					{
-						stage = GAME_OVER
+						stage = GAME_OVER;
 					}
 					else
 					{
-						health = health - 1;
+						lives = lives - 1;
 						//update health somehow idk
-						stage = BOAT_STAGE
+						stage = BOAT_STAGE;
 					}
 				}
 			}
-			*/
 
 			if (collision(boat_x, boat_y+10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
 			{
 				stage = 1;
 				has_fish = 0;
+				currentFish = -1; // -1, no fish
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
 				score += fish_value;
 			}
 
             // COLLISION DETECTION END
             
-            delay(50);
+            delay(16);
         }
 		// Game over stage
 		while (stage == GAME_OVER)
@@ -487,7 +495,7 @@ void showLives(int lives) {
 	int startx = 116; // start of health bar 
 
 	while (lives--) {
-		putImage(startx, 1, 8, 8, heart, 0, 0);
+		//putImage(startx, 1, 8, 8, heart, 0, 0);
 		startx = startx - 2; // spacing the health indicators
 	}
 }
