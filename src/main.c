@@ -25,17 +25,6 @@
 #define BOARDHEIGHT 160
 
 
-struct Sprite
-{
-	uint16_t x; // may need to be pointers
-	uint16_t y;
-	int width;
-	int height;
-	const uint16_t *sprite;
-	int direction;
-};
-
-
 void initClock(void);
 void initSysTick(void);
 void SysTick_Handler(void);
@@ -93,6 +82,11 @@ const uint16_t obstacle[]=
 	0,0,0,0,0,0,0,0,0,65535,65535,0,0,65535,65535,0,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,0,0,0,0,0,65535,65535,0,0,0,
 };
 
+const uint16_t ofish[]=
+{
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,37385,37385,37385,0,0,0,0,0,0,0,37385,37385,0,0,0,0,0,37385,37385,37385,0,0,0,0,0,0,0,37385,37385,0,0,0,37385,65317,40708,65317,37385,37385,0,0,0,0,0,37385,37385,37385,0,65317,40708,40708,65317,40708,40708,40708,65317,37385,0,0,0,0,37385,37385,37385,40708,65283,40708,65283,40708,65283,65317,65283,40708,37385,0,0,37385,37385,37385,65283,65283,40708,65283,40708,37385,40708,65283,0,65283,37385,0,0,37385,37385,0,0,37385,65283,37385,37385,37385,65283,65283,65283,65283,37385,37385,37385,0,0,0,0,0,37385,37385,37385,37385,37385,37385,37385,0,0,0,0,0,0,0,0,0,0,37385,37385,0,0,0,0,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+};
+
 int main()
 {
 	int stage = START_MENU;
@@ -102,16 +96,20 @@ int main()
 <<<<<<< HEAD
 	int count = 0;
 	int currentFish = -1;
+<<<<<<< HEAD
 	uint16_t x = 0;
 	uint16_t y = 0;
 =======
 	int count = 10;
 >>>>>>> 0df28955a8f91b650432855f8d6c836f1a934576
+=======
+>>>>>>> eamonn
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
-	uint16_t fishY[] = {60, 75, 90, 80, 100, 120}; 
+	uint16_t fishY[] = {90, 110, 140, 80, 100, 120}; 
 	uint16_t obstacleX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
-	uint16_t obstacleY[] = {120, 140, 90, 80, 100, 120}; 
+	uint16_t obstacleY[] = {70, 130, 150, 80, 100, 120}; 
 	int direction[] = {0, 1, 1, 0, 1, 0};
+	int obsDir[] = {0, 1, 0, 0, 1, 1};
 	initClock();
 	initSysTick();
 	setupIO();
@@ -129,10 +127,14 @@ int main()
 	int bucket_invert = 0;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	//int infish = 0;
 =======
 >>>>>>> 0df28955a8f91b650432855f8d6c836f1a934576
 	int fish_value = 10;
+=======
+	int fish_value = 100;
+>>>>>>> eamonn
 	int has_fish = 0;
 
 	uint16_t boat_x = 64 -(BOATWIDTH/2);
@@ -201,6 +203,10 @@ int main()
 			{
 				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
 			}
+			for (int i = 0; i < MAX_OBSTACLES; i++)
+			{
+				spawnFish(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &obsDir[i]);
+			}
 			// Control boat left and right
 			// Down to release bucket
 			// Up for ability
@@ -220,7 +226,6 @@ int main()
 				bucket_y = 45;
 				stage = BUCKET_STAGE;
 			}
-			delay(10);
 
 			if (boat_horizontal_moved == 1)
             {
@@ -247,13 +252,12 @@ int main()
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
 				if (i != currentFish) { // Don't show fish currently in bucket
-					spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+					spawnFish(&fishX[i], &fishY[i], 16, 16, ofish, &direction[i]);
 				}
 			}
-			// this is kinda temporary
 			for (int i = 0; i < MAX_OBSTACLES; i++)
 			{
-				spawnFish(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &direction[i]);
+				spawnFish(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &obsDir[i]);
 			}
 
             // MOVEMENT SYSTEM START
@@ -279,7 +283,7 @@ int main()
             // COLLISION DETECTION START
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
-				if (collision(fishX[i],fishY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH && (has_fish == 0)))
+				if (collision(fishX[i],fishY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH) && (has_fish == 0))
 				{
 					//somehow we need to stop the fish from moving and make it be deleted
 					has_fish = 1;
@@ -294,6 +298,7 @@ int main()
 			{
 				if (collision(obstacleX[i],obstacleY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH))
 				{	
+					has_fish = 0;
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
 					if(lives == 0)
 					{
@@ -316,7 +321,6 @@ int main()
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
 				score += fish_value;
 			}
-
             // COLLISION DETECTION END
             
             delay(16);
@@ -330,7 +334,11 @@ int main()
 
 			fillRectangle(0, 0, 128, 160, 0);
 			fillRectangle(99,59,100,18,RGBToWord(255,255,255));
+<<<<<<< HEAD
 			printTextX2("YOU DIED!", 100, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+=======
+			printTextX2("YOU DIED!", 50, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+>>>>>>> eamonn
 		}
 	}
 	return 0;
@@ -594,10 +602,10 @@ void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *
 	uint16_t prevY = *y; 
 
 	// Keeps fish in bounds of screen
-	if (*x == 0) {
+	if ((*x) <= 0) {
 		*direction = 0;
 	}
-	else if (*x == 112) { // 128px - width of sprite
+	else if ((*x) >= 112) { // 128px - width of sprite
 		*direction = 1;
 	}
 	
