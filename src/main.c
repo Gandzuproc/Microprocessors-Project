@@ -51,6 +51,8 @@ void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
 void showLives(int);
 void displayHUD(uint16_t, uint16_t, int);
+void displayGameOver (int*);
+void reset (int*,int*,int*,int*);
 
 
 volatile uint32_t milliseconds;
@@ -151,7 +153,6 @@ int main()
 				printText("Get Fish and go", 0, 105, RGBToWord(255,255,0), 0);
 				printText("back to boat, try", 0, 115, RGBToWord(255,255,0), 0);
 				printText("not to get hit!", 0, 125, RGBToWord(255,255,0), 0);
-				delay(2000);
 				beginGame = 0;
 			}
 			
@@ -169,6 +170,7 @@ int main()
 
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
 				stage = BOAT_STAGE;
+				delay(100);
 			}
 			count++;
 			delay(16); // is a delay at the end beneficial?
@@ -294,7 +296,6 @@ int main()
 						lives = 5;
 						score = 0;
 						beginGame = 1;
-						delay(2000);
 						stage = GAME_OVER;
 					}
 					else
@@ -321,27 +322,11 @@ int main()
 		while (stage == GAME_OVER)
 		{
 			count++;
-			// display only once
-			// write over screen with black
-			// display message and game over screen
-
-			fillRectangle(0, 0, 128, 160, 0);
-			fillRectangle(99,59,100,18,RGBToWord(255,255,255));
-			printTextX2("YOU DIED!", 50, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
-
-			if (count > 40 && count <= 80) 
+			displayGameOver(&count);
+			if (rightPressed() || leftPressed() || upPressed() || downPressed()) 
 			{
-				printText("Press any button", 10, 140, RGBToWord(255,255,255), 0);
-				printText("to restart", 33, 150, RGBToWord(255,255,255), 0);
-			}
-			else if (count > 80) 
-			{
-				count = 0;
-				fillRectangle(0,140,128,20,0);
-			}
-
-			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
-				stage = START_MENU;
+				reset(&score, &lives, &beginGame, &stage);
+				delay(100);
 			}
 		}
 	}
@@ -625,4 +610,33 @@ void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *
 	prevX = *x;
 	prevY = *y;
 	putImage(*x, *y, width, height, sprite, *direction, 0); 
+}
+
+void displayGameOver(int *count)
+{
+	if (*count <= 80) 
+	{
+		// Display boat1 and the "Press any button to restart" text
+		putImage(64-(BOATWIDTH/2), 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
+		printText("Press any button", 10, 140, RGBToWord(255, 255, 255), 0);
+		printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
+	}
+	else if (*count > 80 && *count <= 120) 
+	{
+		// Display boat2 and clear the text area
+		putImage(64-(BOATWIDTH/2), 100, BOATWIDTH, BOATHEIGHT, boat2, 0, 0);
+		fillRectangle(10, 140, 160, 30, 0); // Clear the text area
+	}
+	else if (*count > 120) 
+	{
+		*count = 0; // Reset count to 0 after both images have been displayed
+	}
+}
+
+void reset (int *score,int *lives,int *gamebegin, int *stage)
+{
+	*score = 0;
+	*lives = 3;
+	*gamebegin = 1;
+	*stage = START_MENU;
 }
