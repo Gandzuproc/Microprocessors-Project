@@ -52,7 +52,7 @@ int downPressed(void);
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
 void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
-void showLives(int);
+void showLives(uint16_t, uint16_t, int);
 void displayHUD(uint16_t, uint16_t, int);
 
 
@@ -94,7 +94,7 @@ int main()
 {
 	int stage = START_MENU;
 	int score = 0;
-    int lives = 5;
+    int lives = 3;
 	int toggle = 0; // used for switching between animations
 	int count = 0;
 	int currentFish = -1;
@@ -138,7 +138,6 @@ int main()
 		while (stage == START_MENU)
 		{
 			count++;
-
 			// Display only once
 			if (beginGame) {
 				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
@@ -181,7 +180,7 @@ int main()
 		// Boat stage
 		while (stage == BOAT_STAGE)
 		{
-			displayHUD(135, 0, lives);
+			showLives(135, 0, lives);
 			show_score(&score);
 			putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 
@@ -500,13 +499,10 @@ void show_score (int *score)
 	printNumber(*score,40,0,RGBToWord(255,255,255),0);
 }
 
-void showLives(int lives) {
-	// postion lives top of screen
-	int startx = 116; // start of health bar 
-
+void showLives(uint16_t x, uint16_t y, int lives) {
 	while (lives--) {
-		//putImage(startx, 1, 8, 8, heart, 0, 0);
-		startx = startx - 2; // spacing the health indicators
+		putImage(x, y, 8, 8, obstacle, 0, 0); // change to heart sprite
+		x = x - 2; // spacing the health indicators
 	}
 }
 
