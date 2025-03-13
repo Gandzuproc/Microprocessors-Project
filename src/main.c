@@ -288,6 +288,11 @@ int main()
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
 					if(lives == 0)
 					{
+						fillRectangle(0, 0, 128, 160, 0);
+						fillRectangle(8,58,110,18,RGBToWord(255,255,255));
+						printTextX2("YOU DIED!", 10, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+						lives = 3;
+						score = 0;
 						stage = GAME_OVER;
 					}
 					else
@@ -314,13 +319,26 @@ int main()
 		// Game over stage
 		while (stage == GAME_OVER)
 		{
+			if (toggle)
+			{
+				putImage(64-(BOATWIDTH/2), 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
+				printText("Press any button", 10, 140, RGBToWord(255, 255, 255), 0);
+				printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
+			}
+			else
+			{
+				putImage(64-(BOATWIDTH/2), 100, BOATWIDTH, BOATHEIGHT, boat2, 0, 0);
+				fillRectangle(10, 140, 160, 30, 0);
+			}
+			delay(1000);
+			toggle = toggle ^ 1;
 			// display only once
 			// write over screen with black
 			// display message and game over screen
-
-			fillRectangle(0, 0, 128, 160, 0);
-			fillRectangle(99,59,100,18,RGBToWord(255,255,255));
-			printTextX2("YOU DIED!", 50, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
+				beginGame = 1;
+				stage = START_MENU;
+			}
 		}
 	}
 	return 0;
