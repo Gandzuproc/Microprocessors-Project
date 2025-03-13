@@ -80,14 +80,14 @@ const uint16_t bucketFish[] =
 	0,0,0,0,25880,25880,25880,25880,25880,25880,60301,59168,59168,0,0,0,0,0,25880,25880,35113,59168,59168,60301,59168,34404,60301,34404,34404,59168,0,0,0,25880,35113,35113,44006,44006,60301,60301,34404,58443,60301,0,34404,59168,25880,0,0,25880,35113,44006,44006,60301,60301,60301,34404,58443,58443,34404,34404,44006,25880,0,0,25880,25880,44006,44006,60301,34404,34404,34404,34404,58443,34404,44006,25880,25880,0,0,25880,18457,35113,44006,44006,44006,44006,44006,44006,44006,44006,44006,28986,25880,0,0,25880,18457,35113,35113,18457,44006,28202,18457,44006,44006,18457,28986,28986,25880,0,0,25880,52323,13212,35113,18457,28202,28202,18457,28202,44006,18457,13212,52323,25880,0,0,25880,18457,35113,13212,13212,44006,52323,52323,52323,44006,13212,28986,28986,25880,0,0,25880,18457,35113,35113,18457,44006,28202,18457,28202,28202,18457,28986,28986,25880,0,0,25880,18457,35113,35113,18457,44006,28202,18457,28202,28986,18457,28986,28986,25880,0,0,0,18457,35113,35113,18457,28202,28202,18457,28202,44006,18457,28986,28986,0,0,0,0,52323,52323,35113,18457,28202,28202,18457,28202,28986,18457,13212,13212,0,0,0,0,25880,35113,52323,52323,13212,13212,52323,52323,52323,13212,28986,25880,0,0,0,0,0,25880,35113,18457,28202,28202,18457,28202,28986,18457,25880,0,0,0,0,0,0,0,25880,25880,25880,25880,25880,25880,25880,25880,0,0,0,0,
 };
 // heart not obs
-const uint16_t obstacle[]=
+const uint16_t heart[]=
 {
 	0,0,0,0,0,0,0,0,0,65535,65535,0,0,65535,65535,0,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,0,0,0,0,0,65535,65535,0,0,0,
 };
 
-const uint16_t ofish[]=
+const uint16_t obstacle[]=
 {
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,37385,37385,37385,0,0,0,0,0,0,0,37385,37385,0,0,0,0,0,37385,37385,37385,0,0,0,0,0,0,0,37385,37385,0,0,0,37385,65317,40708,65317,37385,37385,0,0,0,0,0,37385,37385,37385,0,65317,40708,40708,65317,40708,40708,40708,65317,37385,0,0,0,0,37385,37385,37385,40708,65283,40708,65283,40708,65283,65317,65283,40708,37385,0,0,37385,37385,37385,65283,65283,40708,65283,40708,37385,40708,65283,0,65283,37385,0,0,37385,37385,0,0,37385,65283,37385,37385,37385,65283,65283,65283,65283,37385,37385,37385,0,0,0,0,0,37385,37385,37385,37385,37385,37385,37385,0,0,0,0,0,0,0,0,0,0,37385,37385,0,0,0,0,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,0,0,
 };
 
 int main()
@@ -98,6 +98,7 @@ int main()
 	int toggle = 0; // used for switching between animations
 	int count = 0;
 	int currentFish = -1;
+
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
 	uint16_t fishY[] = {90, 110, 140, 80, 100, 120}; 
 	uint16_t obstacleX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
@@ -140,8 +141,9 @@ int main()
 			count++;
 			// Display only once
 			if (beginGame) {
+				fillRectangle(0,0,128,160,0);
 				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
-				printTextX2("Cat Fish!", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
+				printTextX2("CarpaDiem", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
 				printText("Help Pat the cat", 0, 35, RGBToWord(0,255,0), 0);
 				printText("cath some food!", 0, 45, RGBToWord(0,255,0), 0);
 				printText("RL = Move Boat", 0, 55, RGBToWord(255,255,255), 0);
@@ -152,7 +154,7 @@ int main()
 				printText("Get Fish and go", 0, 105, RGBToWord(255,255,0), 0);
 				printText("back to boat, try", 0, 115, RGBToWord(255,255,0), 0);
 				printText("not to get hit!", 0, 125, RGBToWord(255,255,0), 0);
-
+				delay(2000);
 				beginGame = 0;
 			}
 			
@@ -180,7 +182,8 @@ int main()
 		// Boat stage
 		while (stage == BOAT_STAGE)
 		{
-			showLives(135, 0, lives);
+
+			showLives(120, 0, lives);
 			show_score(&score);
 			putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 
@@ -233,12 +236,12 @@ int main()
 		// Bucket stage
 		while (stage == BUCKET_STAGE)
         {
-			displayHUD(135, 0, lives);
+			showLives(120, 0, lives);
 			// Spawn fishes
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
 				if (i != currentFish) { // Don't show fish currently in bucket
-					spawnFish(&fishX[i], &fishY[i], 16, 16, ofish, &direction[i]);
+					spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
 				}
 			}
 			for (int i = 0; i < MAX_OBSTACLES; i++)
@@ -286,19 +289,20 @@ int main()
 				{	
 					has_fish = 0;
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
-					if(lives == 0)
+					if(lives == 1)
 					{
 						fillRectangle(0, 0, 128, 160, 0);
 						fillRectangle(8,58,110,18,RGBToWord(255,255,255));
 						printTextX2("YOU DIED!", 10, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
 						lives = 3;
 						score = 0;
+						beginGame = 1;
+						delay(2000);
 						stage = GAME_OVER;
 					}
 					else
 					{
 						lives = lives - 1;
-						//update health somehow idk
 						stage = BOAT_STAGE;
 					}
 				}
@@ -332,13 +336,14 @@ int main()
 			}
 			delay(1000);
 			toggle = toggle ^ 1;
+			if (rightPressed() || leftPressed() || upPressed() || downPressed()) 
+			{
+				beginGame = 1;
+				count++;
+			}
 			// display only once
 			// write over screen with black
 			// display message and game over screen
-			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
-				beginGame = 1;
-				stage = START_MENU;
-			}
 		}
 	}
 	return 0;
@@ -519,8 +524,8 @@ void show_score (int *score)
 
 void showLives(uint16_t x, uint16_t y, int lives) {
 	while (lives--) {
-		putImage(x, y, 8, 8, obstacle, 0, 0); // change to heart sprite
-		x = x - 2; // spacing the health indicators
+		putImage(x, y, 8, 8, heart, 0, 0); // change to heart sprite
+		x = x - 10; // spacing the health indicators
 	}
 }
 
