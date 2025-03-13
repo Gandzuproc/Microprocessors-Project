@@ -2,8 +2,6 @@
 #include "display.h"
 #include <serial.h>
 #include "serial.h"
-#include <time.h>
-#include <stdlib.h>
 
 #define START_MENU 0
 #define BOAT_STAGE 1
@@ -53,7 +51,6 @@ int downPressed(void);
 
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
 void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
-void randomise_fish(uint16_t fishx[], uint16_t fishy[], int index);
 
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
 void showLives(uint16_t, uint16_t, int);
@@ -62,7 +59,7 @@ void displayHUD(uint16_t, uint16_t, int);
 void displayGameOver (int*);
 void reset (int*,int*,int*,int*);
 
-void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t sprite, int *stage, uint16_t*score, uint16_t fishx[], uint16_t fishy[], const uint16_t sprite2);
+void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[]);
 
 volatile uint32_t milliseconds;
 
@@ -98,11 +95,6 @@ const uint16_t obstacle[]=
 	0,0,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,0,0,
 };
 
-const uint16_t explosion[]=
-{
-		0,0,0,0,0,0,0,65281,65281,65281,65281,65281,65281,65281,65281,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,24323,24323,24323,24323,24323,24323,24323,24323,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,24323,24323,24323,24323,24323,40709,40709,40709,24323,24323,24323,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,24323,24323,40709,40709,40709,40709,40709,40709,24323,24323,24323,24323,65281,65281,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,24323,40709,40709,40709,40709,40709,40709,40709,24323,24323,24323,24323,24323,24323,65281,0,0,0,0,0,0,0,0,0,0,0,65281,65281,0,0,0,65281,24323,40709,40709,40709,40709,40709,40709,40709,40709,24323,24323,24323,24323,65281,0,0,0,0,0,0,0,0,0,0,0,0,65281,24323,65281,0,0,65281,24323,40709,40709,40709,32519,32519,40709,40709,40709,40709,40709,40709,24323,65281,0,0,0,65281,0,0,0,0,0,0,0,65281,65281,24323,24323,65281,0,0,65281,24323,40709,32519,32519,32519,32519,32519,40709,40709,40709,24323,65281,0,0,0,65281,65281,65281,0,0,0,0,0,0,65281,24323,24323,24323,24323,65281,0,65281,24323,40709,32519,32519,65535,65535,32519,32519,40709,40709,24323,65281,0,0,65281,24323,24323,65281,65281,0,0,0,0,0,65281,24323,24323,40709,40709,24323,65281,24323,40709,32519,65535,65535,65535,65535,32519,32519,40709,24323,65281,0,0,0,65281,24323,24323,24323,65281,65281,0,0,0,0,65281,24323,24323,40709,40709,40709,24323,40709,32519,65535,65535,61572,61572,65535,65535,32519,40709,24323,65281,0,0,65281,24323,40709,24323,24323,24323,65281,65281,0,0,0,65281,24323,24323,40709,40709,40709,40709,32519,65535,65535,6912,56286,56286,6912,65535,32519,32519,40709,24323,65281,0,65281,24323,40709,24323,24323,24323,24323,65281,65281,0,0,65281,24323,24323,40709,40709,40709,32519,32519,65535,65535,56286,6912,6912,56286,65535,65535,65535,32519,40709,24323,65281,24323,40709,40709,40709,24323,24323,24323,24323,65281,0,0,65281,24323,24323,24323,24323,40709,32519,32519,32519,65535,65535,65535,65535,65535,65535,65535,65535,65535,32519,40709,24323,40709,40709,40709,40709,40709,24323,24323,24323,65281,0,0,65281,24323,24323,24323,24323,40709,40709,32519,32519,32519,65535,65535,65535,65535,6912,56286,56286,6912,65535,32519,40709,32519,32519,40709,40709,40709,24323,24323,24323,65281,0,0,65281,65281,24323,24323,24323,40709,40709,32519,32519,32519,65535,65535,65535,65535,56286,6912,6912,56286,65535,65535,32519,32519,32519,40709,40709,40709,24323,24323,24323,65281,0,0,0,65281,24323,24323,24323,24323,40709,32519,32519,65535,65535,61572,61572,65535,65535,65535,65535,65535,65535,65535,32519,32519,32519,32519,40709,40709,24323,24323,24323,65281,0,0,0,65281,24323,24323,65281,65281,24323,40709,32519,65535,61572,61572,65535,65535,65535,65535,65535,61572,65535,65535,32519,32519,32519,32519,40709,40709,24323,24323,24323,65281,0,0,0,65281,24323,65281,0,0,65281,24323,40709,32519,65535,65535,65535,32519,32519,32519,65535,61572,61572,65535,65535,32519,40709,32519,40709,40709,24323,24323,24323,65281,0,0,0,65281,65281,0,0,65281,24323,40709,32519,65535,65535,65535,32519,32519,40709,32519,65535,65535,61572,65535,32519,40709,24323,40709,40709,40709,24323,24323,65281,65281,0,0,0,65281,65281,0,0,65281,24323,40709,32519,32519,32519,32519,32519,40709,24323,40709,32519,65535,65535,32519,40709,24323,65281,24323,24323,24323,24323,24323,65281,0,0,0,0,65281,0,0,0,65281,24323,40709,32519,32519,32519,32519,40709,24323,65281,24323,40709,32519,32519,32519,40709,24323,65281,65281,65281,24323,24323,24323,65281,0,0,0,0,0,0,0,65281,24323,40709,40709,40709,40709,32519,40709,24323,65281,0,65281,24323,40709,32519,32519,40709,24323,65281,0,0,65281,24323,24323,65281,0,0,0,0,0,0,65281,24323,24323,24323,24323,40709,40709,40709,40709,24323,65281,0,65281,24323,40709,32519,40709,40709,40709,24323,65281,0,0,65281,24323,65281,0,0,0,0,0,65281,65281,24323,24323,24323,24323,24323,40709,40709,24323,65281,0,0,65281,24323,40709,40709,40709,40709,40709,40709,24323,65281,0,0,65281,65281,0,0,0,0,0,0,65281,65281,24323,24323,24323,24323,24323,40709,24323,65281,0,0,65281,24323,40709,40709,40709,40709,40709,40709,24323,65281,0,0,0,0,0,0,0,0,0,0,0,65281,65281,65281,24323,24323,24323,24323,24323,65281,0,0,65281,24323,24323,24323,24323,24323,24323,24323,24323,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,24323,24323,24323,65281,0,0,0,0,65281,24323,24323,24323,24323,24323,24323,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,65281,24323,65281,0,0,0,0,65281,24323,24323,24323,24323,24323,65281,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,65281,0,0,0,0,65281,65281,65281,65281,65281,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-};
-
 const uint16_t rocket[]=
 {
 	0,0,0,29332,61572,0,0,0,0,0,6912,6870,56286,6912,0,0,0,0,6870,7936,7936,56286,0,0,0,0,56286,56286,6870,6870,0,0,0,0,6912,6870,56286,6912,0,0,0,0,56286,7936,6912,56286,0,0,0,0,15620,65287,65303,15620,0,0,0,0,0,32516,15620,0,0,0,
@@ -110,8 +102,6 @@ const uint16_t rocket[]=
 
 int main()
 {
-	srand(time(NULL));//creates unique seed for rand()
-
 	int stage = START_MENU;
 	int score = 0;
     int lives = 3;
@@ -119,18 +109,14 @@ int main()
 	int count = 0;
 	int currentFish = -1;
 
-    uint16_t fishX[3] = {0, 0, 0};
-    uint16_t fishY[3] = {0, 0, 0};
+    uint16_t fishX[3] = {82, 52, 22};
+    uint16_t fishY[3] = {90, 110, 144};
 
-    // Randomize fish positions
-    for (int i = 0; i < 3; i++) {
-        randomise_fish(fishX, fishY, i);
-    }
 
 	uint16_t obstacleX[] = {0,129};
 	uint16_t obstacleY[] = {70,130}; 
-	int direction[] = {0, 1, 1, 0, 1, 0};
-	int obsDir[] = {0, 1, 0, 0, 1, 1};
+	int direction[] = {0, 1, 1};
+	int obsDir[] = {0, 1, 0};
 	initClock();
 	initSysTick();
 	setupIO();
@@ -148,7 +134,6 @@ int main()
     int bucket_vertical_moved = 0;
 	int bucket_invert = 0;
 
-	int fish_value = 100;
 	int has_fish = 0;
 
 	uint16_t boat_x = 64 -(BOATWIDTH/2);
@@ -159,6 +144,7 @@ int main()
 
 	uint16_t rocket_x = 0;
 	uint16_t rocket_y = 0;
+	int ability = 0;
 
 	// Game Loop
 	while (1)
@@ -210,6 +196,14 @@ int main()
 		// Boat stage
 		while (stage == BOAT_STAGE)
 		{
+			if (ability < 3)
+			{
+				fillRectangle(80,0,8,8,RGBToWord(255,0,0));
+			}
+			else if (ability >= 3)
+			{
+				fillRectangle(80,0,8,8,RGBToWord(0,255,0));
+			}
 
 			showLives(120, 0, lives);
 			show_score(&score);
@@ -234,9 +228,18 @@ int main()
 			move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH,1,&boat_invert);
 			move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
 			// Up pressed
-			if (upPressed() == 1) {
+			if (upPressed() == 1 && ability >= 3) 
+			{
+				ability = 0;
 				rocket_x = boat_x + (BOATWIDTH/2) - (BUCKETWIDTH/2);
 				rocket_y = 40;
+
+				fillRectangle(0, 0, 128, 160, 0);
+				showLives(120, 0, lives);
+				show_score(&score);
+				putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
+				fillRectangle(80,0,8,8,RGBToWord(0,255,0));
+
 				stage = ABILITY;
 			}
 			// Down pressed
@@ -300,14 +303,13 @@ int main()
             // DRAW IMAGE END
             
             // COLLISION DETECTION START
-			for (int i = 0; i < MAX_FISHES; i++)
+			for (int i = 0; i < 3; i++)
 			{
-				if (collision(fishX[i],fishY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH) && (has_fish == 0))
+				if ((collision(bucket_x,bucket_y,16,16,fishX[i],fishY[i],16,16) || collision(fishX[i],fishY[i],16,16,bucket_x,bucket_y,16,16)) && (has_fish == 0))
 				{
 					has_fish = 1;
 					currentFish = i;
 					fillRectangle(fishX[i], fishY[i], 16, 16, 0); //draw over fish
-					randomise_fish(fishX, fishY,i);
 					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
 					break;
 				}
@@ -315,15 +317,36 @@ int main()
 
 			for (int i = 0; i < MAX_OBSTACLES; i++)
 			{
-				if (collision(obstacleX[i],obstacleY[i],16,16,bucket_x,bucket_y,BUCKETHEIGHT,BUCKETWIDTH))
+				if (collision(bucket_x,bucket_y,16,16,obstacleX[i],obstacleY[i],8,8))
 				{	
+					currentFish = -1;
 					has_fish = 0;
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
 					if(lives == 1)
 					{
 						fillRectangle(0, 0, 128, 160, 0);
 						fillRectangle(8,58,110,18,RGBToWord(255,255,255));
-						printTextX2("YOU DIED!", 10, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+						printText("Pat the cat's",0,0,RGBToWord(255,255,255),0);
+						printText("bucket broke so he",0,10,RGBToWord(255,255,255),0);
+						printText("called it a day",0,20,RGBToWord(255,255,255),0);
+						printText("and went home",0,30,RGBToWord(255,255,255),0);
+						printTextX2("Trip Over", 10, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+						printText("Score:",10,80,RGBToWord(255,255,0),0);
+						printNumber(score,50,80,RGBToWord(255,255,0),0);
+						printText("Grade: ",73,100,RGBToWord(255,255,255),0);
+						if (score >= 0 && score < 501) {
+							printTextX2("F",85,110,RGBToWord(255,0,0),0);
+						} else if (score >= 501 && score < 2000) {
+							printTextX2("D",85,110,RGBToWord(255,128,0),0);
+						} else if (score >= 2000 && score < 4000) {
+							printTextX2("C",85,110,RGBToWord(255,255,0),0);
+						} else if (score >= 4000 && score < 6000) {
+							printTextX2("B",85,110,RGBToWord(128,255,0),0);
+						} else if (score >= 6000 && score < 8000) {
+							printTextX2("A",85,110,RGBToWord(0,255,255),0);
+						} else if (score >= 8000) {
+							printTextX2("S",85,110,RGBToWord(127,0,255),0);
+						}
 						lives = 3;
 						score = 0;
 						beginGame = 1;
@@ -339,11 +362,24 @@ int main()
 
 			if (collision(boat_x, boat_y+10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
 			{
-				stage = 1;
+				delay(500);
+				stage = BOAT_STAGE;
 				has_fish = 0;
+				if (currentFish == 0)
+				{
+					score += 250;
+				}
+				else if(currentFish == 1)
+				{
+					score += 500;
+				}
+				else if (currentFish == 2)
+				{
+					score += 1000;
+				}
 				currentFish = -1; // -1, no fish
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
-				score += fish_value;
+				ability++;
 			}
             // COLLISION DETECTION END
             
@@ -357,13 +393,21 @@ int main()
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) 
 			{
 				reset(&score, &lives, &beginGame, &stage);
+				boat_x = 64 -(BOATWIDTH/2);
+				boat_y = 10;
+				boat_invert = 0;
 				delay(100);
 			}
 		}
 
 		while (stage == ABILITY)
 		{
-			move_rocket(&rocket_x,&rocket_y,8,8,&rocket,&stage,&score,fishX,fishY,&explosion);
+			for (int i = 0; i < MAX_FISHES; i++)
+			{
+				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+			}
+
+			move_rocket(&rocket_x,&rocket_y,8,8,rocket,&stage,&score,fishX,fishY);
 		}
 	}
 	return 0;
@@ -650,14 +694,14 @@ void displayGameOver(int *count)
 	if (*count <= 80) 
 	{
 		// Display boat1 and the "Press any button to restart" text
-		putImage(64-(BOATWIDTH/2), 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
+		putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
 		printText("Press any button", 10, 140, RGBToWord(255, 255, 255), 0);
 		printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
 	}
 	else if (*count > 80 && *count <= 120) 
 	{
 		// Display boat2 and clear the text area
-		putImage(64-(BOATWIDTH/2), 100, BOATWIDTH, BOATHEIGHT, boat2, 0, 0);
+		putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat2, 0, 0);
 		fillRectangle(10, 140, 160, 30, 0); // Clear the text area
 	}
 	else if (*count > 120) 
@@ -674,7 +718,7 @@ void reset (int *score,int *lives,int *gamebegin, int *stage)
 	*stage = START_MENU;
 }
 
-void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t sprite, int *stage, uint16_t*score, uint16_t fishx[], uint16_t fishy[], const uint16_t sprite2)
+void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[])
 {
 	delay(100);
 	int count = 0;
@@ -694,8 +738,8 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 			count = 0;
 			center_x = *x + 4;
 			center_y = *y + 4;
-			explosion_x = center_x - 16;
-			explosion_y = center_y - 16;
+			explosion_x = center_x - 24;
+			explosion_y = center_y - 24;
 
 
 			fillRectangle(prevX, prevY, width, height, 0);
@@ -706,22 +750,31 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 
 			if(upPressed() && *y > 50)
 			{
-				putImage(explosion_x,explosion_y,32,32,sprite2,0,0);
+				fillRectangle(explosion_x, explosion_y, 48,48,RGBToWord(255,255,255));
 
 				for (int i = 0; i<3; i++)
 				{
-					if(collision(explosion_x,explosion_y,32,32,fishx[i],fishy[i],16,16))
+					if(collision(explosion_x,explosion_y,48,48,fishx[i],fishy[i],16,16))
 					{
-						*score += 100;
-						fillRectangle(fishx[i],fishy[i],8,8,0);
-						putImage(explosion_x,explosion_y,32,32,sprite2,0,0);
-						randomise_fish(fishx,fishy,i);
+						if (i == 0)
+						{
+							*score += 250;
+						}
+						else if(i == 1)
+						{
+							*score += 500;
+						}
+						else if (i == 2)
+						{
+							*score += 1000;
+						}
+						fillRectangle(fishx[i],fishy[i],16,16,0);
+						fillRectangle(explosion_x, explosion_y, 48,48,RGBToWord(255,255,255));
 					}
-					*y = 160;
-					delay(250);
-					*stage = BOAT_STAGE;
 				}
-				
+				*y = 160;
+				delay(250);
+				*stage = BOAT_STAGE;
 			}
 		}
 		else if(*y >= 160)
@@ -730,17 +783,4 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 		}
 	}
 	*stage = BOAT_STAGE;   
-}
-
-void randomise_fish(uint16_t fishx[], uint16_t fishy[], int index) {
-    fishx[index] = rand() % 129; // Random x position between 0 and 128
-
-	while (
-		(fishy[index] > 52 && fishy[index] < 72) || // Avoid 52-72
-		(fishy[index] > 114 && fishy[index] < 130) || // Avoid 114-130
-		(fishy[index] < 50) // Avoid below 50
-	);
-    {
-        fishy[index] = rand()%161; 
-    }
 }
