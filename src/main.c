@@ -52,7 +52,7 @@ int downPressed(void);
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
 void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
-void showLives(int);
+void showLives(uint16_t, uint16_t, int);
 void displayHUD(uint16_t, uint16_t, int);
 
 
@@ -85,16 +85,11 @@ const uint16_t obstacle[]=
 	0,0,0,0,0,0,0,0,0,65535,65535,0,0,65535,65535,0,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,65535,0,65535,65535,65535,65535,65535,65535,0,0,0,65535,65535,65535,65535,0,0,0,0,0,65535,65535,0,0,0,
 };
 
-const uint16_t ofish[]=
-{
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,37385,37385,37385,0,0,0,0,0,0,0,37385,37385,0,0,0,0,0,37385,37385,37385,0,0,0,0,0,0,0,37385,37385,0,0,0,37385,65317,40708,65317,37385,37385,0,0,0,0,0,37385,37385,37385,0,65317,40708,40708,65317,40708,40708,40708,65317,37385,0,0,0,0,37385,37385,37385,40708,65283,40708,65283,40708,65283,65317,65283,40708,37385,0,0,37385,37385,37385,65283,65283,40708,65283,40708,37385,40708,65283,0,65283,37385,0,0,37385,37385,0,0,37385,65283,37385,37385,37385,65283,65283,65283,65283,37385,37385,37385,0,0,0,0,0,37385,37385,37385,37385,37385,37385,37385,0,0,0,0,0,0,0,0,0,0,37385,37385,0,0,0,0,0,0,0,0,0,0,0,0,0,37385,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-};
-
 int main()
 {
 	int stage = START_MENU;
 	int score = 0;
-    int lives = 5;
+    int lives = 3;
 	int toggle = 0; // used for switching between animations
 	int count = 0;
 	int currentFish = -1;
@@ -139,7 +134,6 @@ int main()
 		while (stage == START_MENU)
 		{
 			count++;
-
 			// Display only once
 			if (beginGame) {
 				fillRectangle(0,0,128,160,0);
@@ -183,8 +177,12 @@ int main()
 		// Boat stage
 		while (stage == BOAT_STAGE)
 		{
+<<<<<<< HEAD
 			displayHUD(135, 0, lives);
 			
+=======
+			showLives(120, 0, lives);
+>>>>>>> eamonn
 			show_score(&score);
 			putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 
@@ -237,7 +235,7 @@ int main()
 		// Bucket stage
 		while (stage == BUCKET_STAGE)
         {
-			displayHUD(135, 0, lives);
+			showLives(120, 0, lives);
 			// Spawn fishes
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
@@ -290,7 +288,7 @@ int main()
 				{	
 					has_fish = 0;
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
-					if(lives == 0)
+					if(lives == 1)
 					{
 						fillRectangle(0, 0, 128, 160, 0);
 						fillRectangle(8,58,110,18,RGBToWord(255,255,255));
@@ -525,13 +523,10 @@ void show_score (int *score)
 	printNumber(*score,40,0,RGBToWord(255,255,255),0);
 }
 
-void showLives(int lives) {
-	// postion lives top of screen
-	int startx = 116; // start of health bar 
-
+void showLives(uint16_t x, uint16_t y, int lives) {
 	while (lives--) {
-		//putImage(startx, 1, 8, 8, heart, 0, 0);
-		startx = startx - 2; // spacing the health indicators
+		putImage(x, y, 8, 8, obstacle, 0, 0); // change to heart sprite
+		x = x - 10; // spacing the health indicators
 	}
 }
 
