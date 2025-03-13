@@ -54,7 +54,7 @@ void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
 void showLives(uint16_t, uint16_t, int);
 void displayHUD(uint16_t, uint16_t, int);
-void displayGameOver (int);
+void displayGameOver (int*);
 void reset (int*,int*,int*,int*);
 
 
@@ -325,7 +325,7 @@ int main()
 		while (stage == GAME_OVER)
 		{
 			count++;
-			displayGameOver(count);
+			displayGameOver(&count);
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) 
 			{
 				reset(&score, &lives, &beginGame, &stage);
@@ -612,24 +612,24 @@ void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *
 	putImage(*x, *y, width, height, sprite, *direction, 0); 
 }
 
-void displayGameOver(int count)
+void displayGameOver(int *count)
 {
-	if (count <= 80) 
+	if (*count <= 80) 
 	{
 		// Display boat1 and the "Press any button to restart" text
 		putImage(64-(BOATWIDTH/2), 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
 		printText("Press any button", 10, 140, RGBToWord(255, 255, 255), 0);
 		printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
 	}
-	else if (count > 80 && count <= 120) 
+	else if (*count > 80 && *count <= 120) 
 	{
 		// Display boat2 and clear the text area
 		putImage(64-(BOATWIDTH/2), 100, BOATWIDTH, BOATHEIGHT, boat2, 0, 0);
 		fillRectangle(10, 140, 160, 30, 0); // Clear the text area
 	}
-	else if (count > 120) 
+	else if (*count > 120) 
 	{
-		count = 0; // Reset count to 0 after both images have been displayed
+		*count = 0; // Reset count to 0 after both images have been displayed
 	}
 }
 
