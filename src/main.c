@@ -95,17 +95,7 @@ int main()
 	int toggle = 0; // used for switching between animations
 	int count = 0;
 	int currentFish = -1;
-<<<<<<< HEAD
-	uint16_t x = 0;
-	uint16_t y = 0;
-<<<<<<< HEAD
-=======
-	int count = 10;
->>>>>>> 0df28955a8f91b650432855f8d6c836f1a934576
-=======
->>>>>>> eamonn
-=======
->>>>>>> 6269e976d0ff3694322d7ca24ad777eee85397c9
+
 	uint16_t fishX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
 	uint16_t fishY[] = {90, 110, 140, 80, 100, 120}; 
 	uint16_t obstacleX[] = {10, 50, 20, 0, 80, 100}; // i will probably randomise fish locations
@@ -128,16 +118,7 @@ int main()
     int bucket_vertical_moved = 0;
 	int bucket_invert = 0;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6269e976d0ff3694322d7ca24ad777eee85397c9
-	//int infish = 0;
-	int fish_value = 10;
-=======
 	int fish_value = 100;
->>>>>>> eamonn
 	int has_fish = 0;
 
 	uint16_t boat_x = 64 -(BOATWIDTH/2);
@@ -159,7 +140,7 @@ int main()
 			if (beginGame) {
 				fillRectangle(0,0,128,160,0);
 				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
-				printTextX2("Cat Fish!", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
+				printTextX2("CarpaDiem", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
 				printText("Help Pat the cat", 0, 35, RGBToWord(0,255,0), 0);
 				printText("cath some food!", 0, 45, RGBToWord(0,255,0), 0);
 				printText("RL = Move Boat", 0, 55, RGBToWord(255,255,255), 0);
@@ -199,6 +180,7 @@ int main()
 		while (stage == BOAT_STAGE)
 		{
 			displayHUD(135, 0, lives);
+			
 			show_score(&score);
 			putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 
@@ -256,7 +238,7 @@ int main()
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
 				if (i != currentFish) { // Don't show fish currently in bucket
-					spawnFish(&fishX[i], &fishY[i], 16, 16, ofish, &direction[i]);
+					spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
 				}
 			}
 			for (int i = 0; i < MAX_OBSTACLES; i++)
@@ -343,15 +325,10 @@ int main()
 			// write over screen with black
 			// display message and game over screen
 
-<<<<<<< HEAD
 			fillRectangle(0, 0, 128, 160, 0);
 			fillRectangle(99,59,100,18,RGBToWord(255,255,255));
-<<<<<<< HEAD
-			printTextX2("YOU DIED!", 100, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
-=======
 			printTextX2("YOU DIED!", 50, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
->>>>>>> eamonn
-=======
+
 			if (count > 40 && count <= 80) 
 			{
 				printText("Press any button", 10, 140, RGBToWord(255,255,255), 0);
@@ -366,7 +343,6 @@ int main()
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
 				stage = START_MENU;
 			}
->>>>>>> 6269e976d0ff3694322d7ca24ad777eee85397c9
 		}
 	}
 	return 0;
