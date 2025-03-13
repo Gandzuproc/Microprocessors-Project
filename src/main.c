@@ -1,5 +1,7 @@
 #include <stm32f031x6.h>
 #include "display.h"
+#include <serial.h>
+#include "serial.h"
 
 
 #define START_MENU 0
@@ -27,6 +29,7 @@
 
 void initClock(void);
 void initSysTick(void);
+void initSerial(void);
 void SysTick_Handler(void);
 void delay(volatile uint32_t dly);
 void setupIO();
@@ -105,6 +108,7 @@ int main()
 	initClock();
 	initSysTick();
 	setupIO();
+	initSerial();
 
  	int beginGame = 1;
 
