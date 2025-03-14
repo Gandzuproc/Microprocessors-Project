@@ -280,7 +280,7 @@ int main()
 			move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH,1,&boat_invert);
 			move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
 			// Up pressed
-			if (upPressed() == 1 && ability >= 3) 
+			if (abilityButton() == 1 && ability >= 3) 
 			{
 				ability = 0;
 				abilities_used ++;
@@ -695,6 +695,14 @@ int downPressed() {
 	else return 0;	
 }
 
+int abilityButton() {
+	if ((GPIOA->IDR & (1 << 12)) == 0)
+	{
+		return 1;
+	}
+	else return 0;	
+}
+
 void moveSprite(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, char direction) {
 	uint16_t prevX = *x; 
 	uint16_t prevY = *y; 
@@ -830,7 +838,7 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 			putImage(*x, *y, 8,8,sprite,0,0); 
 
 
-			if(upPressed() && *y > 50)
+			if(abilityButton() && *y > 50)
 			{
 				putImage(explosion_x,explosion_y,32,32,sprite2,0,0);
 
