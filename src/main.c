@@ -52,17 +52,19 @@ int upPressed(void);
 int downPressed(void);
 
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
-void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
-void randomise_fish (uint16_t fishX[], uint16_t fishY[], int index);
+void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, const uint16_t*, const uint16_t*, int*, int);
+void spawnObstacle(uint16_t *, uint16_t *, int, int, const uint16_t *, int *);
+void randomise_fish (uint16_t [], uint16_t [], int );
 
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
 void showLives(uint16_t, uint16_t, int);
 void displayHUD(uint16_t, uint16_t, int);
 
-void reset (int*,int*,int*,int*,int*,int*);
-void print_serial (int games, int lives, int score, int fishcaught,int);
+void reset (int *,int *,int *, int *, int *, int *, uint16_t*, uint16_t*, int *);
+void print_serial (int, int, int, int,int);
+void ascii (void);
 
-void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[],int*,int,int,int,const uint16_t*);
+void move_rocket(uint16_t *, uint16_t *, int, int, const uint16_t *, int *, int*, uint16_t [], uint16_t [],int*,int,int,int,const uint16_t*);
 
 volatile uint32_t milliseconds;
 
@@ -78,7 +80,15 @@ const uint16_t bucket[]=
 {
 	0,0,0,0,25880,25880,25880,25880,25880,25880,25880,25880,0,0,0,0,0,0,25880,25880,35113,35113,28202,28202,28202,28202,28986,28986,25880,25880,0,0,0,25880,35113,35113,35113,60556,60556,29117,29117,37318,37318,28986,28986,28986,25880,0,0,25880,35113,60556,60556,60556,60556,29117,29117,29117,37318,37318,37318,28986,25880,0,0,25880,25880,25880,60556,60556,29117,29117,29117,37318,37318,37318,25880,25880,25880,0,0,25880,18457,35113,25880,25880,25880,25880,25880,37318,25880,25880,28986,28986,25880,0,0,25880,18457,35113,35113,18457,28202,28202,18457,28202,28202,18457,28986,28986,25880,0,0,25880,52323,13212,35113,18457,28202,28202,18457,28202,28202,18457,13212,52323,25880,0,0,25880,18457,35113,13212,13212,52323,52323,52323,52323,13212,13212,28986,28986,25880,0,0,25880,18457,35113,35113,18457,28202,28202,18457,28202,28202,18457,28986,28986,25880,0,0,25880,18457,35113,35113,18457,28202,28202,18457,28202,28986,18457,28986,28986,25880,0,0,0,18457,35113,35113,18457,28202,28202,18457,28202,28986,18457,28986,28986,0,0,0,0,52323,52323,35113,18457,28202,28202,18457,28202,28986,18457,13212,13212,0,0,0,0,25880,35113,52323,52323,13212,13212,52323,52323,52323,13212,28986,25880,0,0,0,0,0,25880,35113,18457,28202,28202,18457,28202,28986,18457,25880,0,0,0,0,0,0,0,25880,25880,25880,25880,25880,25880,25880,25880,0,0,0,0,
 };
-const uint16_t fish[]=
+const uint16_t fish []=
+{
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,59168,59168,0,0,0,0,0,0,59168,59168,0,0,0,0,0,0,59168,59168,59168,0,0,0,0,0,0,59168,59168,0,0,0,59168,59168,60301,34404,60301,59168,59168,0,0,0,0,59168,59168,59168,0,60301,34404,60301,34404,60301,34404,34404,34404,60301,59168,0,0,0,59168,59168,59168,58443,34404,58443,34404,34404,34404,58443,60301,34404,34404,59168,0,59168,59168,59168,58443,34404,58443,34404,58443,34404,59168,34404,58443,0,34404,59168,0,59168,59168,0,0,59168,58443,58443,59168,59168,59168,58443,34404,34404,34404,59168,59168,0,0,0,0,0,0,59168,59168,59168,59168,59168,59168,59168,0,0,0,0,0,0,0,0,0,0,59168,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+};
+const uint16_t fish2[]=
+{
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,59168,59168,0,0,0,0,0,0,59168,59168,0,0,0,0,0,0,59168,59168,59168,0,0,0,0,0,0,59168,59168,0,0,0,59168,59168,60301,34404,60301,59168,59168,0,0,0,0,59168,59168,59168,0,60301,34404,60301,34404,60301,34404,34404,34404,60301,59168,0,0,0,59168,59168,59168,58443,34404,58443,34404,34404,34404,58443,60301,34404,34404,59168,0,59168,59168,59168,58443,34404,58443,34404,58443,34404,59168,34404,58443,0,34404,59168,0,59168,59168,0,0,59168,58443,58443,59168,59168,59168,58443,34404,34404,34404,59168,59168,0,0,0,0,0,0,59168,59168,59168,59168,59168,59168,59168,0,0,0,0,0,0,0,0,0,0,59168,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+};
+const uint16_t fish3[]=
 {
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,59168,59168,0,0,0,0,0,0,59168,59168,0,0,0,0,0,0,59168,59168,59168,0,0,0,0,0,0,59168,59168,0,0,0,59168,59168,60301,34404,60301,59168,59168,0,0,0,0,59168,59168,59168,0,60301,34404,60301,34404,60301,34404,34404,34404,60301,59168,0,0,0,59168,59168,59168,58443,34404,58443,34404,34404,34404,58443,60301,34404,34404,59168,0,59168,59168,59168,58443,34404,58443,34404,58443,34404,59168,34404,58443,0,34404,59168,0,59168,59168,0,0,59168,58443,58443,59168,59168,59168,58443,34404,34404,34404,59168,59168,0,0,0,0,0,0,59168,59168,59168,59168,59168,59168,59168,0,0,0,0,0,0,0,0,0,0,59168,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,59168,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
@@ -196,14 +206,7 @@ int main()
 			}
 
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
-				eputs("\n");
-				eputs("_________                           ________  .__                \n");
-				eputs("\\_   ___ \\_____ __________________  \\______ \\ |__| ____   _____  \n");
-				eputs("/    \\  \\/\\__  \\\\_  __ \\____ \\__  \\  |    |  \\|  |/ __ \\ /     \\ \n");
-				eputs("\\     \\____/ __ \\|  | \\/  |_> > __ \\_|    `   \\  \\  ___/|  Y Y  \\\n");
-				eputs(" \\______  (____  /__|  |   __(____  /_______  /__|\\___  >__|_|  /\n");
-				eputs("        \\/     \\/      |__|       \\/        \\/        \\/      \\/ \n");
-				eputs("\n");
+				ascii();
 				print_serial(games_played,lives,score,fish_caught,abilities_used);
 				delay(100);
 				stage = BOAT_STAGE;
@@ -234,11 +237,11 @@ int main()
 			// Spawn fishes
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
-				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+				spawnFish(&fishX[i], &fishY[i], 16, 16, fish,fish2,fish3, &direction[i],i);
 			}
 			for (int i = 0; i < MAX_OBSTACLES; i++)
 			{
-				spawnFish(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &obsDir[i]);
+				spawnObstacle(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &obsDir[i]);
 			}
 			// Control boat left and right
 			// Down to release bucket
@@ -297,12 +300,12 @@ int main()
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
 				if (i != currentFish) { // Don't show fish currently in bucket
-					spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+					spawnFish(&fishX[i], &fishY[i], 16, 16, fish,fish2,fish3, &direction[i], i);
 				}
 			}
 			for (int i = 0; i < MAX_OBSTACLES; i++)
 			{
-				spawnFish(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &obsDir[i]);
+				spawnObstacle(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &obsDir[i]);
 			}
 
             // MOVEMENT SYSTEM START
@@ -426,10 +429,7 @@ int main()
 			{
 				eputs("\nNew Game Started!");
 				games_played ++;
-				reset(&score, &lives, &beginGame, &stage,&fish_caught,&abilities_used);
-				boat_x = 64 -(BOATWIDTH/2);
-				boat_y = 10;
-				boat_invert = 0;
+				reset(&score, &lives, &beginGame, &stage,&fish_caught,&abilities_used, &boat_x, &boat_y, &boat_invert);
 				delay(100);
 			}
 		}
@@ -438,7 +438,7 @@ int main()
 		{
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
-				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
+				spawnFish(&fishX[i], &fishY[i], 16, 16, fish,fish2,fish3, &direction[i],i);
 			}
 
 			move_rocket(&rocket_x,&rocket_y,8,8,rocket,&stage,&score,fishX,fishY,&lives,games_played,fish_caught,abilities_used,explosion);
@@ -697,7 +697,7 @@ void moveSprite(uint16_t *x, uint16_t *y, int width, int height, const uint16_t 
 	putImage(*x, *y, width, height, sprite, direction, 0); // direction is passing char to int NOT WORKING FIX THIS		
 }
 
-void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *direction) {
+void spawnObstacle(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *direction) {
 	uint16_t prevX = *x; 
 	uint16_t prevY = *y; 
 
@@ -723,7 +723,42 @@ void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *
 	putImage(*x, *y, width, height, sprite, *direction, 0); 
 }
 
-void reset (int *score,int *lives,int *gamebegin, int *stage, int *fishcaught, int *abilities_used)
+void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, const uint16_t *sprite2, const uint16_t *sprite3, int *direction, int index) {
+	uint16_t prevX = *x; 
+	uint16_t prevY = *y; 
+
+	// Keeps fish in bounds of screen
+	if ((*x) <= 0) {
+		*direction = 0;
+	}
+	else if ((*x) >= 112) { // 128px - width of sprite
+		*direction = 1;
+	}
+	
+	// Right and left movement
+	if ((*direction) == 0) {
+		(*x)++;
+	}
+	else if ((*direction) == 1) {
+		(*x)--;
+	}
+	// Handles sprite image display
+	fillRectangle(prevX, prevY, width, height, 0);
+	prevX = *x;
+	prevY = *y;
+	if (index == 0)
+	{
+		putImage(*x, *y, width, height, sprite, *direction, 0); 	
+	} else if (index == 1)
+	{
+		putImage(*x, *y, width, height, sprite2, *direction, 0); 	
+	} else if (index == 2)
+	{
+		putImage(*x, *y, width, height, sprite3, *direction, 0); 	
+	}
+}
+
+void reset (int *score,int *lives,int *gamebegin, int *stage, int *fishcaught, int *abilities_used, uint16_t*boat_x, uint16_t*boat_y, int *boat_invert)
 {
 	*score = 0;
 	*lives = 3;
@@ -731,6 +766,9 @@ void reset (int *score,int *lives,int *gamebegin, int *stage, int *fishcaught, i
 	*stage = START_MENU;
 	*fishcaught = 0;
 	*abilities_used = 0;
+	*boat_x = 64 -(BOATWIDTH/2);
+	*boat_y = 10;
+	*boat_invert = 0;
 }
 
 void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[], int*lives, int games_played, int fish_caught,int abilities_used, const uint16_t *sprite2)
@@ -824,4 +862,16 @@ void randomise_fish (uint16_t fishX[], uint16_t fishY[], int index)
 		fishY[index] = rand() % (BOARDHEIGHT+1);
 	} while (fishY[index] < 50 || fishY[index] > 144 || (fishY[index] > 54 && fishY[index] < 70) || (fishY[index] > 114 && fishY[index] < 130));
 	
+}
+
+void ascii ()
+{
+	eputs("\n");
+	eputs("_________                           ________  .__                \n");
+	eputs("\\_   ___ \\_____ __________________  \\______ \\ |__| ____   _____  \n");
+	eputs("/    \\  \\/\\__  \\\\_  __ \\____ \\__  \\  |    |  \\|  |/ __ \\ /     \\ \n");
+	eputs("\\     \\____/ __ \\|  | \\/  |_> > __ \\_|    `   \\  \\  ___/|  Y Y  \\\n");
+	eputs(" \\______  (____  /__|  |   __(____  /_______  /__|\\___  >__|_|  /\n");
+	eputs("        \\/     \\/      |__|       \\/        \\/        \\/      \\/ \n");
+	eputs("\n");
 }
