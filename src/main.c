@@ -277,8 +277,15 @@ int main()
 			// Can possibly #define the parameters for these functions?
 
 			boat_horizontal_moved = 0;
-			move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH,1,&boat_invert);
-			move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
+			// Right pressed
+			if (rightPressed() == 1)
+			{
+				move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH,1,&boat_invert);
+			}
+			// Left pressed
+			if (leftPressed() == 1) {
+				move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
+			}
 			// Up pressed
 			if (abilityButton() == 1 && ability >= 3) 
 			{
@@ -340,10 +347,23 @@ int main()
             // MOVEMENT SYSTEM START
             bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
-			move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH,0,&bucket_invert);
-			move_left(&bucket_x, &bucket_horizontal_moved, 0,0,&bucket_invert); 
-			move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);  
-			move_up(&bucket_y, &bucket_vertical_moved, boat_y+BOATHEIGHT);     
+
+			if (rightPressed() == 1)
+			{
+				move_right(&bucket_x, &bucket_horizontal_moved, BOARDWIDTH, BUCKETWIDTH,0,&bucket_invert);
+			}
+			if (leftPressed() == 1)
+			{
+				move_left(&bucket_x, &bucket_horizontal_moved, 0,0,&bucket_invert); 
+			}
+			if (upPressed() == 1)
+			{
+				move_up(&bucket_y, &bucket_vertical_moved, boat_y+BOATHEIGHT);   
+			}
+			if (downPressed() == 1)
+			{
+				move_down(&bucket_y, &bucket_vertical_moved, BOARDHEIGHT, BUCKETHEIGHT);  
+			}
             // MOVEMENT SYSTEM END
             
             // DRAW IMAGE START
@@ -371,7 +391,7 @@ int main()
 					currentFish = i;
 					fillRectangle(fishX[i], fishY[i], 16, 16, 0); //draw over fish
 					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
-					playChime(notesCatch, dursCatch, noteCount);
+					//playChime(notesCatch, dursCatch, noteCount);
 				}
 			}
 
@@ -383,6 +403,7 @@ int main()
 					has_fish = 0;
 					fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH,BUCKETHEIGHT, 0);
 					putImage(obstacleX[i]-12,obstacleY[i]-12,32,32,explosion,0,0);
+					//playChime(notesDamage, dursDamage, 3);
 					delay(500);
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
 					putImage(obstacleX[i]-12,obstacleY[i]-12,32,32,explosion,0,0);
@@ -462,6 +483,7 @@ int main()
 			putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
 			printText("Press keyboard (r)", 2, 140, RGBToWord(255, 255, 255), 0);
 			printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
+			//playChime(notesOver, dursOver, 3);
 			restart = egetchar();
 			if (restart == 'r') 
 			{
@@ -581,57 +603,45 @@ void setupIO()
 
 void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert)
 {
-	if (rightPressed()) // right pressed
+	if (*x + object_width < boundary)
 	{
-		if (*x + object_width < boundary)
+		*x = *x + 1;
+		*horizontal_moved = 1;
+		if (flip == 1)
 		{
-			*x = *x + 1;
-			*horizontal_moved = 1;
-			if (flip == 1)
-			{
-				*invert = 0;
-			}
+			*invert = 0;
 		}
 	}
 }
 
 void move_left (uint16_t *x, int *horizontal_moved, int boundary, int flip, int *invert)
 {
-	if (leftPressed()) // left pressed
+	if (*x > boundary)
 	{
-		if (*x > boundary)
+		*x = *x - 1;
+		*horizontal_moved = 1;
+		if (flip == 1)
 		{
-			*x = *x - 1;
-			*horizontal_moved = 1;
-			if (flip == 1)
-				{
-					*invert = 1;
-				}
+			*invert = 1;
 		}
 	}
 }
 
 void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height)
 {
-	if (downPressed()) // down pressed
+	if (*y + object_height < boundary)
 	{
-		if (*y + object_height < boundary)
-		{
-			*y = *y + 1;
-			*vertical_moved = 1;
-		}
+		*y = *y + 1;
+		*vertical_moved = 1;
 	}
 }
 
 void move_up (uint16_t *y, int *vertical_moved, int boundary)
 {
-	if (upPressed()) // up pressed
+	if (*y > boundary)
 	{
-		if (*y > boundary)
-		{
-			*y = *y - 1;
-			*vertical_moved = 1;
-		}
+		*y = *y - 1;
+		*vertical_moved = 1;
 	}
 }
 
