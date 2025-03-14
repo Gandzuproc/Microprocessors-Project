@@ -685,7 +685,7 @@ void displayHUD(uint16_t x, uint16_t y, int lives) {
 }
 
 int rightPressed() {
-	if ((GPIOB->IDR & (1 << 4)) == 0 || getchar() == 'd')
+	if ((GPIOB->IDR & (1 << 4)) == 0)
 	{
 		return 1;
 	}
