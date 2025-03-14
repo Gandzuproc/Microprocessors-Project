@@ -299,6 +299,8 @@ int main()
 			if (downPressed() == 1) {
 				bucket_x = boat_x + (BOATWIDTH/2) - (BUCKETWIDTH/2);
 				bucket_y = 40;
+				bucket_oldx = bucket_x;
+                bucket_oldy = bucket_y;
 				stage = BUCKET_STAGE;
 			}
 
@@ -383,6 +385,7 @@ int main()
 					putImage(obstacleX[i]-12,obstacleY[i]-12,32,32,explosion,0,0);
 					delay(500);
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
+					putImage(obstacleX[i]-12,obstacleY[i]-12,32,32,explosion,0,0);
 					if(lives == 1)
 					{
 						lives--;
