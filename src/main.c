@@ -157,19 +157,19 @@ int main()
 	uint32_t soundtrackNotes[] = {};
 	uint32_t soundtrackDurs[] = {};
 	
-	uint32_t chimeNotes[] = {C5, E5, G5};
-	uint32_t chimeDurs[] = {200, 200, 200};
-	int chimeCount = 3;
+	uint32_t notesCatch1[] = {C5, E5, G5};
+	uint32_t dursCatch1[] = {200, 200, 200};
 
-	uint32_t chime2Notes[] = {E6, G6, E7};
-	uint32_t chime2Durs[] = {150, 150, 150};
+	int noteCount = 3;
+
+	uint32_t notesCatch[] = {E6, G6, E7};
+	uint32_t dursCatch[] = {150, 150, 150};
 	
-	uint32_t chimeDamage[] = {E6, DS6_Eb6, D6};
-	uint32_t chimeDamDurs[] = {100, 100, 100};
+	uint32_t notesDamage[] = {E6, DS6_Eb6, D6};
+	uint32_t dursDamage[] = {100, 100, 100};
 
-	uint32_t deathSoundNotes[] = {E6, C6, D6, G5}; 
-	uint32_t deathSoundDurs[] = {500, 250, 500, 750}; 
-	int deathSoundCount = 4;
+	uint32_t notesOver[] = {E6, C6, D6, G5}; 
+	uint32_t dursOver[] = {500, 250, 500, 750}; 
 
  	int beginGame = 1;
 
@@ -351,7 +351,12 @@ int main()
                 fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
                 bucket_oldx = bucket_x;
                 bucket_oldy = bucket_y;
-				putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);
+				if (has_fish == 1) {
+					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucketFish, 0, 0);
+				}
+				else {
+					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);
+				}
             }
             // DRAW IMAGE END
             
@@ -364,7 +369,7 @@ int main()
 					currentFish = i;
 					fillRectangle(fishX[i], fishY[i], 16, 16, 0); //draw over fish
 					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
-					break;
+					playChime(notesCatch, dursCatch, noteCount);
 				}
 			}
 
@@ -377,7 +382,7 @@ int main()
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
 					if(lives == 1)
 					{
-						lives --;
+						lives--;
 						print_serial(games_played,lives,score,fish_caught,abilities_used);
 						fillRectangle(0, 0, 128, 160, 0);
 						fillRectangle(8,58,110,18,RGBToWord(255,255,255));
