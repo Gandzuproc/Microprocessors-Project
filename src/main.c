@@ -391,7 +391,7 @@ int main()
 					currentFish = i;
 					fillRectangle(fishX[i], fishY[i], 16, 16, 0); //draw over fish
 					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
-					//playChime(notesCatch, dursCatch, noteCount);
+					playChime(notesCatch, dursCatch, noteCount);
 				}
 			}
 
@@ -403,7 +403,7 @@ int main()
 					has_fish = 0;
 					fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH,BUCKETHEIGHT, 0);
 					putImage(obstacleX[i]-12,obstacleY[i]-12,32,32,explosion,0,0);
-					//playChime(notesDamage, dursDamage, 3);
+					playChime(notesDamage, dursDamage, 3);
 					delay(500);
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
 					putImage(obstacleX[i]-12,obstacleY[i]-12,32,32,explosion,0,0);
@@ -483,7 +483,7 @@ int main()
 			putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
 			printText("Press keyboard (r)", 2, 140, RGBToWord(255, 255, 255), 0);
 			printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
-			//playChime(notesOver, dursOver, 3);
+			playChime(notesOver, dursOver, 3);
 			restart = egetchar();
 			if (restart == 'r') 
 			{
