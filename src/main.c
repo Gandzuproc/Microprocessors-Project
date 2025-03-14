@@ -414,6 +414,7 @@ int main()
 			restart = egetchar();
 			if (restart == 'r') 
 			{
+				eputs("\nNew Game Started!");
 				games_played ++;
 				reset(&score, &lives, &beginGame, &stage);
 				boat_x = 64 -(BOATWIDTH/2);
