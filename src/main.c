@@ -560,10 +560,12 @@ void setupIO()
 	pinMode(GPIOB,5,0);
 	pinMode(GPIOA,8,0);
 	pinMode(GPIOA,11,0);
+	pinMode(GPIOA,12,0);
 	enablePullUp(GPIOB,4);
 	enablePullUp(GPIOB,5);
 	enablePullUp(GPIOA,11);
 	enablePullUp(GPIOA,8);
+	enablePullUp(GPIOA,12);
 }
 
 void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert)
