@@ -44,25 +44,30 @@ void eputs(char *String)
 }
 void printDecimal(int32_t Value)
 {
-	char DecimalString[12]; // a 32 bit value range from -2 billion to +2 billion approx
-												// That's 10 digits
-												// plus a null character, plus a sign
-	DecimalString[11] = 0; // terminate the string;
-	if (Value < 0)
-	{
-		DecimalString[0]='-';
-		Value = -Value;
-	}
-	else
-	{
-		DecimalString[0]='+';
-	}
-	int index = 10;
-	while(index > 0)
-	{
-		DecimalString[index]=(Value % 10) + '0';
-		Value = Value / 10;
-		index--;
-	}
-	eputs(DecimalString);
+    char DecimalString[12]; 
+    int index = 10;
+    DecimalString[11] = 0; 
+
+    if (Value < 0)
+    {
+        Value = -Value;     // Handle negative values by making them positive
+    }
+
+    // Handle the case where Value is 0 explicitly
+    if (Value == 0)
+    {
+        DecimalString[index--] = '0';
+    }
+    else
+    {
+        // Convert the number to a string, skipping leading zeros
+        while (Value > 0)
+        {
+            DecimalString[index--] = (Value % 10) + '0'; // Add the digit and move the index
+            Value = Value / 10;
+        }
+    }
+
+    // Print the string starting from the first non-zero digit
+    eputs(&DecimalString[index + 1]);
 }

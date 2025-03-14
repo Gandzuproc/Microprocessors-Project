@@ -3,6 +3,7 @@
 #include "serial.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define START_MENU 0
 #define BOAT_STAGE 1
@@ -52,12 +53,13 @@ int downPressed(void);
 
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
 void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
+void randomise_fish (uint16_t fishX[], uint16_t fishY[], int index);
 
 // showLives and displayHUD are two versions of the same thing (display HUD more efficient)
 void showLives(uint16_t, uint16_t, int);
 void displayHUD(uint16_t, uint16_t, int);
 
-void reset (int*,int*,int*,int*);
+void reset (int*,int*,int*,int*,int*,int*);
 void print_serial (int games, int lives, int score, int fishcaught,int);
 
 void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[],int*,int,int,int);
@@ -397,6 +399,9 @@ int main()
 					score += 1000;
 				}
 				print_serial(games_played,lives,score,fish_caught,abilities_used);
+
+				randomise_fish(fishX,fishY,currentFish);
+
 				currentFish = -1; // -1, no fish
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
 				ability++;
@@ -416,7 +421,7 @@ int main()
 			{
 				eputs("\nNew Game Started!");
 				games_played ++;
-				reset(&score, &lives, &beginGame, &stage);
+				reset(&score, &lives, &beginGame, &stage,&fish_caught,&abilities_used);
 				boat_x = 64 -(BOATWIDTH/2);
 				boat_y = 10;
 				boat_invert = 0;
@@ -713,12 +718,14 @@ void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *
 	putImage(*x, *y, width, height, sprite, *direction, 0); 
 }
 
-void reset (int *score,int *lives,int *gamebegin, int *stage)
+void reset (int *score,int *lives,int *gamebegin, int *stage, int *fishcaught, int *abilities_used)
 {
 	*score = 0;
 	*lives = 3;
 	*gamebegin = 1;
 	*stage = START_MENU;
+	*fishcaught = 0;
+	*abilities_used = 0;
 }
 
 void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[], int*lives, int games_played, int fish_caught,int abilities_used)
@@ -774,6 +781,7 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 						print_serial(games_played,*lives,*score,fish_caught,abilities_used);
 						fillRectangle(fishx[i],fishy[i],16,16,0);
 						fillRectangle(explosion_x, explosion_y, 48,48,RGBToWord(255,255,255));
+						randomise_fish(fishx,fishy,i);
 					}
 				}
 				*y = 160;
@@ -801,4 +809,14 @@ void print_serial (int games, int lives, int score, int fishcaught, int abilitie
 	printDecimal(fishcaught);
 	eputs(" Abilities used: ");
 	printDecimal(abilities_used);
+}
+
+void randomise_fish (uint16_t fishX[], uint16_t fishY[], int index)
+{
+	fishX[index] = rand() % (BOARDWIDTH+1);
+	do
+	{
+		fishY[index] = rand() % (BOARDHEIGHT+1);
+	} while (fishY[index] < 50 || fishY[index] > 144 || (fishY[index] > 54 && fishY[index] < 70) || (fishY[index] > 114 && fishY[index] < 130));
+	
 }
