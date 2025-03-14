@@ -1,7 +1,8 @@
 #include <stm32f031x6.h>
 #include "display.h"
-#include <serial.h>
 #include "serial.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define START_MENU 0
 #define BOAT_STAGE 1
@@ -56,10 +57,10 @@ void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, int*);
 void showLives(uint16_t, uint16_t, int);
 void displayHUD(uint16_t, uint16_t, int);
 
-void displayGameOver (int*);
 void reset (int*,int*,int*,int*);
+void print_serial (int games, int lives, int score, int fishcaught,int);
 
-void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[]);
+void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[],int*,int,int,int);
 
 volatile uint32_t milliseconds;
 
@@ -108,6 +109,10 @@ int main()
 	int toggle = 0; // used for switching between animations
 	int count = 0;
 	int currentFish = -1;
+	char restart;
+	int games_played = 1;
+	int fish_caught = 0;
+	int abilities_used = 0;
 
     uint16_t fishX[3] = {82, 52, 22};
     uint16_t fishY[3] = {90, 110, 144};
@@ -184,8 +189,17 @@ int main()
 			}
 
 			if (rightPressed() || leftPressed() || upPressed() || downPressed()) {
-				stage = BOAT_STAGE;
+				eputs("\n");
+				eputs("_________                           ________  .__                \n");
+				eputs("\\_   ___ \\_____ __________________  \\______ \\ |__| ____   _____  \n");
+				eputs("/    \\  \\/\\__  \\\\_  __ \\____ \\__  \\  |    |  \\|  |/ __ \\ /     \\ \n");
+				eputs("\\     \\____/ __ \\|  | \\/  |_> > __ \\_|    `   \\  \\  ___/|  Y Y  \\\n");
+				eputs(" \\______  (____  /__|  |   __(____  /_______  /__|\\___  >__|_|  /\n");
+				eputs("        \\/     \\/      |__|       \\/        \\/        \\/      \\/ \n");
+				eputs("\n");
+				print_serial(games_played,lives,score,fish_caught,abilities_used);
 				delay(100);
+				stage = BOAT_STAGE;
 			}
 			count++;
 			delay(16); // is a delay at the end beneficial?
@@ -196,6 +210,7 @@ int main()
 		// Boat stage
 		while (stage == BOAT_STAGE)
 		{
+			
 			if (ability < 3)
 			{
 				fillRectangle(80,0,8,8,RGBToWord(255,0,0));
@@ -231,6 +246,7 @@ int main()
 			if (upPressed() == 1 && ability >= 3) 
 			{
 				ability = 0;
+				abilities_used ++;
 				rocket_x = boat_x + (BOATWIDTH/2) - (BUCKETWIDTH/2);
 				rocket_y = 40;
 
@@ -324,6 +340,8 @@ int main()
                 	fillRectangle(bucket_oldx, bucket_oldy, BUCKETWIDTH, BUCKETHEIGHT, 0);
 					if(lives == 1)
 					{
+						lives --;
+						print_serial(games_played,lives,score,fish_caught,abilities_used);
 						fillRectangle(0, 0, 128, 160, 0);
 						fillRectangle(8,58,110,18,RGBToWord(255,255,255));
 						printText("Pat the cat's",0,0,RGBToWord(255,255,255),0);
@@ -355,6 +373,7 @@ int main()
 					else
 					{
 						lives = lives - 1;
+						print_serial(games_played,lives,score,fish_caught,abilities_used);
 						stage = BOAT_STAGE;
 					}
 				}
@@ -362,7 +381,7 @@ int main()
 
 			if (collision(boat_x, boat_y+10, BOATHEIGHT, BOATWIDTH, bucket_x, bucket_y, BUCKETHEIGHT, BUCKETWIDTH) && (has_fish == 1))
 			{
-				delay(500);
+				fish_caught++;
 				stage = BOAT_STAGE;
 				has_fish = 0;
 				if (currentFish == 0)
@@ -377,6 +396,7 @@ int main()
 				{
 					score += 1000;
 				}
+				print_serial(games_played,lives,score,fish_caught,abilities_used);
 				currentFish = -1; // -1, no fish
 				fillRectangle(bucket_oldx, bucket_oldy, BUCKETHEIGHT, BUCKETWIDTH, 0);
 				ability++;
@@ -388,10 +408,13 @@ int main()
 		// Game over stage
 		while (stage == GAME_OVER)
 		{
-			count++;
-			displayGameOver(&count);
-			if (rightPressed() || leftPressed() || upPressed() || downPressed()) 
+			putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
+			printText("Press keyboard (r)", 2, 140, RGBToWord(255, 255, 255), 0);
+			printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
+			restart = egetchar();
+			if (restart == 'r') 
 			{
+				games_played ++;
 				reset(&score, &lives, &beginGame, &stage);
 				boat_x = 64 -(BOATWIDTH/2);
 				boat_y = 10;
@@ -407,7 +430,7 @@ int main()
 				spawnFish(&fishX[i], &fishY[i], 16, 16, fish, &direction[i]);
 			}
 
-			move_rocket(&rocket_x,&rocket_y,8,8,rocket,&stage,&score,fishX,fishY);
+			move_rocket(&rocket_x,&rocket_y,8,8,rocket,&stage,&score,fishX,fishY,&lives,games_played,fish_caught,abilities_used);
 		}
 	}
 	return 0;
@@ -468,7 +491,7 @@ void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber)
 void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode)
 {
 	/*
-	 */
+	*/
 	uint32_t mode_value = Port->MODER;
 	Mode = Mode << (2 * BitNumber);
 	mode_value = mode_value & ~(3u << (BitNumber * 2));
@@ -507,7 +530,7 @@ void setupIO()
 
 void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert)
 {
-	if ((GPIOB->IDR & (1 << 4)) == 0) // right pressed
+	if (rightPressed()) // right pressed
 	{
 		if (*x + object_width < boundary)
 		{
@@ -523,7 +546,7 @@ void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_wi
 
 void move_left (uint16_t *x, int *horizontal_moved, int boundary, int flip, int *invert)
 {
-	if ((GPIOB->IDR & (1 << 5)) == 0) // left pressed
+	if (leftPressed()) // left pressed
 	{
 		if (*x > boundary)
 		{
@@ -539,7 +562,7 @@ void move_left (uint16_t *x, int *horizontal_moved, int boundary, int flip, int 
 
 void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height)
 {
-	if ((GPIOA->IDR & (1 << 11)) == 0) // down pressed
+	if (downPressed()) // down pressed
 	{
 		if (*y + object_height < boundary)
 		{
@@ -551,7 +574,7 @@ void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_heigh
 
 void move_up (uint16_t *y, int *vertical_moved, int boundary)
 {
-	if ((GPIOA->IDR & (1 << 8)) == 0) // up pressed
+	if (upPressed()) // up pressed
 	{
 		if (*y > boundary)
 		{
@@ -601,7 +624,7 @@ void displayHUD(uint16_t x, uint16_t y, int lives) {
 }
 
 int rightPressed() {
-	if ((GPIOB->IDR & (1 << 4)) == 0)
+	if ((GPIOB->IDR & (1 << 4)) == 0 || getchar() == 'd')
 	{
 		return 1;
 	}
@@ -689,27 +712,6 @@ void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *
 	putImage(*x, *y, width, height, sprite, *direction, 0); 
 }
 
-void displayGameOver(int *count)
-{
-	if (*count <= 80) 
-	{
-		// Display boat1 and the "Press any button to restart" text
-		putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
-		printText("Press any button", 10, 140, RGBToWord(255, 255, 255), 0);
-		printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
-	}
-	else if (*count > 80 && *count <= 120) 
-	{
-		// Display boat2 and clear the text area
-		putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat2, 0, 0);
-		fillRectangle(10, 140, 160, 30, 0); // Clear the text area
-	}
-	else if (*count > 120) 
-	{
-		*count = 0; // Reset count to 0 after both images have been displayed
-	}
-}
-
 void reset (int *score,int *lives,int *gamebegin, int *stage)
 {
 	*score = 0;
@@ -718,7 +720,7 @@ void reset (int *score,int *lives,int *gamebegin, int *stage)
 	*stage = START_MENU;
 }
 
-void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[])
+void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[], int*lives, int games_played, int fish_caught,int abilities_used)
 {
 	delay(100);
 	int count = 0;
@@ -768,6 +770,7 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 						{
 							*score += 1000;
 						}
+						print_serial(games_played,*lives,*score,fish_caught,abilities_used);
 						fillRectangle(fishx[i],fishy[i],16,16,0);
 						fillRectangle(explosion_x, explosion_y, 48,48,RGBToWord(255,255,255));
 					}
@@ -783,4 +786,18 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 		}
 	}
 	*stage = BOAT_STAGE;   
+}
+
+void print_serial (int games, int lives, int score, int fishcaught, int abilities_used)
+{
+	eputs("\rGames: ");
+	printDecimal(games);
+	eputs(" Lives: ");
+	printDecimal(lives);
+	eputs(" Score: ");
+	printDecimal(score);
+	eputs(" Fish Caught: ");
+	printDecimal(fishcaught);
+	eputs(" Abilities used: ");
+	printDecimal(abilities_used);
 }
