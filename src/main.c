@@ -123,6 +123,8 @@ const uint16_t explosion [] =
 
 int main()
 {
+	srand(time(NULL));
+
 	int stage = START_MENU;
 	int score = 0;
     int lives = 3;
@@ -134,8 +136,11 @@ int main()
 	int fish_caught = 0;
 	int abilities_used = 0;
 
-    uint16_t fishX[3] = {82, 52, 22};
-    uint16_t fishY[3] = {90, 110, 144};
+    uint16_t fishX[3] = {0, 0, 0};
+    uint16_t fishY[3] = {0, 0, 0};
+	randomise_fish(fishX,fishY,0);
+	randomise_fish(fishX,fishY,1);
+	randomise_fish(fishX,fishY,2);
 
 
 	uint16_t obstacleX[] = {0,129};
@@ -353,7 +358,7 @@ int main()
             // COLLISION DETECTION START
 			for (int i = 0; i < 3; i++)
 			{
-				if ((collision(bucket_x,bucket_y,16,16,fishX[i],fishY[i],16,16) || collision(fishX[i],fishY[i],16,16,bucket_x,bucket_y,16,16)) && (has_fish == 0))
+				if ((collision(bucket_x,bucket_y,16,16,fishX[i]-2,fishY[i]-2,20,20) || collision(fishX[i]-2,fishY[i]-2,20,20,bucket_x,bucket_y,16,16)) && (has_fish == 0))
 				{
 					has_fish = 1;
 					currentFish = i;
