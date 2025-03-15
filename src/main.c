@@ -48,7 +48,6 @@ void initSound(void);
 void SysTick_Handler(void);
 void delay(volatile uint32_t dly);
 void setupIO();
-int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py);
 void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber);
 void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode);
 
@@ -59,9 +58,18 @@ int upPressed(void);
 int downPressed(void);
 int abilityPressed(void); 
 
+//CHARACTER MOVEMENT FUNCTION SIGNATURES
+void move_left (uint16_t*,int*,int,int,int*);
+void move_right (uint16_t*,int*,int,int,int,int*);
+void move_up (uint16_t*,int*,int);
+void move_down (uint16_t*, int*,int,int);
+
 //GAME LOGIC FUNCTION SIGNATURES
+int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py);
 int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
 void randomise_fish (uint16_t [], uint16_t [], int );
+void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, const uint16_t*, const uint16_t*, int*, int);
+void spawnObstacle(uint16_t *, uint16_t *, int, int, const uint16_t *, int *);
 void reset (int *,int *,int *, int *, int *, int *, uint16_t*, uint16_t*, int*, uint16_t[],uint16_t[]);
 void add_score (int*, int);
 void switch_stage (int*,int*,int);
@@ -70,21 +78,11 @@ void switch_stage (int*,int*,int);
 void show_score (int*);
 void showLives(uint16_t, uint16_t, int);
 void print_serial (int, int, int, int,int);
-void ascii (void);
+void print_ascii (void);
 void intro_screen (void);
 void end_screen (int);
 void ability_ready (int);
 void print_grade (int);
-
-//SPRITE MOVEMENT FUNCTION SIGNATURES
-void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, const uint16_t*, const uint16_t*, int*, int);
-void spawnObstacle(uint16_t *, uint16_t *, int, int, const uint16_t *, int *);
-
-//CHARACTER MOVEMENT FUNCTION SIGNATURES
-void move_right (uint16_t*,int*,int,int,int,int*);
-void move_left (uint16_t*,int*,int,int,int*);
-void move_down (uint16_t*, int*,int,int);
-void move_up (uint16_t*,int*,int);
 
 //SOUND FUNCTION SIGNATURE
 void playChime(uint32_t*, uint32_t*, int);
@@ -515,17 +513,7 @@ int main()
 	}
 }
 
-void initSysTick(void)
-{
-	SysTick->LOAD = 48000;
-	SysTick->CTRL = 7;
-	SysTick->VAL = 10;
-	__asm(" cpsie i "); // enable interrupts
-}
-void SysTick_Handler(void)
-{
-	milliseconds++;
-}
+//SETUP DISPLAY AND PORTS FUNCTIONS START
 void initClock(void)
 {
 	// This is potentially a dangerous function as it could
@@ -554,42 +542,25 @@ void initClock(void)
 	// set PLL as system clock source
 	RCC->CFGR |= (1 << 1);
 }
+
+void initSysTick(void)
+{
+	SysTick->LOAD = 48000;
+	SysTick->CTRL = 7;
+	SysTick->VAL = 10;
+	__asm(" cpsie i "); // enable interrupts
+}
+
+void SysTick_Handler(void)
+{
+	milliseconds++;
+}
+
 void delay(volatile uint32_t dly)
 {
 	uint32_t end_time = dly + milliseconds;
 	while (milliseconds != end_time)
 		__asm(" wfi "); // sleep
-}
-
-void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber)
-{
-	Port->PUPDR = Port->PUPDR & ~(3u << BitNumber * 2); // clear pull-up resistor bits
-	Port->PUPDR = Port->PUPDR | (1u << BitNumber * 2);	// set pull-up bit
-}
-void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode)
-{
-	/*
-	*/
-	uint32_t mode_value = Port->MODER;
-	Mode = Mode << (2 * BitNumber);
-	mode_value = mode_value & ~(3u << (BitNumber * 2));
-	mode_value = mode_value | Mode;
-	Port->MODER = mode_value;
-}
-int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py)
-{
-	// checks to see if point px,py is within the rectangle defined by x,y,w,h
-	uint16_t x2, y2;
-	x2 = x1 + w;
-	y2 = y1 + h;
-	int rvalue = 0;
-	if ((px >= x1) && (px <= x2))
-	{
-		// ok, x constraint met
-		if ((py >= y1) && (py <= y2))
-			rvalue = 1;
-	}
-	return rvalue;
 }
 
 void setupIO()
@@ -608,99 +579,37 @@ void setupIO()
 	enablePullUp(GPIOA,12);
 }
 
-void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert)
+void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber)
 {
-	if (*x + object_width < boundary)
-	{
-		*x = *x + 1;
-		*horizontal_moved = 1;
-		if (flip == 1)
-		{
-			*invert = 0;
-		}
-	}
+	Port->PUPDR = Port->PUPDR & ~(3u << BitNumber * 2); // clear pull-up resistor bits
+	Port->PUPDR = Port->PUPDR | (1u << BitNumber * 2);	// set pull-up bit
 }
 
-void move_left (uint16_t *x, int *horizontal_moved, int boundary, int flip, int *invert)
+void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode)
 {
-	if (*x > boundary)
-	{
-		*x = *x - 1;
-		*horizontal_moved = 1;
-		if (flip == 1)
-		{
-			*invert = 1;
-		}
-	}
+	/*
+	*/
+	uint32_t mode_value = Port->MODER;
+	Mode = Mode << (2 * BitNumber);
+	mode_value = mode_value & ~(3u << (BitNumber * 2));
+	mode_value = mode_value | Mode;
+	Port->MODER = mode_value;
 }
 
-void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height)
-{
-	if (*y + object_height < boundary)
-	{
-		*y = *y + 1;
-		*vertical_moved = 1;
-	}
-}
+//SETUP DISPLAY AND PORTS FUNCTION END
 
-void move_up (uint16_t *y, int *vertical_moved, int boundary)
-{
-	if (*y > boundary)
-	{
-		*y = *y - 1;
-		*vertical_moved = 1;
-	}
-}
+//BUTTON FUNCTIONS START
 
-int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uint16_t hitbox_width, uint16_t object_x, uint16_t object_y, int object_height, int object_width)
-{
-	uint16_t hitbox_heigth_better = hitbox_width * 0.75;
-	uint16_t hitbox_width_better = hitbox_heigth * 0.75;
-	uint16_t hitbox_x_better = hitbox_x + (hitbox_width - hitbox_width_better) / 2;
-	uint16_t hitbox_y_better = hitbox_y + (hitbox_heigth - hitbox_heigth_better) / 2;
-	if (isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y) ||
-	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x + object_width, object_y) ||
-	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y+object_height)||
-	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x+object_width, object_y+object_height))
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-void show_score (int *score)
-{
-	printText("Score:",0,0,RGBToWord(255,255,255),0);
-	printNumber(*score,40,0,RGBToWord(255,255,255),0);
-}
-
-void showLives(uint16_t x, uint16_t y, int lives) {
-	while (lives--) {
-		putImage(x, y, 8, 8, heart, 0, 0); // change to heart sprite
-		x = x - 10; // spacing the health indicators
-	}
-}
-
-void displayHUD(uint16_t x, uint16_t y, int lives) {
-	while (lives--) {
-		fillRectangle(x, y, 8, 4, 255);
-		x = x - 8;
-	}
-}
-
-int rightPressed() {
-	if ((GPIOB->IDR & (1 << 4)) == 0)
+int leftPressed() {
+	if ((GPIOB->IDR & (1 << 5)) == 0)
 	{
 		return 1;
 	}
 	else return 0;	
 }
 
-int leftPressed() {
-	if ((GPIOB->IDR & (1 << 5)) == 0)
+int rightPressed() {
+	if ((GPIOB->IDR & (1 << 4)) == 0)
 	{
 		return 1;
 	}
@@ -723,7 +632,7 @@ int downPressed() {
 	else return 0;	
 }
 
-int abilityButton() {
+int abilityPressed() {
 	if ((GPIOA->IDR & (1 << 12)) == 0)
 	{
 		return 1;
@@ -731,30 +640,96 @@ int abilityButton() {
 	else return 0;	
 }
 
-void spawnObstacle(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *direction) {
-	uint16_t prevX = *x; 
-	uint16_t prevY = *y; 
+//BUTTON FUNCTIONS END
 
-	// Keeps fish in bounds of screen
-	if ((*x) <= 0) {
-		*direction = 0;
+//CHARACTER MOVEMENT FUNCTIONS START
+void move_left (uint16_t *x, int *horizontal_moved, int boundary, int flip, int *invert)
+{
+	if (*x > boundary)
+	{
+		*x = *x - 1;
+		*horizontal_moved = 1;
+		if (flip == 1)
+		{
+			*invert = 1;
+		}
 	}
-	else if ((*x) >= 112) { // 128px - width of sprite
-		*direction = 1;
+}
+
+void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert)
+{
+	if (*x + object_width < boundary)
+	{
+		*x = *x + 1;
+		*horizontal_moved = 1;
+		if (flip == 1)
+		{
+			*invert = 0;
+		}
 	}
+}
+
+void move_up (uint16_t *y, int *vertical_moved, int boundary)
+{
+	if (*y > boundary)
+	{
+		*y = *y - 1;
+		*vertical_moved = 1;
+	}
+}
+
+void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height)
+{
+	if (*y + object_height < boundary)
+	{
+		*y = *y + 1;
+		*vertical_moved = 1;
+	}
+}
+
+//CHARACTER MOVEMENT FUNCTIONS END
+
+//GAME LOGIC FUNCTIONS START
+
+int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py)
+{
+	// checks to see if point px,py is within the rectangle defined by x,y,w,h
+	uint16_t x2, y2;
+	x2 = x1 + w;
+	y2 = y1 + h;
+	int rvalue = 0;
+	if ((px >= x1) && (px <= x2))
+	{
+		// ok, x constraint met
+		if ((py >= y1) && (py <= y2))
+			rvalue = 1;
+	}
+	return rvalue;
+}
+
+int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uint16_t hitbox_width, uint16_t object_x, uint16_t object_y, int object_height, int object_width)
+{
+	if (isInside(hitbox_x, hitbox_y, hitbox_heigth, hitbox_width, object_x, object_y) ||
+	isInside(hitbox_x, hitbox_y, hitbox_heigth, hitbox_width, object_x + object_width, object_y) ||
+	isInside(hitbox_x, hitbox_y, hitbox_heigth, hitbox_width, object_x, object_y+object_height)||
+	isInside(hitbox_x, hitbox_y, hitbox_heigth, hitbox_width, object_x+object_width, object_y+object_height))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void randomise_fish (uint16_t fishX[], uint16_t fishY[], int index)
+{
+	fishX[index] = rand() % (BOARDWIDTH+1);
+	do
+	{
+		fishY[index] = rand() % (BOARDHEIGHT+1);
+	} while (fishY[index] < 50 || fishY[index] > 144 || (fishY[index] > 54 && fishY[index] < 70) || (fishY[index] > 114 && fishY[index] < 130));
 	
-	// Right and left movement
-	if ((*direction) == 0) {
-		(*x)++;
-	}
-	else if ((*direction) == 1) {
-		(*x)--;
-	}
-	// Handles sprite image display
-	fillRectangle(prevX, prevY, width, height, 0);
-	prevX = *x;
-	prevY = *y;
-	putImage(*x, *y, width, height, sprite, *direction, 0); 
 }
 
 void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, const uint16_t *sprite2, const uint16_t *sprite3, int *direction, int index) {
@@ -792,6 +767,32 @@ void spawnFish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *
 	}
 }
 
+void spawnObstacle(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *direction) {
+	uint16_t prevX = *x; 
+	uint16_t prevY = *y; 
+
+	// Keeps fish in bounds of screen
+	if ((*x) <= 0) {
+		*direction = 0;
+	}
+	else if ((*x) >= 112) { // 128px - width of sprite
+		*direction = 1;
+	}
+	
+	// Right and left movement
+	if ((*direction) == 0) {
+		(*x)++;
+	}
+	else if ((*direction) == 1) {
+		(*x)--;
+	}
+	// Handles sprite image display
+	fillRectangle(prevX, prevY, width, height, 0);
+	prevX = *x;
+	prevY = *y;
+	putImage(*x, *y, width, height, sprite, *direction, 0); 
+}
+
 void reset (int *score,int *lives,int *gamebegin, int *stage, int *fishcaught, int *abilities_used, uint16_t*boat_x, uint16_t*boat_y, int *boat_invert, uint16_t fishX[], uint16_t fishY[])
 {
 	*score = 0;
@@ -810,6 +811,45 @@ void reset (int *score,int *lives,int *gamebegin, int *stage, int *fishcaught, i
 	randomise_fish(fishX,fishY,2);//red fish
 }
 
+void add_score (int* score, int fish_index)
+{
+	if (fish_index == 0)
+	{
+		*score += 250;
+	}
+	else if(fish_index == 1)
+	{
+		*score += 500;
+	}
+	else if (fish_index == 2)
+	{
+		*score += 1000;
+	}
+}
+
+void switch_stage (int*new_stage,int*current_stage,int dest_stage)
+{
+	*new_stage = 1;
+	*current_stage =  dest_stage;
+}
+
+//GAME LOGIC FUNCTION END
+
+//GAME HUD AND SERIAL FUNCTION START
+
+void show_score (int *score)
+{
+	printText("Score:",0,0,RGBToWord(255,255,255),0);
+	printNumber(*score,40,0,RGBToWord(255,255,255),0);
+}
+
+void showLives(uint16_t x, uint16_t y, int lives) {
+	while (lives--) {
+		putImage(x, y, 8, 8, heart, 0, 0); // change to heart sprite
+		x = x - 10; // spacing the health indicators
+	}
+}
+
 void print_serial (int games, int lives, int score, int fishcaught, int abilities_used)
 {
 	eputs("\rGames: ");
@@ -824,27 +864,7 @@ void print_serial (int games, int lives, int score, int fishcaught, int abilitie
 	printDecimal(abilities_used);
 }
 
-void randomise_fish (uint16_t fishX[], uint16_t fishY[], int index)
-{
-	fishX[index] = rand() % (BOARDWIDTH+1);
-	do
-	{
-		fishY[index] = rand() % (BOARDHEIGHT+1);
-	} while (fishY[index] < 50 || fishY[index] > 144 || (fishY[index] > 54 && fishY[index] < 70) || (fishY[index] > 114 && fishY[index] < 130));
-	
-}
-
-void playChime(uint32_t *notes, uint32_t *durations, int count) 
-{
-	for (int i = 0; i < count; i++) {
-		playNote(notes[i]);
-		delay(durations[i]);
-		playNote(0);
-		delay(100); // may need to adjust
-	}
-}
-
-void ascii (void)
+void print_ascii (void)
 {
 	eputs("\n");
 	eputs("_________                           ________  .__                \n");
@@ -878,6 +898,23 @@ void intro_screen (void)
 	printText("not to get hit!", 0, 125, RGBToWord(255,255,0), 0);
 }
 
+void end_screen (int score)
+{
+	fillRectangle(0, 0, 128, 160, 0);
+	fillRectangle(8,58,110,18,RGBToWord(255,255,255));
+	printText("Pat the cat's",0,0,RGBToWord(255,255,255),0);
+	printText("bucket broke so he",0,10,RGBToWord(255,255,255),0);
+	printText("called it a day",0,20,RGBToWord(255,255,255),0);
+	printText("and went home",0,30,RGBToWord(255,255,255),0);
+	printTextX2("Trip Over", 10, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
+	printText("Score:",10,80,RGBToWord(255,255,0),0);
+	printNumber(score,50,80,RGBToWord(255,255,0),0);
+	printText("Grade: ",73,100,RGBToWord(255,255,255),0);
+	printText("Press keyboard (r)", 2, 140, RGBToWord(255, 255, 255), 0);
+	printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
+	putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
+}
+
 void ability_ready (int ability)
 {
 	//if not put red square in hud, if ready put green square in hud
@@ -888,22 +925,6 @@ void ability_ready (int ability)
 	else if (ability >= 3)
 	{
 		fillRectangle(80,0,8,8,RGBToWord(0,255,0));
-	}
-}
-
-void add_score (int* score, int fish_index)
-{
-	if (fish_index == 0)
-	{
-		*score += 250;
-	}
-	else if(fish_index == 1)
-	{
-		*score += 500;
-	}
-	else if (fish_index == 2)
-	{
-		*score += 1000;
 	}
 }
 
@@ -924,25 +945,15 @@ void print_grade (int score)
 	}
 }
 
-void end_screen (int score)
-{
-	fillRectangle(0, 0, 128, 160, 0);
-	fillRectangle(8,58,110,18,RGBToWord(255,255,255));
-	printText("Pat the cat's",0,0,RGBToWord(255,255,255),0);
-	printText("bucket broke so he",0,10,RGBToWord(255,255,255),0);
-	printText("called it a day",0,20,RGBToWord(255,255,255),0);
-	printText("and went home",0,30,RGBToWord(255,255,255),0);
-	printTextX2("Trip Over", 10, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
-	printText("Score:",10,80,RGBToWord(255,255,0),0);
-	printNumber(score,50,80,RGBToWord(255,255,0),0);
-	printText("Grade: ",73,100,RGBToWord(255,255,255),0);
-	printText("Press keyboard (r)", 2, 140, RGBToWord(255, 255, 255), 0);
-	printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
-	putImage(16, 100, BOATWIDTH, BOATHEIGHT, boat1, 0, 0);
-}
+//GAME HUD AND SERIAL FUNCTION END
 
-void switch_stage (int*new_stage,int*current_stage,int dest_stage)
+//SOUND FUNCTION
+void playChime(uint32_t *notes, uint32_t *durations, int count) 
 {
-	*new_stage = 1;
-	*current_stage =  dest_stage;
+	for (int i = 0; i < count; i++) {
+		playNote(notes[i]);
+		delay(durations[i]);
+		playNote(0);
+		delay(100); // may need to adjust
+	}
 }
