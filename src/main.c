@@ -159,7 +159,7 @@ int main()
 	uint32_t durs_over[] = {500, 250, 500}; 
 	int note_count = 3;
 
- 	int beginGame = 1;
+ 	int new_stage = 1;
 
     uint16_t bucket_x = 40;
 	uint16_t bucket_y = 40;
@@ -189,7 +189,7 @@ int main()
 		{
 			count++;
 			// Display only once
-			if (beginGame) {
+			if (new_stage) {
 				fillRectangle(0,0,128,160,0);
 				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
 				printTextX2("CarpaDiem", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
@@ -203,7 +203,7 @@ int main()
 				printText("Get Fish and go", 0, 105, RGBToWord(255,255,0), 0);
 				printText("back to boat, try", 0, 115, RGBToWord(255,255,0), 0);
 				printText("not to get hit!", 0, 125, RGBToWord(255,255,0), 0);
-				beginGame = 0;
+				new_stage = 0;
 			}
 			
 			// Blinking effect for "Press any button"
@@ -421,7 +421,7 @@ int main()
 						}
 						lives = 3;
 						score = 0;
-						beginGame = 1;
+						new_stage = 1;
 						stage = GAME_OVER;
 					}
 					else
@@ -474,7 +474,7 @@ int main()
 			{
 				eputs("\nNew Game Started!");
 				games_played ++;
-				reset(&score, &lives, &beginGame, &stage,&fish_caught,&abilities_used, &boat_x, &boat_y, &boat_invert);
+				reset(&score, &lives, &new_stage, &stage,&fish_caught,&abilities_used, &boat_x, &boat_y, &boat_invert);
 				delay(100);
 			}
 		}
