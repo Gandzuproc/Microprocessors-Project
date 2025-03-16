@@ -499,14 +499,12 @@ int main()
 							randomise_fish(fish_x,fish_y,i);
 						}
 					}
-					new_stage = 1;
-					stage = BOAT_STAGE;
+					switch_stage(&new_stage, &stage, BOAT_STAGE);
 					delay(250);
 				}
 				else if(rocket_y >= 160)
 				{
-					new_stage = 1;
-					stage = BOAT_STAGE;
+					switch_stage(&new_stage, &stage, BOAT_STAGE);
 				}
 			}
 		}
