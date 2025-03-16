@@ -129,7 +129,7 @@ int main()
 	//OBSTACLES
 	uint16_t obstacle_x[] = {0,129};
 	uint16_t obstacle_y[] = {70,130}; 
-	int obstacle_direction[] = {0, 1, 0};
+	int obstacle_direction[] = {0, 1};
 
 	//BUCKET
 	uint16_t bucket_x = 40;
@@ -203,21 +203,25 @@ int main()
 
 			//FLASHING TEXT
 			count++;
-			if (count > 40 && count <= 80) 
+			if (count <= 40)
 			{
 				//flash text
 				printText("Press any button", 10, 140, 255, 0);
 				printText("to start", 37, 150, 255, 0);
-			} 
-			else if (count > 80) 
+			}
+			else if (count > 40 && count <= 80)
 			{
 				//cover text and loop back to 0
 				fillRectangle(0,140,128,20,0);
 				count = 0;
 			}
+			if (count > 80)
+			{
+				count = 0; 
+			}
 
 			//START GAME ON BUTTON PRESS
-			if (right_pressed() || left_pressed() || up_pressed() || down_pressed() || ability_pressed)
+			if (right_pressed() || left_pressed() || up_pressed() || down_pressed() || ability_pressed())
 			{
 				print_serial(games_played,lives,score,fish_caught,abilities_used);
 				fillRectangle(0, 0, BOARDWIDTH, BOARDHEIGHT, 0);
@@ -275,11 +279,11 @@ int main()
 			
 			//BOAT MOVEMENT
 			boat_horizontal_moved = 0;
-			if (rightPressed() == 1)
+			if (right_pressed() == 1)
 			{
 				move_right(&boat_x, &boat_horizontal_moved, BOARDWIDTH, BOATWIDTH,1,&boat_invert);
 			}
-			if (leftPressed() == 1) {
+			if (left_pressed() == 1) {
 				move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
 			}
 
@@ -287,14 +291,20 @@ int main()
 			//Redraw every time so boat always bobs up and down
 			fillRectangle(boat_oldx, boat_y, BOATWIDTH, BOATHEIGHT, 0);
 			boat_oldx = boat_x;
-			if (count > 40 && count <= 80)
+			count++;
+			if (count <= 40)
 			{
 				putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 			}
-			else if (count > 80)
+			else if (count > 40 && count <= 80)
 			{
 				putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat2, boat_invert, 0);
 			}
+			if (count > 80)
+			{
+				count = 0; 
+			}
+
 
 			delay(16);
 		}
@@ -307,14 +317,14 @@ int main()
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
 				if (i != current_fish) { // Don't show fish currently in bucket
-					spawnFish(&fish_x[i], &fish_y[i], FISHWIDTH, FISHHEIGHT, fish,fish2,fish3, &fish_direction[i], i);
+					spawn_fish(&fish_x[i], &fish_y[i], FISHWIDTH, FISHHEIGHT, fish,fish2,fish3, &fish_direction[i], i);
 				}
 			}
 
 			//SPAWN ALL OBSTACLES
 			for (int i = 0; i < MAX_OBSTACLES; i++)
 			{
-				spawnObstacle(&obstacle_x[i], &obstacle_y[i], OBSTACLEWIDTH, OBSTACLEHEIGHT, mine_bomb,&obstacle_direction[i]);
+				spawn_obstacle(&obstacle_x[i], &obstacle_y[i], OBSTACLEWIDTH, OBSTACLEHEIGHT, mine_bomb,&obstacle_direction[i]);
 			}
 
             //BUCKET MOVEMENT
@@ -352,6 +362,22 @@ int main()
 				else {
 					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);
 				}
+
+				//Draw boat bob
+				count++;
+				if (count <= 40)
+				{
+					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
+				}
+				else if (count > 40 && count <= 80)
+				{
+					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat2, boat_invert, 0);
+				}
+				if (count > 80)
+				{
+					count = 0; 
+				}
+
             }
             
             //FISH COLLISION
@@ -362,7 +388,7 @@ int main()
 					current_fish = i;
 					fillRectangle(fish_x[i], fish_y[i], FISHWIDTH, FISHHEIGHT, 0); //draw over fish
 					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
-					playChime(notes_catch, durs_catch, note_count);
+					play_chime(notes_catch, durs_catch, note_count);
 				}
 			}
 
@@ -380,7 +406,7 @@ int main()
 					print_serial(games_played,lives,score,fish_caught,abilities_used);
 
 					//damage sound
-					playChime(notes_damage, durs_damage, 3);
+					play_chime(notes_damage, durs_damage, 3);
 					delay(500);
 
 					//Switch stage
@@ -423,7 +449,7 @@ int main()
 
 				//Clear screen & redraw all except obstacles
 				fillRectangle(0, 0, BOATWIDTH, BOARDHEIGHT, 0);
-				showLives(120, 0, lives);
+				show_lives(120, 0, lives);
 				show_score(&score);
 				putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 				ability_ready(ability);
@@ -450,7 +476,7 @@ int main()
 				putImage(rocket_x,rocket_y,ROCKETWIDTH,ROCKETHEIGHT,rocket,0,0);
 
 
-				if(abilityPressed() && rocket_y > 50)
+				if(ability_pressed() && rocket_y > 50)
 				{
 					//CALCULATE EXPLOSION COORDINATES
 					explosion_center_x = rocket_x + (ROCKETWIDTH/2);
@@ -493,7 +519,7 @@ int main()
 			{
 				end_screen(score);
 				print_grade(score);
-				playChime(notes_over, durs_over, 3);
+				play_chime(notes_over, durs_over, 3);
 				new_stage = 0;
 			}
 
