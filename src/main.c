@@ -470,7 +470,7 @@ int main()
 			printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
 			play_sound(notes_over, durs_over, 3);
 			restart = egetchar();
-			if (restart == 'r') 
+			if (restart == 'r' || ability_button() == 1) 
 			{
 				eputs("\nNew Game Started!");
 				games_played ++;
