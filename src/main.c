@@ -15,6 +15,7 @@
 
 #define MAX_FISHES 3
 #define MAX_OBSTACLES 2
+#define NUM_FRAMES 10
 
 #define BOATWIDTH 48
 #define BOATHEIGHT 31
@@ -53,6 +54,7 @@ int rightPressed(void);
 int leftPressed(void);
 int upPressed(void);
 int downPressed(void);
+int abilityButton(void);
 
 void moveSprite(uint16_t*, uint16_t*, int, int, const uint16_t*, char);
 void spawnFish(uint16_t*, uint16_t*, int, int, const uint16_t*, const uint16_t*, const uint16_t*, int*, int);
@@ -128,7 +130,7 @@ int main()
 	int stage = START_MENU;
 	int score = 0;
     int lives = 3;
-	int toggle = 0; // used for switching between animations
+	int frameCount = 0; // used to change animation after NUM_FRAMES have passed
 	int count = 0;
 	int currentFish = -1;
 	char restart;
@@ -153,10 +155,7 @@ int main()
 	initSerial();
 	initSound();
 
-	// Music and Sound Effects
-	uint32_t soundtrackNotes[] = {};
-	uint32_t soundtrackDurs[] = {};
-	
+	// Sound Effects
 	uint32_t notesCatch1[] = {C5, E5, G5};
 	uint32_t dursCatch1[] = {200, 200, 200};
 
@@ -172,8 +171,6 @@ int main()
 	uint32_t dursOver[] = {500, 250, 500, 750}; 
 
  	int beginGame = 1;
-
-	// MAY BE REPLACED BY JUST X AND Y
 
     uint16_t bucket_x = 40;
 	uint16_t bucket_y = 40;
@@ -208,7 +205,7 @@ int main()
 				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
 				printTextX2("CarpaDiem", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
 				printText("Help Pat the cat", 0, 35, RGBToWord(0,255,0), 0);
-				printText("cath some food!", 0, 45, RGBToWord(0,255,0), 0);
+				printText("catch some food!", 0, 45, RGBToWord(0,255,0), 0);
 				printText("RL = Move Boat", 0, 55, RGBToWord(255,255,255), 0);
 				printText("D = Release bucket", 0, 65, RGBToWord(255,255,255), 0);
 				printText("RLUD = Move bucket", 0, 75, RGBToWord(255,255,255), 0);
@@ -270,11 +267,9 @@ int main()
 			{
 				spawnObstacle(&obstacleX[i], &obstacleY[i], 8, 8, obstacle, &obsDir[i]);
 			}
+
 			// Control boat left and right
 			// Down to release bucket
-			// Up for ability
-
-			// Can possibly #define the parameters for these functions?
 
 			boat_horizontal_moved = 0;
 			// Right pressed
@@ -287,7 +282,7 @@ int main()
 				move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
 			}
 			// Up pressed
-			if (abilityButton() == 1 && ability >= 3) 
+			if ((abilityButton() == 1) && (ability >= 3)) 
 			{
 				ability = 0;
 				abilities_used ++;
@@ -316,7 +311,7 @@ int main()
                 // only redraw if there has been some movement (reduces flicker)
                 fillRectangle(boat_oldx, boat_y, BOATWIDTH, BOATHEIGHT, 0);
                 boat_oldx = boat_x;
-				if (toggle == 0)
+				if (frameCount < NUM_FRAMES / 2)
 				{
 					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat1, boat_invert, 0);
 				}
@@ -324,7 +319,7 @@ int main()
 				{
 					putImage(boat_x, boat_y, BOATWIDTH, BOATHEIGHT, boat2, boat_invert, 0);
 				}
-				toggle = toggle ^ 1;
+				frameCount = (frameCount + 1) % NUM_FRAMES;
             }
 			delay(16);
 		}
@@ -335,7 +330,8 @@ int main()
 			// Spawn fishes
 			for (int i = 0; i < MAX_FISHES; i++)
 			{
-				if (i != currentFish) { // Don't show fish currently in bucket
+				// Doesn't show the fish currently in bucket
+				if (i != currentFish) { 
 					spawnFish(&fishX[i], &fishY[i], 16, 16, fish,fish2,fish3, &direction[i], i);
 				}
 			}
@@ -390,7 +386,7 @@ int main()
 					has_fish = 1;
 					currentFish = i;
 					fillRectangle(fishX[i], fishY[i], 16, 16, 0); //draw over fish
-					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0);//draw bucket again
+					putImage(bucket_x, bucket_y, BUCKETWIDTH, BUCKETHEIGHT, bucket, 0, 0); //draw bucket again
 					playChime(notesCatch, dursCatch, noteCount);
 				}
 			}
