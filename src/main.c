@@ -54,18 +54,21 @@ void move_left (uint16_t*,int*,int,int,int*);
 void move_down (uint16_t*, int*,int,int);
 void move_up (uint16_t*,int*,int);
 
+// Character movement
 int right_pressed(void);
 int left_pressed(void);
 int up_pressed(void);
 int down_pressed(void);
 int ability_button(void);
 
+// Game mechanics
 void spawn_fish(uint16_t*, uint16_t*, int, int, const uint16_t*, const uint16_t*, const uint16_t*, int*, int);
 void spawn_obstacle(uint16_t *, uint16_t *, int, int, const uint16_t *, int *);
 void randomise_fish (uint16_t [], uint16_t [], int );
 int collision (uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, int, int);
 void move_rocket(uint16_t *, uint16_t *, int, int, const uint16_t *, int *, int*, uint16_t [], uint16_t [],int*,int,int,int,const uint16_t*);
 
+// Game HUD, serial, and sound
 void show_score (int*);
 void show_lives(uint16_t, uint16_t, int);
 void display_menu(void);
@@ -78,6 +81,7 @@ void ascii_title(void);
 
 volatile uint32_t milliseconds;
 
+// Sprite maps
 const uint16_t boat1[]=
 {
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65296,65296,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23552,31744,23552,65296,23552,65296,27393,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19201,12058,0,13576,0,5384,13576,23552,65296,23552,27393,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11009,3866,0,0,0,13576,13576,13576,3866,65535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7663,7663,7663,3866,0,0,0,0,0,3866,65535,63950,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65535,65535,65535,7663,7663,60169,27393,0,0,51977,49151,63950,63950,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65535,65535,65535,65535,65535,7663,7663,2817,51977,3866,0,7663,63950,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65535,65535,65535,65535,65535,65535,65535,7663,0,51977,0,49151,7663,63950,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,49151,65535,32517,32517,32517,65535,65535,7663,0,51977,0,49151,49151,7663,7663,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65535,65535,32517,57343,23556,65535,65535,24047,0,51977,0,49151,40959,57343,7663,47566,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65535,65535,32517,15364,15364,65535,7663,63950,0,27393,0,0,49151,57343,49151,7663,63950,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65535,65535,32517,65535,32517,65535,7172,65535,7663,0,0,2817,0,65535,49151,65535,7663,7663,63950,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,49151,65535,57343,7172,32517,7172,65535,65535,7663,0,0,19201,0,49151,49151,49151,57343,7663,7663,7663,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63950,65535,65535,65535,65535,32517,65535,65535,65535,7663,63950,0,27393,0,65535,49151,49151,57343,49151,49151,55758,63950,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,24047,7663,7663,24047,7663,65535,65535,7663,65535,7663,63950,0,2817,0,49151,49151,49151,49151,49151,7663,7663,7663,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27393,35593,27393,11009,7663,15855,7663,15855,7663,7663,7663,7663,63950,0,27393,65535,65535,49151,49151,7663,7663,7663,7663,24047,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,35593,0,0,0,0,0,0,0,0,0,0,0,0,11009,27393,3866,11009,11009,2817,2817,7663,7663,0,51977,7663,7663,24047,7663,7663,19201,11009,51977,60169,12058,27393,0,0,0,0,0,0,0,0,0,0,0,0,0,27393,0,0,27393,11009,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2817,51977,51977,43785,14636,27393,11009,3866,11009,19201,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15364,7172,32517,32517,32517,7172,7172,7172,32517,0,0,0,0,0,14636,0,0,14636,0,0,0,0,0,0,0,60169,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19482,19482,19482,4387,4387,4387,4387,4387,32517,7172,0,0,0,0,55909,55909,14636,39525,0,0,0,0,48430,0,0,14636,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27674,19482,3098,3866,3866,3866,20250,28442,4387,32517,7172,7172,0,0,64101,3866,55909,3866,0,0,0,48430,53644,0,0,27393,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,19482,7663,7663,3866,3866,15855,3866,7663,3866,4387,32517,7172,7172,39525,64101,55909,55909,0,0,48430,0,53644,0,0,27393,0,0,0,0,0,0,0,0,0,0,0,0,19482,19482,19482,19482,0,0,0,0,0,0,0,19482,24047,3866,15855,7663,3866,3866,3866,3866,4387,4387,4387,7172,7172,24325,32517,32517,13908,13908,7172,7172,53644,32517,32517,7172,7172,32517,32517,32517,7172,7172,7172,32517,32517,32517,7172,19482,19482,0,0,0,0,0,0,0,0,0,0,19482,3866,3866,3866,3866,12058,3866,3866,3866,3866,3866,3866,3866,4387,4387,4387,4387,4387,12579,12579,4387,4492,3866,3866,4387,4387,20771,4387,4387,4387,3866,4387,4387,4387,4387,20771,19482,0,0,0,0,0,0,0,0,0,0,0,19482,3866,3866,3866,3866,3866,3866,3866,20250,3866,3866,3866,3866,3866,3866,3866,3866,3866,3866,12058,3866,45452,3866,7172,3866,32517,3866,7172,3866,32517,3866,7172,3866,7172,19482,19482,0,0,0,0,0,0,0,0,0,0,0,0,19482,19482,19482,19482,19482,19482,19482,19482,19482,3866,3866,20250,3866,12058,20250,3866,12058,3866,3866,12058,3866,53644,3866,3866,3866,20250,20250,12058,12058,3866,3866,3866,3866,12058,19482,0,0,0,0,0,0,0,0,0,0,57343,65535,65535,65535,65535,19482,19482,19482,19482,19482,19482,3098,19482,19482,19482,19482,19482,19482,19482,19482,19482,19482,19482,19482,21669,19482,19482,19482,3098,19482,19482,19482,19482,27674,19482,19482,19482,0,0,0,0,0,0,0,0,0,0,65535,65535,65535,65535,65535,57343,65535,65535,57343,65535,49151,65535,65535,65535,65535,65535,65535,65535,19482,19482,27674,65535,65535,19482,65535,37260,65535,49151,65535,19482,65535,65535,19482,19482,65535,27674,19482,65535,65535,65535,65535,10750,0,0,0,0,0,0,0,65535,65535,57343,65535,65535,65535,57343,49151,65535,10750,49151,65535,65535,10750,10750,10750,65535,65535,49151,49151,10750,65535,65535,50348,58540,58540,10750,65535,65535,65535,57343,65535,10750,10750,65535,65535,65535,65535,65535,10750,0,0,0,0,0,0,0,0,0,0,42469,58853,58853,58853,10750,58853,58853,58853,58853,42469,58853,58853,10750,58853,58853,58853,58853,10750,10750,10750,42156,58540,58540,58540,58853,58853,58853,58853,10750,2558,58853,42469,58853,58853,65535,58853,58853,0,0,0,0,0,0,0,0,0,0,0,0,0,50661,58853,58853,58853,58853,58853,58853,0,58853,58853,58853,58853,58853,58853,58853,58853,58853,58853,58853,10750,58853,58853,58853,58853,58853,50661,58853,58853,58853,0,0,0,10750,58853,0,0,0,0,0,0,0,
@@ -198,7 +202,7 @@ int main() {
 		// Start menu stage
 		while (stage == START_MENU) {
 			count++;
-			// Display the menu once to the screen (no flashing)
+			// Display the menu once to the screen (no flicker)
 			if (new_stage) {
 				display_menu();
 				new_stage = 0;
@@ -229,6 +233,8 @@ int main() {
 
 		// Boat stage
 		while (stage == BOAT_STAGE) {
+
+			// Updates ability status indicator (red to green)
 			if (ability < 3) {
 				fillRectangle(80, 0, 8, 8, RGBToWord(255, 0, 0));
 			} 
@@ -241,11 +247,11 @@ int main() {
 			show_score(&score);
 			putImage(boat_x, boat_y, BOAT_WIDTH, BOAT_HEIGHT, boat1, boat_invert, 0);
 
-			// Spawn fishes
+			// Spawn moving fishes
 			for (int i = 0; i < MAX_FISHES; i++) {
 				spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish, fish2, fish3, &fish_direction[i], i);
 			}
-			// Spawn obstacles
+			// Spawn moving obstacles
 			for (int i = 0; i < MAX_OBSTACLES; i++) {
 				spawn_obstacle(&obstacle_x[i], &obstacle_y[i], 8, 8, obstacle, &obstacle_direction[i]);
 			}
@@ -269,6 +275,7 @@ int main() {
 				rocket_x = boat_x + (BOAT_WIDTH / 2) - (BUCKET_WIDTH / 2);
 				rocket_y = 40;
 
+				// Redraws the screen
 				fillRectangle(0, 0, 128, 160, 0);
 				show_lives(120, 0, lives);
 				show_score(&score);
@@ -290,6 +297,8 @@ int main() {
 				// only redraw if there has been some movement (reduces flicker)
 				fillRectangle(boat_oldx, boat_y, BOAT_WIDTH, BOAT_HEIGHT, 0);
 				boat_oldx = boat_x;
+				
+				// Boat animation, display each sprite for half the given amount of frames
 				if (frame_count < NUM_FRAMES / 2) {
 					putImage(boat_x, boat_y, BOAT_WIDTH, BOAT_HEIGHT, boat1, boat_invert, 0);
 				} 
@@ -300,16 +309,20 @@ int main() {
 			}
 			delay(16);
 		}
+
 		// Bucket stage
 		while (stage == BUCKET_STAGE) {
+
 			show_lives(120, 0, lives);
-			// Spawn fishes
+
+			// Re-spawn moving fishes (from prev stage position)
 			for (int i = 0; i < MAX_FISHES; i++) {
 				// Doesn't show the fish currently in bucket
 				if (i != current_fish) {
 					spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish, fish2, fish3, &fish_direction[i], i);
 				}
 			}
+			// Re-spawn moving obstacles (from prev stage position)
 			for (int i = 0; i < MAX_OBSTACLES; i++) {
 				spawn_obstacle(&obstacle_x[i], &obstacle_y[i], 8, 8, obstacle, &obstacle_direction[i]);
 			}
@@ -318,6 +331,7 @@ int main() {
 			bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
 
+			// Bucket: Right, Left, Up, Down
 			if (right_pressed() == 1) {
 				move_right(&bucket_x, &bucket_horizontal_moved, BOARD_WIDTH, BUCKET_WIDTH, 0, &bucket_invert);
 			}
@@ -338,6 +352,8 @@ int main() {
 				fillRectangle(bucket_old_x, bucket_old_y, BUCKET_WIDTH, BUCKET_HEIGHT, 0);
 				bucket_old_x = bucket_x;
 				bucket_old_y = bucket_y;
+
+				// Changes to bucket sprite (with fish) when has_fish is detected
 				if (has_fish == 1) {
 					putImage(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, bucket_fish, 0, 0);
 				} 
@@ -350,6 +366,7 @@ int main() {
 			// COLLISION DETECTION START
 			for (int i = 0; i < 3; i++) {
 				// If bucket and fish sprite overlap and you have no fish
+				// Updates fish and bucket status
 				if ((collision(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, fish_x[i] - 2, fish_y[i] - 2, 20, 20) || collision(fish_x[i] - 2, fish_y[i] - 2, 20, 20, bucket_x, bucket_y, 16, 16)) && (has_fish == 0)) {
 					has_fish = 1;
 					current_fish = i;
@@ -418,8 +435,10 @@ int main() {
 		while (stage == GAME_OVER) {
 			display_game_over();
 
+			// Game over sound played
 			play_sound(notes_over, durs_over, 3);
 
+			// Waits for user to input 'r' to restart the game
 			restart = egetchar();
 			if (restart == 'r') {
 				eputs("\nNew Game Started!");
@@ -436,6 +455,7 @@ int main() {
 				spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish, fish2, fish3, &fish_direction[i], i);
 			}
 
+			// Launches the rocket from the boat
 			move_rocket(&rocket_x, &rocket_y, 8, 8, rocket, &stage, &score, fish_x, fish_y, &lives, games_played, fish_caught, abilities_used, explosion);
 		}
 	}
@@ -527,6 +547,7 @@ void setupIO() {
 }
 
 void move_right(uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert) {
+	// Moves if within boundaries
 	if (*x + object_width < boundary) {
 		*x = *x + 1;
 		*horizontal_moved = 1;
@@ -565,6 +586,8 @@ int collision(uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uint
 	uint16_t hitbox_width_better = hitbox_heigth * 0.75;
 	uint16_t hitbox_x_better = hitbox_x + (hitbox_width - hitbox_width_better) / 2;
 	uint16_t hitbox_y_better = hitbox_y + (hitbox_heigth - hitbox_heigth_better) / 2;
+
+	// Checks if two object hitboxes are inside each other (slightly reduced size)
 	if (isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y) ||
 	    isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x + object_width, object_y) ||
 	    isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y + object_height) ||
@@ -584,7 +607,7 @@ void show_score(int *score) {
 void show_lives(uint16_t x, uint16_t y, int lives) {
 	while (lives--) {
 		putImage(x, y, 8, 8, heart, 0, 0);
-		x = x - 10;  // spacing the health indicators
+		x = x - 10;  // spacing between health indicators
 	}
 }
 
@@ -689,6 +712,7 @@ void spawn_fish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t 
 }
 
 void reset(int *score, int *lives, int *gamebegin, int *stage, int *fishcaught, int *abilities_used, uint16_t *boat_x, uint16_t *boat_y, int *boat_invert) {
+	// Reset everything for new game
 	*score = 0;
 	*lives = 3;
 	*gamebegin = 1;
@@ -713,23 +737,28 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 	while (1) {
 		count++;
 		if (count == 30000) {
-			*y += 1;
+			(*y)++;
 			count = 0;
 			center_x = *x + 4;
 			center_y = *y + 4;
 			explosion_x = center_x - 24;
 			explosion_y = center_y - 24;
 
+			// Redraw over old location
 			fillRectangle(prevX, prevY, width, height, 0);
 			prevX = *x;
 			prevY = *y;
+			// Draw new location
 			putImage(*x, *y, 8, 8, sprite, 0, 0);
 
 			if (ability_button() && *y > 50) {
 				putImage(explosion_x, explosion_y, 32, 32, sprite2, 0, 0);
 
+				// Explosion can hit multiple fish (for loop checks each one)
 				for (int i = 0; i < 3; i++) {
+					// Determines which fish you hit
 					if (collision(explosion_x, explosion_y, 48, 48, fishx[i], fishy[i], 16, 16)) {
+						// Different colour fish have different scores
 						if (i == 0) {
 							*score += 250;
 						} 
@@ -757,6 +786,7 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 	*stage = BOAT_STAGE;
 }
 
+// Displays game information to serial monitor
 void print_serial(int games, int lives, int score, int fishcaught, int abilities_used) {
 	eputs("\rScore: ");
 	printDecimal(score);
@@ -817,8 +847,10 @@ void display_menu() {
 }
 
 void display_game_over() {
-	// yes
+	// Clear screen
 	fillRectangle(0, 0, 128, 160, 0);
+
+	// Game over screen (message, score, and grade)
 	fillRectangle(8, 58, 110, 18, RGBToWord(255, 255, 255));
 	printText("Pat the cat's", 0, 0, RGBToWord(255, 255, 255), 0);
 	printText("bucket broke so he", 0, 10, RGBToWord(255, 255, 255), 0);
