@@ -221,7 +221,8 @@ int main()
 				fillRectangle(0,140,128,20,0);
 			}
 
-			if (right_pressed() || left_pressed() || up_pressed() || down_pressed()) {
+			// Press any button to start
+			if (right_pressed() || left_pressed() || up_pressed() || down_pressed() || ability_button()) {
 				ascii();
 				print_serial(games_played,lives,score,fish_caught,abilities_used);
 				delay(100);
@@ -246,6 +247,7 @@ int main()
 				fillRectangle(80,0,8,8,RGBToWord(0,255,0));
 			}
 
+			// Display HUD
 			show_lives(120, 0, lives);
 			show_score(&score);
 			putImage(boat_x, boat_y, BOAT_WIDTH, BOAT_HEIGHT, boat1, boat_invert, 0);
@@ -255,6 +257,7 @@ int main()
 			{
 				spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish,fish2,fish3, &fish_direction[i],i);
 			}
+			// Spawn obstacles
 			for (int i = 0; i < MAX_OBSTACLES; i++)
 			{
 				spawn_obstacle(&obstacle_x[i], &obstacle_y[i], 8, 8, obstacle, &obstacle_direction[i]);
@@ -373,11 +376,12 @@ int main()
             // COLLISION DETECTION START
 			for (int i = 0; i < 3; i++)
 			{
-				if ((collision(bucket_x,bucket_y,16,16,fish_x[i]-2,fish_y[i]-2,20,20) || collision(fish_x[i]-2,fish_y[i]-2,20,20,bucket_x,bucket_y,16,16)) && (has_fish == 0))
+				// If bucket and fish sprite overlap and you have no fish
+				if ((collision(bucket_x,bucket_y,BUCKET_WIDTH,BUCKET_HEIGHT,fish_x[i]-2,fish_y[i]-2,20,20) || collision(fish_x[i]-2,fish_y[i]-2,20,20,bucket_x,bucket_y,16,16)) && (has_fish == 0))
 				{
 					has_fish = 1;
 					current_fish = i;
-					fillRectangle(fish_x[i], fish_y[i], 16, 16, 0); //draw over fish
+					fillRectangle(fish_x[i], fish_y[i], FISH_WIDTH, FISH_HEIGHT, 0); //draw over fish
 					putImage(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, bucket, 0, 0); //draw bucket again
 					play_sound(notes_catch, durs_catch, note_count);
 				}
@@ -385,7 +389,9 @@ int main()
 
 			for (int i = 0; i < MAX_OBSTACLES; i++)
 			{
-				if (collision(bucket_x,bucket_y,16,16,obstacle_x[i],obstacle_y[i],8,8))
+				// If bucket and obstacle overlap/collide
+				// you lose a life and sound is played
+				if (collision(bucket_x,bucket_y,BUCKET_WIDTH,BUCKET_HEIGHT,obstacle_x[i],obstacle_y[i],OBSTACLE_WIDTH,OBSTACLE_HEIGHT))
 				{	
 					current_fish = -1;
 					has_fish = 0;
@@ -436,6 +442,8 @@ int main()
 				}
 			}
 
+			// Returning to the boat when you have a fish in the bucket
+			// Increases score and removes fish from bucket
 			if (collision(boat_x, boat_y+10, BOAT_HEIGHT, BOAT_WIDTH, bucket_x, bucket_y, BUCKET_HEIGHT, BUCKET_WIDTH) && (has_fish == 1))
 			{
 				fish_caught++;
