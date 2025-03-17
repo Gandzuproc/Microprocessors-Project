@@ -71,7 +71,6 @@ void show_lives(uint16_t, uint16_t, int);
 void display_menu(void);
 void display_game_over(void);
 void play_sound(uint32_t*, uint32_t*, int);
-
 void reset (int *,int *,int *, int *, int *, int *, uint16_t*, uint16_t*, int *);
 void print_serial (int, int, int, int,int);
 void ascii_title(void);
@@ -136,21 +135,47 @@ int main() {
 	int frame_count = 0;  // used to change animation after NUM_FRAMES have passed
 	int count = 0;
 	int current_fish = -1;  // -1, no fish
+	int has_fish = 0;
+
 	char restart;
 	int games_played = 1;
 	int fish_caught = 0;
 	int abilities_used = 0;
+	int new_stage = 1;
 
+	// Fish
 	uint16_t fish_x[3] = {0, 0, 0};
 	uint16_t fish_y[3] = {0, 0, 0};
+	int fish_direction[] = {0, 1, 1};
 	randomise_fish(fish_x, fish_y, 0);
 	randomise_fish(fish_x, fish_y, 1);
 	randomise_fish(fish_x, fish_y, 2);
 
+	// Obstacle
 	uint16_t obstacle_x[] = {0, 129};
 	uint16_t obstacle_y[] = {70, 130};
-	int fish_direction[] = {0, 1, 1};
 	int obstacle_direction[] = {0, 1, 0};
+
+	// Bucket
+	uint16_t bucket_x = 40;
+	uint16_t bucket_y = 40;
+	uint16_t bucket_old_x = 0;
+	uint16_t bucket_old_y = 0;
+	int bucket_horizontal_moved = 0;
+	int bucket_vertical_moved = 0;
+	int bucket_invert = 0;
+
+	// Boat
+	uint16_t boat_x = 64 - (BOAT_WIDTH / 2);
+	uint16_t boat_y = 10;
+	uint16_t boat_oldx = boat_x;
+	int boat_horizontal_moved = 0;
+	int boat_invert = 0;
+
+	// Rocket
+	uint16_t rocket_x = 0;
+	uint16_t rocket_y = 0;
+	int ability = 0;
 
 	initClock();
 	initSysTick();
@@ -167,27 +192,6 @@ int main() {
 	uint32_t durs_over[] = {500, 250, 500};
 	int note_count = 3;
 
-	int new_stage = 1;
-
-	uint16_t bucket_x = 40;
-	uint16_t bucket_y = 40;
-	uint16_t bucket_old_x = 0;
-	uint16_t bucket_old_y = 0;
-	int bucket_horizontal_moved = 0;
-	int bucket_vertical_moved = 0;
-	int bucket_invert = 0;
-
-	int has_fish = 0;
-
-	uint16_t boat_x = 64 - (BOAT_WIDTH / 2);
-	uint16_t boat_y = 10;
-	uint16_t boat_oldx = boat_x;
-	int boat_horizontal_moved = 0;
-	int boat_invert = 0;
-
-	uint16_t rocket_x = 0;
-	uint16_t rocket_y = 0;
-	int ability = 0;
 
 	// Game Loop
 	while (1) {
@@ -754,16 +758,16 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 }
 
 void print_serial(int games, int lives, int score, int fishcaught, int abilities_used) {
-	eputs("\rGames: ");
-	printDecimal(games);
-	eputs(" Lives: ");
-	printDecimal(lives);
-	eputs(" Score: ");
+	eputs("\rScore: ");
 	printDecimal(score);
-	eputs(" Fish Caught: ");
+	eputs(" | Lives: ");
+	printDecimal(lives);
+	eputs(" | Fish Caught: ");
 	printDecimal(fishcaught);
-	eputs(" Abilities used: ");
+	eputs(" | Abilities used: ");
 	printDecimal(abilities_used);
+	eputs(" | Game: ");
+	printDecimal(games);
 }
 
 void randomise_fish(uint16_t fish_x[], uint16_t fish_y[], int index) {
