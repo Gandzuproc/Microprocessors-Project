@@ -134,6 +134,7 @@ int score = 0;
 int main() {
 	srand(time(NULL));
 
+	// Game setup
 	int stage = START_MENU;
 	int lives = 3;
 	int frame_count = 0;  // used to change animation after NUM_FRAMES have passed
@@ -367,7 +368,7 @@ int main() {
 			for (int i = 0; i < 3; i++) {
 				// If bucket and fish sprite overlap and you have no fish
 				// Updates fish and bucket status
-				if ((collision(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, fish_x[i] - 2, fish_y[i] - 2, 20, 20) || collision(fish_x[i] - 2, fish_y[i] - 2, 20, 20, bucket_x, bucket_y, 16, 16)) && (has_fish == 0)) {
+				if ((collision(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, fish_x[i], fish_y[i], FISH_WIDTH, FISH_HEIGHT) || collision(fish_x[i], fish_y[i], FISH_WIDTH, FISH_HEIGHT, bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT)) && (has_fish == 0)) {
 					has_fish = 1;
 					current_fish = i;
 					fillRectangle(fish_x[i], fish_y[i], FISH_WIDTH, FISH_HEIGHT, 0);          // draw over fish
@@ -461,6 +462,8 @@ int main() {
 	}
 	return 0;
 }
+
+
 
 void initSysTick(void) {
 	SysTick->LOAD = 48000;
@@ -757,7 +760,7 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 				// Explosion can hit multiple fish (for loop checks each one)
 				for (int i = 0; i < 3; i++) {
 					// Determines which fish you hit
-					if (collision(explosion_x, explosion_y, 48, 48, fishx[i], fishy[i], 16, 16)) {
+					if (collision(explosion_x, explosion_y, 48, 48, fishx[i], fishy[i], FISH_WIDTH, FISH_HEIGHT)) {
 						// Different colour fish have different scores
 						if (i == 0) {
 							*score += 250;
@@ -817,6 +820,7 @@ void play_sound(uint32_t *notes, uint32_t *durations, int count) {
 }
 
 void ascii_title() {
+	// CarpaDiem
 	eputs("\n");
 	eputs("_________                           ________  .__                \n");
 	eputs("\\_   ___ \\_____ __________________  \\______ \\ |__| ____   _____  \n");
