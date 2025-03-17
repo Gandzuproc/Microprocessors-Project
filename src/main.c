@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+
 // Game Stages
 #define START_MENU 0
 #define BOAT_STAGE 1
@@ -67,11 +68,14 @@ void move_rocket(uint16_t *, uint16_t *, int, int, const uint16_t *, int *, int*
 
 void show_score (int*);
 void show_lives(uint16_t, uint16_t, int);
+void display_menu(void);
+void display_game_over(void);
 void play_sound(uint32_t*, uint32_t*, int);
 
 void reset (int *,int *,int *, int *, int *, int *, uint16_t*, uint16_t*, int *);
 void print_serial (int, int, int, int,int);
-void ascii (void);
+void ascii_title(void);
+
 
 volatile uint32_t milliseconds;
 
@@ -120,32 +124,33 @@ const uint16_t explosion [] =
 	0,0,0,0,0,0,0,65281,65281,65281,65281,65281,65281,65281,65281,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,24323,24323,24323,24323,24323,24323,24323,24323,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,24323,24323,24323,24323,24323,40709,40709,40709,24323,24323,24323,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,24323,24323,40709,40709,40709,40709,40709,40709,24323,24323,24323,24323,65281,65281,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,24323,40709,40709,40709,40709,40709,40709,40709,24323,24323,24323,24323,24323,24323,65281,0,0,0,0,0,0,0,0,0,0,0,65281,65281,0,0,0,65281,24323,40709,40709,40709,40709,40709,40709,40709,40709,24323,24323,24323,24323,65281,0,0,0,0,0,0,0,0,0,0,0,0,65281,24323,65281,0,0,65281,24323,40709,40709,40709,32519,32519,40709,40709,40709,40709,40709,40709,24323,65281,0,0,0,65281,0,0,0,0,0,0,0,65281,65281,24323,24323,65281,0,0,65281,24323,40709,32519,32519,32519,32519,32519,40709,40709,40709,24323,65281,0,0,0,65281,65281,65281,0,0,0,0,0,0,65281,24323,24323,24323,24323,65281,0,65281,24323,40709,32519,32519,65535,65535,32519,32519,40709,40709,24323,65281,0,0,65281,24323,24323,65281,65281,0,0,0,0,0,65281,24323,24323,40709,40709,24323,65281,24323,40709,32519,65535,65535,65535,65535,32519,32519,40709,24323,65281,0,0,0,65281,24323,24323,24323,65281,65281,0,0,0,0,65281,24323,24323,40709,40709,40709,24323,40709,32519,65535,65535,61572,61572,65535,65535,32519,40709,24323,65281,0,0,65281,24323,40709,24323,24323,24323,65281,65281,0,0,0,65281,24323,24323,40709,40709,40709,40709,32519,65535,65535,6912,56286,56286,6912,65535,32519,32519,40709,24323,65281,0,65281,24323,40709,24323,24323,24323,24323,65281,65281,0,0,65281,24323,24323,40709,40709,40709,32519,32519,65535,65535,56286,6912,6912,56286,65535,65535,65535,32519,40709,24323,65281,24323,40709,40709,40709,24323,24323,24323,24323,65281,0,0,65281,24323,24323,24323,24323,40709,32519,32519,32519,65535,65535,65535,65535,65535,65535,65535,65535,65535,32519,40709,24323,40709,40709,40709,40709,40709,24323,24323,24323,65281,0,0,65281,24323,24323,24323,24323,40709,40709,32519,32519,32519,65535,65535,65535,65535,6912,56286,56286,6912,65535,32519,40709,32519,32519,40709,40709,40709,24323,24323,24323,65281,0,0,65281,65281,24323,24323,24323,40709,40709,32519,32519,32519,65535,65535,65535,65535,56286,6912,6912,56286,65535,65535,32519,32519,32519,40709,40709,40709,24323,24323,24323,65281,0,0,0,65281,24323,24323,24323,24323,40709,32519,32519,65535,65535,61572,61572,65535,65535,65535,65535,65535,65535,65535,32519,32519,32519,32519,40709,40709,24323,24323,24323,65281,0,0,0,65281,24323,24323,65281,65281,24323,40709,32519,65535,61572,61572,65535,65535,65535,65535,65535,61572,65535,65535,32519,32519,32519,32519,40709,40709,24323,24323,24323,65281,0,0,0,65281,24323,65281,0,0,65281,24323,40709,32519,65535,65535,65535,32519,32519,32519,65535,61572,61572,65535,65535,32519,40709,32519,40709,40709,24323,24323,24323,65281,0,0,0,65281,65281,0,0,65281,24323,40709,32519,65535,65535,65535,32519,32519,40709,32519,65535,65535,61572,65535,32519,40709,24323,40709,40709,40709,24323,24323,65281,65281,0,0,0,65281,65281,0,0,65281,24323,40709,32519,32519,32519,32519,32519,40709,24323,40709,32519,65535,65535,32519,40709,24323,65281,24323,24323,24323,24323,24323,65281,0,0,0,0,65281,0,0,0,65281,24323,40709,32519,32519,32519,32519,40709,24323,65281,24323,40709,32519,32519,32519,40709,24323,65281,65281,65281,24323,24323,24323,65281,0,0,0,0,0,0,0,65281,24323,40709,40709,40709,40709,32519,40709,24323,65281,0,65281,24323,40709,32519,32519,40709,24323,65281,0,0,65281,24323,24323,65281,0,0,0,0,0,0,65281,24323,24323,24323,24323,40709,40709,40709,40709,24323,65281,0,65281,24323,40709,32519,40709,40709,40709,24323,65281,0,0,65281,24323,65281,0,0,0,0,0,65281,65281,24323,24323,24323,24323,24323,40709,40709,24323,65281,0,0,65281,24323,40709,40709,40709,40709,40709,40709,24323,65281,0,0,65281,65281,0,0,0,0,0,0,65281,65281,24323,24323,24323,24323,24323,40709,24323,65281,0,0,65281,24323,40709,40709,40709,40709,40709,40709,24323,65281,0,0,0,0,0,0,0,0,0,0,0,65281,65281,65281,24323,24323,24323,24323,24323,65281,0,0,65281,24323,24323,24323,24323,24323,24323,24323,24323,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,24323,24323,24323,65281,0,0,0,0,65281,24323,24323,24323,24323,24323,24323,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,65281,24323,65281,0,0,0,0,65281,24323,24323,24323,24323,24323,65281,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65281,65281,65281,0,0,0,0,65281,65281,65281,65281,65281,65281,65281,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
+int score = 0;
 
-int main()
-{
+
+
+int main() {
 	srand(time(NULL));
 
 	int stage = START_MENU;
-	int score = 0;
-    int lives = 3;
-	int frame_count = 0; // used to change animation after NUM_FRAMES have passed
+	int lives = 3;
+	int frame_count = 0;  // used to change animation after NUM_FRAMES have passed
 	int count = 0;
-	int current_fish = -1; // -1, no fish
+	int current_fish = -1;  // -1, no fish
 	char restart;
 	int games_played = 1;
 	int fish_caught = 0;
 	int abilities_used = 0;
 
-    uint16_t fish_x[3] = {0, 0, 0};
-    uint16_t fish_y[3] = {0, 0, 0};
-	randomise_fish(fish_x,fish_y,0);
-	randomise_fish(fish_x,fish_y,1);
-	randomise_fish(fish_x,fish_y,2);
+	uint16_t fish_x[3] = {0, 0, 0};
+	uint16_t fish_y[3] = {0, 0, 0};
+	randomise_fish(fish_x, fish_y, 0);
+	randomise_fish(fish_x, fish_y, 1);
+	randomise_fish(fish_x, fish_y, 2);
 
-	uint16_t obstacle_x[] = {0,129};
-	uint16_t obstacle_y[] = {70,130}; 
-	int fish_direction[] = {0, 1, 1}; 
-	int obstacle_direction[] = {0, 1, 0};    
+	uint16_t obstacle_x[] = {0, 129};
+	uint16_t obstacle_y[] = {70, 130};
+	int fish_direction[] = {0, 1, 1};
+	int obstacle_direction[] = {0, 1, 0};
 
 	initClock();
 	initSysTick();
@@ -158,23 +163,23 @@ int main()
 	uint32_t durs_catch[] = {100, 100, 100};
 	uint32_t notes_damage[] = {FS5_Gb5, F5, DS5_Eb5};
 	uint32_t durs_damage[] = {100, 100, 100};
-	uint32_t notes_over[] = {A3, F3, D3}; 
-	uint32_t durs_over[] = {500, 250, 500}; 
+	uint32_t notes_over[] = {A3, F3, D3};
+	uint32_t durs_over[] = {500, 250, 500};
 	int note_count = 3;
 
- 	int new_stage = 1;
+	int new_stage = 1;
 
-    uint16_t bucket_x = 40;
+	uint16_t bucket_x = 40;
 	uint16_t bucket_y = 40;
 	uint16_t bucket_old_x = 0;
-    uint16_t bucket_old_y = 0;
+	uint16_t bucket_old_y = 0;
 	int bucket_horizontal_moved = 0;
-    int bucket_vertical_moved = 0;
+	int bucket_vertical_moved = 0;
 	int bucket_invert = 0;
 
 	int has_fish = 0;
 
-	uint16_t boat_x = 64 -(BOAT_WIDTH/2);
+	uint16_t boat_x = 64 - (BOAT_WIDTH / 2);
 	uint16_t boat_y = 10;
 	uint16_t boat_oldx = boat_x;
 	int boat_horizontal_moved = 0;
@@ -185,46 +190,30 @@ int main()
 	int ability = 0;
 
 	// Game Loop
-	while (1)
-	{
+	while (1) {
 		// Start menu stage
-		while (stage == START_MENU)
-		{
+		while (stage == START_MENU) {
 			count++;
-			// Display only once
+			// Display the menu once to the screen (no flashing)
 			if (new_stage) {
-				fillRectangle(0,0,128,160,0);
-				fillRectangle(11,8,109,18,RGBToWord(255,255,255));
-				printTextX2("CarpaDiem", 13, 10, RGBToWord(0,0,0), RGBToWord(255,255,255));
-				printText("Help Pat the cat", 0, 35, RGBToWord(0,255,0), 0);
-				printText("catch some food!", 0, 45, RGBToWord(0,255,0), 0);
-				printText("RL = Move Boat", 0, 55, RGBToWord(255,255,255), 0);
-				printText("D = Release bucket", 0, 65, RGBToWord(255,255,255), 0);
-				printText("RLUD = Move bucket", 0, 75, RGBToWord(255,255,255), 0);
-				printText("U = Rocket", 0, 85, RGBToWord(255,255,255), 0);
-				printText("U(again) = Explode", 0, 95, RGBToWord(255,255,255), 0);
-				printText("Get Fish and go", 0, 105, RGBToWord(255,255,0), 0);
-				printText("back to boat, try", 0, 115, RGBToWord(255,255,0), 0);
-				printText("not to get hit!", 0, 125, RGBToWord(255,255,0), 0);
+				display_menu();
 				new_stage = 0;
 			}
-			
+
 			// Blinking effect for "Press any button"
-			if (count > 40 && count <= 80) 
-			{
+			if (count > 40 && count <= 80) {
 				printText("Press any button", 10, 140, 255, 0);
 				printText("to start", 37, 150, 255, 0);
-			}
-			else if (count > 80) 
-			{
+			} 
+			else if (count > 80) {
 				count = 0;
-				fillRectangle(0,140,128,20,0);
+				fillRectangle(0, 140, 128, 20, 0);
 			}
 
 			// Press any button to start
 			if (right_pressed() || left_pressed() || up_pressed() || down_pressed() || ability_button()) {
-				ascii();
-				print_serial(games_played,lives,score,fish_caught,abilities_used);
+				ascii_title();
+				print_serial(games_played, lives, score, fish_caught, abilities_used);
 				delay(100);
 				stage = BOAT_STAGE;
 			}
@@ -235,16 +224,12 @@ int main()
 		fillRectangle(0, 0, 128, 160, 0);
 
 		// Boat stage
-		while (stage == BOAT_STAGE)
-		{
-			
-			if (ability < 3)
-			{
-				fillRectangle(80,0,8,8,RGBToWord(255,0,0));
-			}
-			else if (ability >= 3)
-			{
-				fillRectangle(80,0,8,8,RGBToWord(0,255,0));
+		while (stage == BOAT_STAGE) {
+			if (ability < 3) {
+				fillRectangle(80, 0, 8, 8, RGBToWord(255, 0, 0));
+			} 
+			else if (ability >= 3) {
+				fillRectangle(80, 0, 8, 8, RGBToWord(0, 255, 0));
 			}
 
 			// Display HUD
@@ -253,13 +238,11 @@ int main()
 			putImage(boat_x, boat_y, BOAT_WIDTH, BOAT_HEIGHT, boat1, boat_invert, 0);
 
 			// Spawn fishes
-			for (int i = 0; i < MAX_FISHES; i++)
-			{
-				spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish,fish2,fish3, &fish_direction[i],i);
+			for (int i = 0; i < MAX_FISHES; i++) {
+				spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish, fish2, fish3, &fish_direction[i], i);
 			}
 			// Spawn obstacles
-			for (int i = 0; i < MAX_OBSTACLES; i++)
-			{
+			for (int i = 0; i < MAX_OBSTACLES; i++) {
 				spawn_obstacle(&obstacle_x[i], &obstacle_y[i], 8, 8, obstacle, &obstacle_direction[i]);
 			}
 
@@ -268,175 +251,133 @@ int main()
 
 			boat_horizontal_moved = 0;
 			// Right pressed
-			if (right_pressed() == 1)
-			{
-				move_right(&boat_x, &boat_horizontal_moved, BOARD_WIDTH, BOAT_HEIGHT,1,&boat_invert);
+			if (right_pressed() == 1) {
+				move_right(&boat_x, &boat_horizontal_moved, BOARD_WIDTH, BOAT_HEIGHT, 1, &boat_invert);
 			}
 			// Left pressed
 			if (left_pressed() == 1) {
 				move_left(&boat_x, &boat_horizontal_moved, 0, 1, &boat_invert);
 			}
 			// Up pressed
-			if ((ability_button() == 1) && (ability >= 3)) 
-			{
+			if ((ability_button() == 1) && (ability >= 3)) {
 				ability = 0;
-				abilities_used ++;
-				rocket_x = boat_x + (BOAT_WIDTH/2) - (BUCKET_WIDTH/2);
+				abilities_used++;
+				rocket_x = boat_x + (BOAT_WIDTH / 2) - (BUCKET_WIDTH / 2);
 				rocket_y = 40;
 
 				fillRectangle(0, 0, 128, 160, 0);
 				show_lives(120, 0, lives);
 				show_score(&score);
 				putImage(boat_x, boat_y, BOAT_WIDTH, BOAT_HEIGHT, boat1, boat_invert, 0);
-				fillRectangle(80,0,8,8,RGBToWord(0,255,0));
+				fillRectangle(80, 0, 8, 8, RGBToWord(0, 255, 0));
 
 				stage = ABILITY;
 			}
 			// Down pressed
 			if (down_pressed() == 1) {
-				bucket_x = boat_x + (BOAT_WIDTH/2) - (BUCKET_WIDTH/2);
+				bucket_x = boat_x + (BOAT_WIDTH / 2) - (BUCKET_WIDTH / 2);
 				bucket_y = 40;
 				bucket_old_x = bucket_x;
-                bucket_old_y = bucket_y;
+				bucket_old_y = bucket_y;
 				stage = BUCKET_STAGE;
 			}
 
-			if (boat_horizontal_moved == 1)
-            {
-                // only redraw if there has been some movement (reduces flicker)
-                fillRectangle(boat_oldx, boat_y, BOAT_WIDTH, BOAT_HEIGHT, 0);
-                boat_oldx = boat_x;
-				if (frame_count < NUM_FRAMES / 2)
-				{
+			if (boat_horizontal_moved == 1) {
+				// only redraw if there has been some movement (reduces flicker)
+				fillRectangle(boat_oldx, boat_y, BOAT_WIDTH, BOAT_HEIGHT, 0);
+				boat_oldx = boat_x;
+				if (frame_count < NUM_FRAMES / 2) {
 					putImage(boat_x, boat_y, BOAT_WIDTH, BOAT_HEIGHT, boat1, boat_invert, 0);
-				}
-				else
-				{
+				} 
+				else {
 					putImage(boat_x, boat_y, BOAT_WIDTH, BOAT_HEIGHT, boat2, boat_invert, 0);
 				}
 				frame_count = (frame_count + 1) % NUM_FRAMES;
-            }
+			}
 			delay(16);
 		}
 		// Bucket stage
-		while (stage == BUCKET_STAGE)
-        {
+		while (stage == BUCKET_STAGE) {
 			show_lives(120, 0, lives);
 			// Spawn fishes
-			for (int i = 0; i < MAX_FISHES; i++)
-			{
+			for (int i = 0; i < MAX_FISHES; i++) {
 				// Doesn't show the fish currently in bucket
-				if (i != current_fish) { 
-					spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish,fish2,fish3, &fish_direction[i], i);
+				if (i != current_fish) {
+					spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish, fish2, fish3, &fish_direction[i], i);
 				}
 			}
-			for (int i = 0; i < MAX_OBSTACLES; i++)
-			{
+			for (int i = 0; i < MAX_OBSTACLES; i++) {
 				spawn_obstacle(&obstacle_x[i], &obstacle_y[i], 8, 8, obstacle, &obstacle_direction[i]);
 			}
 
-            // MOVEMENT SYSTEM START
-            bucket_horizontal_moved = 0;
+			// MOVEMENT SYSTEM START
+			bucket_horizontal_moved = 0;
 			bucket_vertical_moved = 0;
 
-			if (right_pressed() == 1)
-			{
-				move_right(&bucket_x, &bucket_horizontal_moved, BOARD_WIDTH, BUCKET_WIDTH,0,&bucket_invert);
+			if (right_pressed() == 1) {
+				move_right(&bucket_x, &bucket_horizontal_moved, BOARD_WIDTH, BUCKET_WIDTH, 0, &bucket_invert);
 			}
-			if (left_pressed() == 1)
-			{
-				move_left(&bucket_x, &bucket_horizontal_moved, 0,0,&bucket_invert); 
+			if (left_pressed() == 1) {
+				move_left(&bucket_x, &bucket_horizontal_moved, 0, 0, &bucket_invert);
 			}
-			if (up_pressed() == 1)
-			{
-				move_up(&bucket_y, &bucket_vertical_moved, boat_y+BOAT_HEIGHT);   
+			if (up_pressed() == 1) {
+				move_up(&bucket_y, &bucket_vertical_moved, boat_y + BOAT_HEIGHT);
 			}
-			if (down_pressed() == 1)
-			{
-				move_down(&bucket_y, &bucket_vertical_moved, BOARD_HEIGHT, BUCKET_HEIGHT);  
+			if (down_pressed() == 1) {
+				move_down(&bucket_y, &bucket_vertical_moved, BOARD_HEIGHT, BUCKET_HEIGHT);
 			}
-            // MOVEMENT SYSTEM END
-            
-            // DRAW IMAGE START
-            if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1)
-            {
-                // only redraw if there has been some movement (reduces flicker)
-                fillRectangle(bucket_old_x, bucket_old_y, BUCKET_WIDTH, BUCKET_HEIGHT, 0);
-                bucket_old_x = bucket_x;
-                bucket_old_y = bucket_y;
+			// MOVEMENT SYSTEM END
+
+			// DRAW IMAGE START
+			if (bucket_vertical_moved == 1 || bucket_horizontal_moved == 1) {
+				// only redraw if there has been some movement (reduces flicker)
+				fillRectangle(bucket_old_x, bucket_old_y, BUCKET_WIDTH, BUCKET_HEIGHT, 0);
+				bucket_old_x = bucket_x;
+				bucket_old_y = bucket_y;
 				if (has_fish == 1) {
 					putImage(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, bucket_fish, 0, 0);
-				}
+				} 
 				else {
 					putImage(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, bucket, 0, 0);
 				}
-            }
-            // DRAW IMAGE END
-            
-            // COLLISION DETECTION START
-			for (int i = 0; i < 3; i++)
-			{
+			}
+			// DRAW IMAGE END
+
+			// COLLISION DETECTION START
+			for (int i = 0; i < 3; i++) {
 				// If bucket and fish sprite overlap and you have no fish
-				if ((collision(bucket_x,bucket_y,BUCKET_WIDTH,BUCKET_HEIGHT,fish_x[i]-2,fish_y[i]-2,20,20) || collision(fish_x[i]-2,fish_y[i]-2,20,20,bucket_x,bucket_y,16,16)) && (has_fish == 0))
-				{
+				if ((collision(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, fish_x[i] - 2, fish_y[i] - 2, 20, 20) || collision(fish_x[i] - 2, fish_y[i] - 2, 20, 20, bucket_x, bucket_y, 16, 16)) && (has_fish == 0)) {
 					has_fish = 1;
 					current_fish = i;
-					fillRectangle(fish_x[i], fish_y[i], FISH_WIDTH, FISH_HEIGHT, 0); //draw over fish
-					putImage(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, bucket, 0, 0); //draw bucket again
+					fillRectangle(fish_x[i], fish_y[i], FISH_WIDTH, FISH_HEIGHT, 0);          // draw over fish
+					putImage(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, bucket, 0, 0);  // draw bucket again
 					play_sound(notes_catch, durs_catch, note_count);
 				}
 			}
 
-			for (int i = 0; i < MAX_OBSTACLES; i++)
-			{
+			for (int i = 0; i < MAX_OBSTACLES; i++) {
 				// If bucket and obstacle overlap/collide
 				// you lose a life and sound is played
-				if (collision(bucket_x,bucket_y,BUCKET_WIDTH,BUCKET_HEIGHT,obstacle_x[i],obstacle_y[i],OBSTACLE_WIDTH,OBSTACLE_HEIGHT))
-				{	
+				if (collision(bucket_x, bucket_y, BUCKET_WIDTH, BUCKET_HEIGHT, obstacle_x[i], obstacle_y[i], OBSTACLE_WIDTH, OBSTACLE_HEIGHT)) {
 					current_fish = -1;
 					has_fish = 0;
-					fillRectangle(bucket_old_x, bucket_old_y, BUCKET_WIDTH,BUCKET_HEIGHT, 0);
-					putImage(obstacle_x[i]-12,obstacle_y[i]-12,32,32,explosion,0,0);
+
+					fillRectangle(bucket_old_x, bucket_old_y, BUCKET_WIDTH, BUCKET_HEIGHT, 0);
+					putImage(obstacle_x[i] - 12, obstacle_y[i] - 12, 32, 32, explosion, 0, 0);
 					play_sound(notes_damage, durs_damage, 3);
 					delay(500);
-                	fillRectangle(bucket_old_x, bucket_old_y, BUCKET_WIDTH, BUCKET_HEIGHT, 0);
-					putImage(obstacle_x[i]-12,obstacle_y[i]-12,32,32,explosion,0,0);
-					if(lives == 1)
-					{
-						lives--;
-						print_serial(games_played,lives,score,fish_caught,abilities_used);
-						fillRectangle(0, 0, 128, 160, 0);
-						fillRectangle(8,58,110,18,RGBToWord(255,255,255));
-						printText("Pat the cat's",0,0,RGBToWord(255,255,255),0);
-						printText("bucket broke so he",0,10,RGBToWord(255,255,255),0);
-						printText("called it a day",0,20,RGBToWord(255,255,255),0);
-						printText("and went home",0,30,RGBToWord(255,255,255),0);
-						printTextX2("Trip Over", 10, 60, RGBToWord(0,0,0), RGBToWord(255,255,255));
-						printText("Score:",10,80,RGBToWord(255,255,0),0);
-						printNumber(score,50,80,RGBToWord(255,255,0),0);
-						printText("Grade: ",73,100,RGBToWord(255,255,255),0);
-						if (score >= 0 && score < 501) {
-							printTextX2("F",85,110,RGBToWord(255,0,0),0);
-						} else if (score >= 501 && score < 2000) {
-							printTextX2("D",85,110,RGBToWord(255,128,0),0);
-						} else if (score >= 2000 && score < 4000) {
-							printTextX2("C",85,110,RGBToWord(255,255,0),0);
-						} else if (score >= 4000 && score < 6000) {
-							printTextX2("B",85,110,RGBToWord(128,255,0),0);
-						} else if (score >= 6000 && score < 8000) {
-							printTextX2("A",85,110,RGBToWord(0,255,255),0);
-						} else if (score >= 8000) {
-							printTextX2("S",85,110,RGBToWord(127,0,255),0);
-						}
-						lives = 3;
-						score = 0;
-						new_stage = 1;
+					fillRectangle(bucket_old_x, bucket_old_y, BUCKET_WIDTH, BUCKET_HEIGHT, 0);
+					putImage(obstacle_x[i] - 12, obstacle_y[i] - 12, 32, 32, explosion, 0, 0);
+
+					// Checking if you still have lives remaining
+					if (lives == 1) {
+						print_serial(games_played, lives, score, fish_caught, abilities_used);
+						
 						stage = GAME_OVER;
-					}
-					else
-					{
+					} 
+					else {
 						lives = lives - 1;
-						print_serial(games_played,lives,score,fish_caught,abilities_used);
+						print_serial(games_played, lives, score, fish_caught, abilities_used);
 						stage = BOAT_STAGE;
 					}
 				}
@@ -444,85 +385,75 @@ int main()
 
 			// Returning to the boat when you have a fish in the bucket
 			// Increases score and removes fish from bucket
-			if (collision(boat_x, boat_y+10, BOAT_HEIGHT, BOAT_WIDTH, bucket_x, bucket_y, BUCKET_HEIGHT, BUCKET_WIDTH) && (has_fish == 1))
-			{
+			if (collision(boat_x, boat_y + 10, BOAT_HEIGHT, BOAT_WIDTH, bucket_x, bucket_y, BUCKET_HEIGHT, BUCKET_WIDTH) && (has_fish == 1)) {
 				fish_caught++;
 				stage = BOAT_STAGE;
 				has_fish = 0;
-				if (current_fish == 0)
-				{
+				if (current_fish == 0) {
 					score += 250;
-				}
-				else if(current_fish == 1)
-				{
+				} 
+				else if (current_fish == 1) {
 					score += 500;
-				}
-				else if (current_fish == 2)
-				{
+				} 
+				else if (current_fish == 2) {
 					score += 1000;
 				}
-				print_serial(games_played,lives,score,fish_caught,abilities_used);
+				print_serial(games_played, lives, score, fish_caught, abilities_used);
 
-				randomise_fish(fish_x,fish_y,current_fish);
+				randomise_fish(fish_x, fish_y, current_fish);
 
-				current_fish = -1; // -1, no fish
+				current_fish = -1;  // -1, no fish
 				fillRectangle(bucket_old_x, bucket_old_y, BUCKET_HEIGHT, BUCKET_WIDTH, 0);
 				ability++;
 			}
-            // COLLISION DETECTION END
-            
-            delay(16);
-        }
+			// COLLISION DETECTION END
+
+			delay(16);
+		}
 		// Game over stage
-		while (stage == GAME_OVER)
-		{
-			putImage(16, 100, BOAT_WIDTH, BOAT_HEIGHT, boat1, 0, 0);
-			printText("Press keyboard (r)", 2, 140, RGBToWord(255, 255, 255), 0);
-			printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
+		while (stage == GAME_OVER) {
+			display_game_over();
+
 			play_sound(notes_over, durs_over, 3);
+
 			restart = egetchar();
-			if (restart == 'r' || ability_button() == 1) 
-			{
+			if (restart == 'r') {
 				eputs("\nNew Game Started!");
-				games_played ++;
-				reset(&score, &lives, &new_stage, &stage,&fish_caught,&abilities_used, &boat_x, &boat_y, &boat_invert);
+				games_played++;
+
+				// Reset for next game
+				reset(&score, &lives, &new_stage, &stage, &fish_caught, &abilities_used, &boat_x, &boat_y, &boat_invert);
 				delay(100);
 			}
 		}
 
-		while (stage == ABILITY)
-		{
-			for (int i = 0; i < MAX_FISHES; i++)
-			{
-				spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish,fish2,fish3, &fish_direction[i],i);
+		while (stage == ABILITY) {
+			for (int i = 0; i < MAX_FISHES; i++) {
+				spawn_fish(&fish_x[i], &fish_y[i], 16, 16, fish, fish2, fish3, &fish_direction[i], i);
 			}
 
-			move_rocket(&rocket_x,&rocket_y,8,8,rocket,&stage,&score,fish_x,fish_y,&lives,games_played,fish_caught,abilities_used,explosion);
+			move_rocket(&rocket_x, &rocket_y, 8, 8, rocket, &stage, &score, fish_x, fish_y, &lives, games_played, fish_caught, abilities_used, explosion);
 		}
 	}
 	return 0;
 }
 
-
-void initSysTick(void)
-{
+void initSysTick(void) {
 	SysTick->LOAD = 48000;
 	SysTick->CTRL = 7;
 	SysTick->VAL = 10;
-	__asm(" cpsie i "); // enable interrupts
+	__asm(" cpsie i ");  // enable interrupts
 }
-void SysTick_Handler(void)
-{
+void SysTick_Handler(void) {
 	milliseconds++;
 }
-void initClock(void)
-{
+void initClock(void) {
 	// This is potentially a dangerous function as it could
 	// result in a system with an invalid clock signal - result: a stuck system
 	// Set the PLL up
 	// First ensure PLL is disabled
 	RCC->CR &= ~(1u << 24);
-	while ((RCC->CR & (1 << 25))); // wait for PLL ready to be cleared
+	while ((RCC->CR & (1 << 25)));  // wait for PLL ready to be cleared
 
 	// Warning here: if system clock is greater than 24MHz then wait-state(s) need to be
 	// inserted into Flash memory interface
@@ -543,37 +474,32 @@ void initClock(void)
 	// set PLL as system clock source
 	RCC->CFGR |= (1 << 1);
 }
-void delay(volatile uint32_t dly)
-{
+void delay(volatile uint32_t dly) {
 	uint32_t end_time = dly + milliseconds;
 	while (milliseconds != end_time)
-		__asm(" wfi "); // sleep
+		__asm(" wfi ");  // sleep
 }
 
-void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber)
-{
-	Port->PUPDR = Port->PUPDR & ~(3u << BitNumber * 2); // clear pull-up resistor bits
-	Port->PUPDR = Port->PUPDR | (1u << BitNumber * 2);	// set pull-up bit
+void enablePullUp(GPIO_TypeDef *Port, uint32_t BitNumber) {
+	Port->PUPDR = Port->PUPDR & ~(3u << BitNumber * 2);  // clear pull-up resistor bits
+	Port->PUPDR = Port->PUPDR | (1u << BitNumber * 2);   // set pull-up bit
 }
-void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode)
-{
+void pinMode(GPIO_TypeDef *Port, uint32_t BitNumber, uint32_t Mode) {
 	/*
-	*/
+	 */
 	uint32_t mode_value = Port->MODER;
 	Mode = Mode << (2 * BitNumber);
 	mode_value = mode_value & ~(3u << (BitNumber * 2));
 	mode_value = mode_value | Mode;
 	Port->MODER = mode_value;
 }
-int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py)
-{
+int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint16_t py) {
 	// checks to see if point px,py is within the rectangle defined by x,y,w,h
 	uint16_t x2, y2;
 	x2 = x1 + w;
 	y2 = y1 + h;
 	int rvalue = 0;
-	if ((px >= x1) && (px <= x2))
-	{
+	if ((px >= x1) && (px <= x2)) {
 		// ok, x constraint met
 		if ((py >= y1) && (py <= y2))
 			rvalue = 1;
@@ -581,161 +507,139 @@ int isInside(uint16_t x1, uint16_t y1, uint16_t w, uint16_t h, uint16_t px, uint
 	return rvalue;
 }
 
-void setupIO()
-{
-	RCC->AHBENR |= (1 << 18) + (1 << 17); // enable Ports A and B
+void setupIO() {
+	RCC->AHBENR |= (1 << 18) + (1 << 17);  // enable Ports A and B
 	display_begin();
-	pinMode(GPIOB,4,0);
-	pinMode(GPIOB,5,0);
-	pinMode(GPIOA,8,0);
-	pinMode(GPIOA,11,0);
-	pinMode(GPIOA,12,0);
-	enablePullUp(GPIOB,4);
-	enablePullUp(GPIOB,5);
-	enablePullUp(GPIOA,11);
-	enablePullUp(GPIOA,8);
-	enablePullUp(GPIOA,12);
+	pinMode(GPIOB, 4, 0);
+	pinMode(GPIOB, 5, 0);
+	pinMode(GPIOA, 8, 0);
+	pinMode(GPIOA, 11, 0);
+	pinMode(GPIOA, 12, 0);
+	enablePullUp(GPIOB, 4);
+	enablePullUp(GPIOB, 5);
+	enablePullUp(GPIOA, 11);
+	enablePullUp(GPIOA, 8);
+	enablePullUp(GPIOA, 12);
 }
 
-void move_right (uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert)
-{
-	if (*x + object_width < boundary)
-	{
+void move_right(uint16_t *x, int *horizontal_moved, int boundary, int object_width, int flip, int *invert) {
+	if (*x + object_width < boundary) {
 		*x = *x + 1;
 		*horizontal_moved = 1;
-		if (flip == 1)
-		{
+		if (flip == 1) {
 			*invert = 0;
 		}
 	}
 }
 
-void move_left (uint16_t *x, int *horizontal_moved, int boundary, int flip, int *invert)
-{
-	if (*x > boundary)
-	{
+void move_left(uint16_t *x, int *horizontal_moved, int boundary, int flip, int *invert) {
+	if (*x > boundary) {
 		*x = *x - 1;
 		*horizontal_moved = 1;
-		if (flip == 1)
-		{
+		if (flip == 1) {
 			*invert = 1;
 		}
 	}
 }
 
-void move_down (uint16_t *y, int *vertical_moved, int boundary, int object_height)
-{
-	if (*y + object_height < boundary)
-	{
+void move_down(uint16_t *y, int *vertical_moved, int boundary, int object_height) {
+	if (*y + object_height < boundary) {
 		*y = *y + 1;
 		*vertical_moved = 1;
 	}
 }
 
-void move_up (uint16_t *y, int *vertical_moved, int boundary)
-{
-	if (*y > boundary)
-	{
+void move_up(uint16_t *y, int *vertical_moved, int boundary) {
+	if (*y > boundary) {
 		*y = *y - 1;
 		*vertical_moved = 1;
 	}
 }
 
-int collision (uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uint16_t hitbox_width, uint16_t object_x, uint16_t object_y, int object_height, int object_width)
-{
+int collision(uint16_t hitbox_x, uint16_t hitbox_y, uint16_t hitbox_heigth, uint16_t hitbox_width, uint16_t object_x, uint16_t object_y, int object_height, int object_width) {
 	uint16_t hitbox_heigth_better = hitbox_width * 0.75;
 	uint16_t hitbox_width_better = hitbox_heigth * 0.75;
 	uint16_t hitbox_x_better = hitbox_x + (hitbox_width - hitbox_width_better) / 2;
 	uint16_t hitbox_y_better = hitbox_y + (hitbox_heigth - hitbox_heigth_better) / 2;
 	if (isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y) ||
-	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x + object_width, object_y) ||
-	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y+object_height)||
-	isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x+object_width, object_y+object_height))
-	{
+	    isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x + object_width, object_y) ||
+	    isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x, object_y + object_height) ||
+	    isInside(hitbox_x_better, hitbox_y_better, hitbox_heigth_better, hitbox_width_better, object_x + object_width, object_y + object_height)) {
 		return 1;
-	}
-	else
-	{
+	} 
+	else {
 		return 0;
 	}
 }
 
-void show_score (int *score)
-{
-	printText("Score:",0,0,RGBToWord(255,255,255),0);
-	printNumber(*score,40,0,RGBToWord(255,255,255),0);
+void show_score(int *score) {
+	printText("Score:", 0, 0, RGBToWord(255, 255, 255), 0);
+	printNumber(*score, 40, 0, RGBToWord(255, 255, 255), 0);
 }
 
 void show_lives(uint16_t x, uint16_t y, int lives) {
 	while (lives--) {
-		putImage(x, y, 8, 8, heart, 0, 0); // change to heart sprite
-		x = x - 10; // spacing the health indicators
-	}
-}
-
-void displayHUD(uint16_t x, uint16_t y, int lives) {
-	while (lives--) {
-		fillRectangle(x, y, 8, 4, 255);
-		x = x - 8;
+		putImage(x, y, 8, 8, heart, 0, 0);
+		x = x - 10;  // spacing the health indicators
 	}
 }
 
 int right_pressed() {
-	if ((GPIOB->IDR & (1 << 4)) == 0)
-	{
+	if ((GPIOB->IDR & (1 << 4)) == 0) {
 		return 1;
-	}
-	else return 0;	
+	} 
+	else
+		return 0;
 }
 
 int left_pressed() {
-	if ((GPIOB->IDR & (1 << 5)) == 0)
-	{
+	if ((GPIOB->IDR & (1 << 5)) == 0) {
 		return 1;
-	}
-	else return 0;	
+	} 
+	else
+		return 0;
 }
 
 int up_pressed() {
-	if ((GPIOA->IDR & (1 << 8)) == 0)
-	{
+	if ((GPIOA->IDR & (1 << 8)) == 0) {
 		return 1;
-	}
-	else return 0;	
+	} 
+	else
+		return 0;
 }
 
 int down_pressed() {
-	if ((GPIOA->IDR & (1 << 11)) == 0)
-	{
+	if ((GPIOA->IDR & (1 << 11)) == 0) {
 		return 1;
-	}
-	else return 0;	
+	} 
+	else
+		return 0;
 }
 
 int ability_button() {
-	if ((GPIOA->IDR & (1 << 12)) == 0)
-	{
+	if ((GPIOA->IDR & (1 << 12)) == 0) {
 		return 1;
-	}
-	else return 0;	
+	} 
+	else
+		return 0;
 }
 
 void spawn_obstacle(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *direction) {
-	uint16_t prevX = *x; 
-	uint16_t prevY = *y; 
+	uint16_t prevX = *x;
+	uint16_t prevY = *y;
 
-	// Keeps fish in bounds of screen
+	// Keeps obstacle in bounds of screen
 	if ((*x) <= 0) {
 		*direction = 0;
-	}
-	else if ((*x) >= 112) { // 128px - width of sprite
+	} 
+	else if ((*x) >= 112) {  // 128px - width of sprite
 		*direction = 1;
 	}
-	
+
 	// Right and left movement
 	if ((*direction) == 0) {
 		(*x)++;
-	}
+	} 
 	else if ((*direction) == 1) {
 		(*x)--;
 	}
@@ -743,25 +647,25 @@ void spawn_obstacle(uint16_t *x, uint16_t *y, int width, int height, const uint1
 	fillRectangle(prevX, prevY, width, height, 0);
 	prevX = *x;
 	prevY = *y;
-	putImage(*x, *y, width, height, sprite, *direction, 0); 
+	putImage(*x, *y, width, height, sprite, *direction, 0);
 }
 
 void spawn_fish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, const uint16_t *sprite2, const uint16_t *sprite3, int *direction, int index) {
-	uint16_t prevX = *x; 
-	uint16_t prevY = *y; 
+	uint16_t prevX = *x;
+	uint16_t prevY = *y;
 
 	// Keeps fish in bounds of screen
 	if ((*x) <= 0) {
 		*direction = 0;
-	}
-	else if ((*x) >= 112) { // 128px - width of sprite
+	} 
+	else if ((*x) >= 112) {  // 128px - width of sprite
 		*direction = 1;
 	}
-	
+
 	// Right and left movement
 	if ((*direction) == 0) {
 		(*x)++;
-	}
+	} 
 	else if ((*direction) == 1) {
 		(*x)--;
 	}
@@ -769,47 +673,42 @@ void spawn_fish(uint16_t *x, uint16_t *y, int width, int height, const uint16_t 
 	fillRectangle(prevX, prevY, width, height, 0);
 	prevX = *x;
 	prevY = *y;
-	if (index == 0)
-	{
-		putImage(*x, *y, width, height, sprite, *direction, 0); 	
-	} else if (index == 1)
-	{
-		putImage(*x, *y, width, height, sprite2, *direction, 0); 	
-	} else if (index == 2)
-	{
-		putImage(*x, *y, width, height, sprite3, *direction, 0); 	
+	if (index == 0) {
+		putImage(*x, *y, width, height, sprite, *direction, 0);
+	} 
+	else if (index == 1) {
+		putImage(*x, *y, width, height, sprite2, *direction, 0);
+	} 
+	else if (index == 2) {
+		putImage(*x, *y, width, height, sprite3, *direction, 0);
 	}
 }
 
-void reset (int *score,int *lives,int *gamebegin, int *stage, int *fishcaught, int *abilities_used, uint16_t*boat_x, uint16_t*boat_y, int *boat_invert)
-{
+void reset(int *score, int *lives, int *gamebegin, int *stage, int *fishcaught, int *abilities_used, uint16_t *boat_x, uint16_t *boat_y, int *boat_invert) {
 	*score = 0;
 	*lives = 3;
 	*gamebegin = 1;
 	*stage = START_MENU;
 	*fishcaught = 0;
 	*abilities_used = 0;
-	*boat_x = 64 -(BOAT_WIDTH/2);
+	*boat_x = 64 - (BOAT_WIDTH / 2);
 	*boat_y = 10;
 	*boat_invert = 0;
 }
 
-void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int*score, uint16_t fishx[], uint16_t fishy[], int*lives, int games_played, int fish_caught,int abilities_used, const uint16_t *sprite2)
-{
+void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t *sprite, int *stage, int *score, uint16_t fishx[], uint16_t fishy[], int *lives, int games_played, int fish_caught, int abilities_used, const uint16_t *sprite2) {
 	delay(100);
 	int count = 0;
-	uint16_t prevX = *x; 
-    uint16_t prevY = *y; 
+	uint16_t prevX = *x;
+	uint16_t prevY = *y;
 	uint16_t center_x = 0;
-    uint16_t center_y = 0;
+	uint16_t center_y = 0;
 	uint16_t explosion_x;
-    uint16_t explosion_y;
+	uint16_t explosion_y;
 
-	while(1)
-	{
+	while (1) {
 		count++;
-		if (count == 30000)
-		{
+		if (count == 30000) {
 			*y += 1;
 			count = 0;
 			center_x = *x + 4;
@@ -817,54 +716,44 @@ void move_rocket(uint16_t *x, uint16_t *y, int width, int height, const uint16_t
 			explosion_x = center_x - 24;
 			explosion_y = center_y - 24;
 
-
 			fillRectangle(prevX, prevY, width, height, 0);
 			prevX = *x;
 			prevY = *y;
-			putImage(*x, *y, 8,8,sprite,0,0); 
+			putImage(*x, *y, 8, 8, sprite, 0, 0);
 
+			if (ability_button() && *y > 50) {
+				putImage(explosion_x, explosion_y, 32, 32, sprite2, 0, 0);
 
-			if(ability_button() && *y > 50)
-			{
-				putImage(explosion_x,explosion_y,32,32,sprite2,0,0);
-
-				for (int i = 0; i<3; i++)
-				{
-					if(collision(explosion_x,explosion_y,48,48,fishx[i],fishy[i],16,16))
-					{
-						if (i == 0)
-						{
+				for (int i = 0; i < 3; i++) {
+					if (collision(explosion_x, explosion_y, 48, 48, fishx[i], fishy[i], 16, 16)) {
+						if (i == 0) {
 							*score += 250;
-						}
-						else if(i == 1)
-						{
+						} 
+						else if (i == 1) {
 							*score += 500;
-						}
-						else if (i == 2)
-						{
+						} 
+						else if (i == 2) {
 							*score += 1000;
 						}
-						print_serial(games_played,*lives,*score,fish_caught,abilities_used);
-						fillRectangle(fishx[i],fishy[i],16,16,0);
-						putImage(explosion_x,explosion_y,32,32,sprite2,0,0);
-						randomise_fish(fishx,fishy,i);
+						print_serial(games_played, *lives, *score, fish_caught, abilities_used);
+						fillRectangle(fishx[i], fishy[i], 16, 16, 0);
+						putImage(explosion_x, explosion_y, 32, 32, sprite2, 0, 0);
+						randomise_fish(fishx, fishy, i);
 					}
 				}
 				*y = 160;
 				delay(250);
 				*stage = BOAT_STAGE;
 			}
-		}
-		else if(*y >= 160)
-		{
+		} 
+		else if (*y >= 160) {
 			break;
 		}
 	}
-	*stage = BOAT_STAGE;   
+	*stage = BOAT_STAGE;
 }
 
-void print_serial (int games, int lives, int score, int fishcaught, int abilities_used)
-{
+void print_serial(int games, int lives, int score, int fishcaught, int abilities_used) {
 	eputs("\rGames: ");
 	printDecimal(games);
 	eputs(" Lives: ");
@@ -877,28 +766,23 @@ void print_serial (int games, int lives, int score, int fishcaught, int abilitie
 	printDecimal(abilities_used);
 }
 
-void randomise_fish (uint16_t fish_x[], uint16_t fish_y[], int index)
-{
-	fish_x[index] = rand() % (BOARD_WIDTH+1);
-	do
-	{
-		fish_y[index] = rand() % (BOARD_HEIGHT+1);
+void randomise_fish(uint16_t fish_x[], uint16_t fish_y[], int index) {
+	fish_x[index] = rand() % (BOARD_WIDTH + 1);
+	do {
+		fish_y[index] = rand() % (BOARD_HEIGHT + 1);
 	} while (fish_y[index] < 50 || fish_y[index] > 144 || (fish_y[index] > 54 && fish_y[index] < 70) || (fish_y[index] > 114 && fish_y[index] < 130));
-	
 }
 
-void play_sound(uint32_t *notes, uint32_t *durations, int count) 
-{
+void play_sound(uint32_t *notes, uint32_t *durations, int count) {
 	for (int i = 0; i < count; i++) {
 		playNote(notes[i]);
 		delay(durations[i]);
 		playNote(0);
-		delay(100); // may need to adjust
+		delay(100);
 	}
 }
 
-void ascii (void)
-{
+void ascii_title() {
 	eputs("\n");
 	eputs("_________                           ________  .__                \n");
 	eputs("\\_   ___ \\_____ __________________  \\______ \\ |__| ____   _____  \n");
@@ -907,4 +791,59 @@ void ascii (void)
 	eputs(" \\______  (____  /__|  |   __(____  /_______  /__|\\___  >__|_|  /\n");
 	eputs("        \\/     \\/      |__|       \\/        \\/        \\/      \\/ \n");
 	eputs("\n");
+}
+
+void display_menu() {
+	// Clear screen before displaying
+	fillRectangle(0, 0, 128, 160, 0);
+
+	// Main menu title and instructions
+	fillRectangle(11, 8, 109, 18, RGBToWord(255, 255, 255));
+	printTextX2("CarpaDiem", 13, 10, RGBToWord(0, 0, 0), RGBToWord(255, 255, 255));
+	printText("Help Pat the cat", 0, 35, RGBToWord(0, 255, 0), 0);
+	printText("catch some food!", 0, 45, RGBToWord(0, 255, 0), 0);
+	printText("RL = Move Boat", 0, 55, RGBToWord(255, 255, 255), 0);
+	printText("D = Release bucket", 0, 65, RGBToWord(255, 255, 255), 0);
+	printText("RLUD = Move bucket", 0, 75, RGBToWord(255, 255, 255), 0);
+	printText("U = Rocket", 0, 85, RGBToWord(255, 255, 255), 0);
+	printText("U(again) = Explode", 0, 95, RGBToWord(255, 255, 255), 0);
+	printText("Get Fish and go", 0, 105, RGBToWord(255, 255, 0), 0);
+	printText("back to boat, try", 0, 115, RGBToWord(255, 255, 0), 0);
+	printText("not to get hit!", 0, 125, RGBToWord(255, 255, 0), 0);
+}
+
+void display_game_over() {
+	// yes
+	fillRectangle(0, 0, 128, 160, 0);
+	fillRectangle(8, 58, 110, 18, RGBToWord(255, 255, 255));
+	printText("Pat the cat's", 0, 0, RGBToWord(255, 255, 255), 0);
+	printText("bucket broke so he", 0, 10, RGBToWord(255, 255, 255), 0);
+	printText("called it a day", 0, 20, RGBToWord(255, 255, 255), 0);
+	printText("and went home", 0, 30, RGBToWord(255, 255, 255), 0);
+	printTextX2("Trip Over", 10, 60, RGBToWord(0, 0, 0), RGBToWord(255, 255, 255));
+	printText("Score:", 10, 80, RGBToWord(255, 255, 0), 0);
+	printNumber(score, 50, 80, RGBToWord(255, 255, 0), 0);
+	printText("Grade: ", 73, 100, RGBToWord(255, 255, 255), 0);
+	if (score >= 0 && score < 501) {
+		printTextX2("F", 85, 110, RGBToWord(255, 0, 0), 0);
+	} 
+	else if (score >= 501 && score < 2000) {
+		printTextX2("D", 85, 110, RGBToWord(255, 128, 0), 0);
+	} 
+	else if (score >= 2000 && score < 4000) {
+		printTextX2("C", 85, 110, RGBToWord(255, 255, 0), 0);
+	} 
+	else if (score >= 4000 && score < 6000) {
+		printTextX2("B", 85, 110, RGBToWord(128, 255, 0), 0);
+	} 
+	else if (score >= 6000 && score < 8000) {
+		printTextX2("A", 85, 110, RGBToWord(0, 255, 255), 0);
+	} 
+	else if (score >= 8000) {
+		printTextX2("S", 85, 110, RGBToWord(127, 0, 255), 0);
+	}
+
+	putImage(16, 100, BOAT_WIDTH, BOAT_HEIGHT, boat1, 0, 0);
+	printText("Press keyboard (r)", 2, 140, RGBToWord(255, 255, 255), 0);
+	printText("to restart", 33, 150, RGBToWord(255, 255, 255), 0);
 }
