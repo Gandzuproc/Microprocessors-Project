@@ -7,17 +7,20 @@
 #include <stdlib.h>
 #include <time.h>
 
-
+// Game Stages
 #define START_MENU 0
 #define BOAT_STAGE 1
 #define BUCKET_STAGE 2
 #define GAME_OVER 3
 #define ABILITY 4
 
+// Max amount of sprites
 #define MAX_FISHES 3
 #define MAX_OBSTACLES 2
+
 #define NUM_FRAMES 10
 
+// Sprite dimensions
 #define BOAT_WIDTH 48
 #define BOAT_HEIGHT 31
 
@@ -27,8 +30,8 @@
 #define FISH_WIDTH 16
 #define FISH_HEIGHT 16
 
-#define OBSTACLE_WIDTH
-#define OBSTACLE_HEIGHT 
+#define OBSTACLE_WIDTH 8
+#define OBSTACLE_HEIGHT 8
 
 #define BOARD_WIDTH 128
 #define BOARD_HEIGHT 160
@@ -225,7 +228,7 @@ int main()
 				stage = BOAT_STAGE;
 			}
 			count++;
-			delay(16); // is a delay at the end beneficial?
+			delay(16);
 		}
 		// Clear the screen before next stage
 		fillRectangle(0, 0, 128, 160, 0);
